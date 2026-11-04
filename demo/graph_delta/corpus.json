@@ -1,0 +1,2103 @@
+{
+ "meta": {
+  "title": "Meta Model API documentation",
+  "generated_at": "2026-11-03T04:12:15.667336+00:00",
+  "pages": 204,
+  "chunks": 3194,
+  "characters": 2453227,
+  "claims": 16240,
+  "entities": 5026,
+  "codebase": {
+   "repo": "noesis",
+   "files": 206,
+   "functions": 1804,
+   "classes": 262,
+   "methods": 517,
+   "calls": 3743
+  }
+ },
+ "sections": [
+  {
+   "key": "Guides",
+   "pages": 19,
+   "chunks": 401
+  },
+  {
+   "key": "Capabilities",
+   "pages": 13,
+   "chunks": 299
+  },
+  {
+   "key": "API reference",
+   "pages": 35,
+   "chunks": 393
+  },
+  {
+   "key": "Cookbook",
+   "pages": 61,
+   "chunks": 910
+  },
+  {
+   "key": "Muse Code",
+   "pages": 11,
+   "chunks": 216
+  },
+  {
+   "key": "Muse Spark Open",
+   "pages": 7,
+   "chunks": 185
+  },
+  {
+   "key": "Muse Glimmer",
+   "pages": 8,
+   "chunks": 205
+  },
+  {
+   "key": "Llama docs",
+   "pages": 50,
+   "chunks": 585
+  }
+ ],
+ "pages": [
+  {
+   "title": "Segmenting with prompts",
+   "url": "https://dev.meta.ai/docs/sam/segmenting",
+   "section": "Guides",
+   "chunks": 44,
+   "characters": 32675,
+   "claims": 226,
+   "entities": 62,
+   "snippet": "# Segmenting with prompts  Segment Anything Model 3.1 (SAM 3.1) segments by concept or by location. Give it a short noun phrase naming one thing \u2014 `\"yellow school bus\"`, `\"glasses\"`, `\"red hat\"` \u2014 and it returns a box and a mask for every m"
+  },
+  {
+   "title": "Responses API",
+   "url": "https://dev.meta.ai/docs/protocols/responses",
+   "section": "Guides",
+   "chunks": 43,
+   "characters": 32699,
+   "claims": 237,
+   "entities": 50,
+   "snippet": "# Responses API  Build multi-step agents that keep reasoning intact across turns. The Responses API is the only endpoint that carries the model's chain of thought between calls, which keeps tool loops accurate and performant. It also powers"
+  },
+  {
+   "title": "Error handling",
+   "url": "https://dev.meta.ai/docs/error-handling",
+   "section": "Guides",
+   "chunks": 37,
+   "characters": 27940,
+   "claims": 195,
+   "entities": 61,
+   "snippet": "# Error handling  Ship integrations that keep working when the API returns an error, hits a rate limit, or fails transiently. Meta Model API uses standard HTTP status codes and returns a descriptive error object that points to the problem. "
+  },
+  {
+   "title": "Use Model API with coding agents",
+   "url": "https://dev.meta.ai/docs/coding-agents",
+   "section": "Guides",
+   "chunks": 35,
+   "characters": 26620,
+   "claims": 202,
+   "entities": 39,
+   "snippet": "# Use Model API with coding agents  Meta Model API works with the coding agents you already use. OpenAI-compatible agents connect to the endpoint at `https://api.meta.ai/v1` (Responses or Chat Completions); Anthropic-format agents like Clau"
+  },
+  {
+   "title": "Segment Anything Model client libraries",
+   "url": "https://dev.meta.ai/docs/sam/client-libraries",
+   "section": "Guides",
+   "chunks": 31,
+   "characters": 23919,
+   "claims": 187,
+   "entities": 55,
+   "snippet": "# Segment Anything Model client libraries  Segment Anything Model 3.1 (SAM 3.1) returns segmentation as a custom special-token grammar in the [Responses](https://dev.meta.ai/docs/protocols/responses) output-text lane. The Meta-SAM packages "
+  },
+  {
+   "title": "Agent frameworks",
+   "url": "https://dev.meta.ai/docs/agent-frameworks",
+   "section": "Guides",
+   "chunks": 27,
+   "characters": 19506,
+   "claims": 148,
+   "entities": 33,
+   "snippet": "# Agent frameworks  Build your own agent on [Muse Wonder](https://dev.meta.ai/docs/models#muse-wonder), Meta's most capable model, or [Muse Spark](https://dev.meta.ai/docs/models#muse-spark), with the framework you already know. Where [codi"
+  },
+  {
+   "title": "Build with Meta Model API and Muse Code",
+   "url": "https://dev.meta.ai/docs/overview",
+   "section": "Guides",
+   "chunks": 26,
+   "characters": 21510,
+   "claims": 142,
+   "entities": 37,
+   "snippet": "# Build with Meta Model API and Muse Code  Your next build starts with Muse. Meta Model API is an inference API for the latest models from Meta, including Muse Wonder and Muse Spark, and [Muse Code](https://dev.meta.ai/docs/overview#muse-co"
+  },
+  {
+   "title": "Chat completion",
+   "url": "https://dev.meta.ai/docs/protocols/chat-completions",
+   "section": "Guides",
+   "chunks": 24,
+   "characters": 19881,
+   "claims": 132,
+   "entities": 33,
+   "snippet": "# Chat completion  Ship conversational features with the core Meta Model API endpoint. You send a structured list of messages and get back a model-generated reply. The endpoint is OpenAI-compatible: point the OpenAI Python SDK or any OpenAI"
+  },
+  {
+   "title": "Models",
+   "url": "https://dev.meta.ai/docs/models",
+   "section": "Guides",
+   "chunks": 24,
+   "characters": 17975,
+   "claims": 136,
+   "entities": 29,
+   "snippet": "# Models  Meta ships six model lines. [Muse Wonder](https://dev.meta.ai/docs/models#muse-wonder), [Muse Spark](https://dev.meta.ai/docs/models#muse-spark), [Muse Image](https://dev.meta.ai/docs/models#muse-image), [Muse Voice Transcribe](ht"
+  },
+  {
+   "title": "Build a computer-use agent",
+   "url": "https://dev.meta.ai/docs/computer-use",
+   "section": "Guides",
+   "chunks": 22,
+   "characters": 16255,
+   "claims": 132,
+   "entities": 39,
+   "snippet": "# Build a computer-use agent  Give [Muse Wonder](https://dev.meta.ai/docs/models#muse-wonder), Meta's most capable model, a screen and let it drive. A computer-use agent (CUA) looks at a screenshot, decides where to click and what to type, "
+  },
+  {
+   "title": "Read Segment Anything Model segmentation output",
+   "url": "https://dev.meta.ai/docs/sam/reading-segmentation",
+   "section": "Guides",
+   "chunks": 16,
+   "characters": 11449,
+   "claims": 82,
+   "entities": 29,
+   "snippet": "# Read Segment Anything Model segmentation output  Segmentation output arrives as special-token text in one `output_text` lane: one line per frame, with boxes and masks inline. Read each line into geometry you can render or measure.  ## Rea"
+  },
+  {
+   "title": "Messages API",
+   "url": "https://dev.meta.ai/docs/protocols/messages",
+   "section": "Guides",
+   "chunks": 15,
+   "characters": 11485,
+   "claims": 87,
+   "entities": 23,
+   "snippet": "# Messages API  Build with [Muse Spark](https://dev.meta.ai/docs/models#muse-spark) through an Anthropic-compatible interface. The Messages API lets you run Muse Spark with the Anthropic SDK and Claude-oriented tools: swap the base URL and "
+  },
+  {
+   "title": "Pricing and rate limits",
+   "url": "https://dev.meta.ai/docs/pricing-rate-limits",
+   "section": "Guides",
+   "chunks": 15,
+   "characters": 11163,
+   "claims": 89,
+   "entities": 24,
+   "snippet": "# Pricing and rate limits  Use our models with pay-as-you-go billing on Meta Model API and in [Muse Code](https://dev.meta.ai/docs/muse-code), or in Muse Code with a monthly [subscription](https://dev.meta.ai/docs/muse-code/subscriptions). "
+  },
+  {
+   "title": "Quickstart",
+   "url": "https://dev.meta.ai/docs/quickstart",
+   "section": "Guides",
+   "chunks": 14,
+   "characters": 10242,
+   "claims": 74,
+   "entities": 23,
+   "snippet": "# Quickstart  Make your first [Muse Spark](https://dev.meta.ai/docs/models#muse-spark) call in minutes. The fastest path is Muse Code, Meta's coding agent for the terminal. Prefer your own stack? Model API is drop-in compatible with the Ope"
+  },
+  {
+   "title": "Segmentation with Segment Anything Model",
+   "url": "https://dev.meta.ai/docs/sam/overview",
+   "section": "Guides",
+   "chunks": 8,
+   "characters": 5824,
+   "claims": 44,
+   "entities": 15,
+   "snippet": "# Segmentation with Segment Anything Model  Segment Anything Model (SAM) is Meta's segmentation model family, originally released as [open-weight research models](https://ai.meta.com/blog/segment-anything-model-3/). Its latest version, SAM "
+  },
+  {
+   "title": "SDKs and libraries",
+   "url": "https://dev.meta.ai/docs/sdks",
+   "section": "Guides",
+   "chunks": 7,
+   "characters": 5413,
+   "claims": 38,
+   "entities": 15,
+   "snippet": "# SDKs and libraries  Build with the clients you already run. Meta Model API doesn't need a client of its own: use the OpenAI SDK for the [Responses API](https://dev.meta.ai/docs/protocols/responses) and [Chat Completions API](https://dev.m"
+  },
+  {
+   "title": "Choosing an API",
+   "url": "https://dev.meta.ai/docs/protocols",
+   "section": "Guides",
+   "chunks": 6,
+   "characters": 3702,
+   "claims": 33,
+   "entities": 8,
+   "snippet": "# Choosing an API  Model API speaks three request formats \u2014 the [Responses API](https://dev.meta.ai/docs/protocols/responses), [Chat Completions](https://dev.meta.ai/docs/protocols/chat-completions), and the [Messages API](https://dev.meta."
+  },
+  {
+   "title": "Authentication",
+   "url": "https://dev.meta.ai/docs/authentication",
+   "section": "Guides",
+   "chunks": 4,
+   "characters": 2685,
+   "claims": 19,
+   "entities": 8,
+   "snippet": "# Authentication  Every request to Meta Model API needs an API key. Add your key and start building.  ## Get an API key  Create and manage keys in the [**Model API dashboard**](https://dev.meta.ai/):  1. Log in and open the **API keys** tab"
+  },
+  {
+   "title": "Open-weight models",
+   "url": "https://dev.meta.ai/docs/open-weight-models",
+   "section": "Guides",
+   "chunks": 3,
+   "characters": 2303,
+   "claims": 18,
+   "entities": 5,
+   "snippet": "# Open-weight models  Most of the models in these docs are hosted on Meta Model API \u2014 you call them over the API and Meta runs the infrastructure. Meta also publishes **open-weight** models that you download and run on your own hardware, so"
+  },
+  {
+   "title": "Image understanding",
+   "url": "https://dev.meta.ai/docs/image-understanding",
+   "section": "Capabilities",
+   "chunks": 34,
+   "characters": 25463,
+   "claims": 170,
+   "entities": 32,
+   "snippet": "# Image understanding  Add vision to your workflow. Send images alongside a text prompt and get grounded text back you can crop, measure, or render on.  > **NOTE: Responses API is recommended** > > The [Responses API](https://dev.meta.ai/do"
+  },
+  {
+   "title": "Speech to text",
+   "url": "https://dev.meta.ai/docs/speech-to-text",
+   "section": "Capabilities",
+   "chunks": 33,
+   "characters": 26426,
+   "claims": 194,
+   "entities": 64,
+   "snippet": "# Speech to text  [Muse Voice Transcribe](https://dev.meta.ai/docs/models#muse-voice-transcribe) is Meta's speech-to-text model on Meta Model API. Transcribe live audio or an existing recording, with speech-turn detection, speaker labels, a"
+  },
+  {
+   "title": "File handling",
+   "url": "https://dev.meta.ai/docs/file-handling",
+   "section": "Capabilities",
+   "chunks": 32,
+   "characters": 25370,
+   "claims": 154,
+   "entities": 30,
+   "snippet": "# File handling  Bring your own files to the model and build with your own data. Include bytes inline in a single [Responses API](https://dev.meta.ai/docs/protocols/responses) or [chat completion](https://dev.meta.ai/docs/protocols/chat-com"
+  },
+  {
+   "title": "Image generation with Muse Image",
+   "url": "https://dev.meta.ai/docs/image-generation",
+   "section": "Capabilities",
+   "chunks": 32,
+   "characters": 24387,
+   "claims": 169,
+   "entities": 39,
+   "snippet": "# Image generation with Muse Image  [Muse Image](https://dev.meta.ai/docs/models#muse-image) generates and edits images from a conversation. Send interleaved text and reference images, get an image back, then keep refining it turn by turn, "
+  },
+  {
+   "title": "Tool calling",
+   "url": "https://dev.meta.ai/docs/tool-calling",
+   "section": "Capabilities",
+   "chunks": 28,
+   "characters": 21438,
+   "claims": 140,
+   "entities": 35,
+   "snippet": "# Tool calling  Ship agents that call your services mid-conversation. You define the functions, you run them, and the model uses the results to decide what to do next. That loop lets you build multi-turn agents that gather live information,"
+  },
+  {
+   "title": "Search grounding",
+   "url": "https://dev.meta.ai/docs/search-grounding",
+   "section": "Capabilities",
+   "chunks": 24,
+   "characters": 18919,
+   "claims": 113,
+   "entities": 20,
+   "snippet": "# Search grounding  Build answers that stay current. Add one tool to your request and return accurate, cited responses grounded in the live web \u2014 no custom retrieval pipeline, search index, or RAG infrastructure to build or maintain.  > **N"
+  },
+  {
+   "title": "Reasoning",
+   "url": "https://dev.meta.ai/docs/reasoning",
+   "section": "Capabilities",
+   "chunks": 22,
+   "characters": 16509,
+   "claims": 112,
+   "entities": 26,
+   "snippet": "# Reasoning  Solve harder problems by giving the model more time to think. [Muse Wonder](https://dev.meta.ai/docs/models#muse-wonder) and [Muse Spark](https://dev.meta.ai/docs/models#muse-spark) are reasoning models: they generate internal "
+  },
+  {
+   "title": "Tool search",
+   "url": "https://dev.meta.ai/docs/tool-search",
+   "section": "Capabilities",
+   "chunks": 21,
+   "characters": 17036,
+   "claims": 97,
+   "entities": 24,
+   "snippet": "# Tool search  Build agents with hundreds of tools without loading the whole library on every turn. Tool search keeps deferred definitions out of the prompt until the model needs them, so you cut input tokens and keep the cache prefix intac"
+  },
+  {
+   "title": "Video and audio understanding",
+   "url": "https://dev.meta.ai/docs/video-understanding",
+   "section": "Capabilities",
+   "chunks": 21,
+   "characters": 15903,
+   "claims": 101,
+   "entities": 17,
+   "snippet": "# Video and audio understanding  [Muse Spark](https://dev.meta.ai/docs/models#muse-spark) reads both moving pictures and sound. Summarize a clip, ask what happened when, extract structured details you can use downstream, or transcribe speec"
+  },
+  {
+   "title": "Structured output",
+   "url": "https://dev.meta.ai/docs/structured-output",
+   "section": "Capabilities",
+   "chunks": 19,
+   "characters": 14011,
+   "claims": 91,
+   "entities": 28,
+   "snippet": "# Structured output  Ship features that need reliable JSON \u2014 extracted fields, labels, configs \u2014 without adding recovery logic. With Meta Model API you define the JSON Schema in `response_format`, and the model constrains decoding to match "
+  },
+  {
+   "title": "Prompt caching",
+   "url": "https://dev.meta.ai/docs/prompt-caching",
+   "section": "Capabilities",
+   "chunks": 16,
+   "characters": 10905,
+   "claims": 84,
+   "entities": 17,
+   "snippet": "# Prompt caching  Reuse the same system prompt, examples, and history without reprocessing them on every turn. Meta Model API caches the stable prefix automatically \u2014 no flag or key to manage \u2014 so repeated prefixes cut time-to-first-token a"
+  },
+  {
+   "title": "Media segmentation",
+   "url": "https://dev.meta.ai/docs/media-segmentation",
+   "section": "Capabilities",
+   "chunks": 9,
+   "characters": 6465,
+   "claims": 45,
+   "entities": 11,
+   "snippet": "# Media segmentation  Find and cut out objects in images and video from a short text prompt. Name an object such as \"yellow school bus\", and get back the exact pixels for every match: a box that locates each object, and a mask you can measu"
+  },
+  {
+   "title": "Token counting",
+   "url": "https://dev.meta.ai/docs/token-counting",
+   "section": "Capabilities",
+   "chunks": 8,
+   "characters": 6479,
+   "claims": 51,
+   "entities": 20,
+   "snippet": "# Token counting  Get an exact token count before you run inference. You stay inside the [context window](https://dev.meta.ai/docs/models) and size batches safely. Meta Model API renders the request and runs the selected model's tokenizer, "
+  },
+  {
+   "title": "Responses schemas",
+   "url": "https://dev.meta.ai/docs/api-reference/responses/schemas",
+   "section": "API reference",
+   "chunks": 169,
+   "characters": 143763,
+   "claims": 598,
+   "entities": 237,
+   "snippet": "# Responses schemas  The full schema and model definitions referenced by the [Responses](https://dev.meta.ai/docs/api-reference/responses/create-response) endpoints. Each endpoint page links here for the detailed shape of its request and re"
+  },
+  {
+   "title": "Messages schemas",
+   "url": "https://dev.meta.ai/docs/api-reference/messages/schemas",
+   "section": "API reference",
+   "chunks": 54,
+   "characters": 44556,
+   "claims": 223,
+   "entities": 88,
+   "snippet": "# Messages schemas  The full schema and model definitions referenced by the [Messages](https://dev.meta.ai/docs/api-reference/messages/create-message) endpoints. Each endpoint page links here for the detailed shape of its request and respon"
+  },
+  {
+   "title": "Chat completions schemas",
+   "url": "https://dev.meta.ai/docs/api-reference/chat-completions/schemas",
+   "section": "API reference",
+   "chunks": 44,
+   "characters": 42076,
+   "claims": 151,
+   "entities": 67,
+   "snippet": "# Chat completions schemas  The full schema and model definitions referenced by the [Create a chat completion](https://dev.meta.ai/docs/api-reference/chat-completions/create-chat-completion) endpoint, including the request and response obje"
+  },
+  {
+   "title": "Voice schemas",
+   "url": "https://dev.meta.ai/docs/api-reference/voice/schemas",
+   "section": "API reference",
+   "chunks": 24,
+   "characters": 17347,
+   "claims": 92,
+   "entities": 31,
+   "snippet": "# Voice schemas  The full schema and model definitions referenced by the [Audio](https://dev.meta.ai/docs/api-reference/voice/transcribe) endpoints. Each endpoint page links here for the detailed shape of its request and response objects.  "
+  },
+  {
+   "title": "Images schemas",
+   "url": "https://dev.meta.ai/docs/api-reference/images/schemas",
+   "section": "API reference",
+   "chunks": 19,
+   "characters": 17990,
+   "claims": 53,
+   "entities": 24,
+   "snippet": "# Images schemas  The full schema and model definitions referenced by the [Images](https://dev.meta.ai/docs/api-reference/images/create-image) endpoints. Each endpoint page links here for the detailed shape of its request and response objec"
+  },
+  {
+   "title": "Transcribe in realtime",
+   "url": "https://dev.meta.ai/docs/api-reference/voice/realtime",
+   "section": "API reference",
+   "chunks": 8,
+   "characters": 5963,
+   "claims": 40,
+   "entities": 13,
+   "snippet": "# Transcribe in realtime  Stream audio over a WebSocket and receive transcripts, turn boundaries, and speaker labels as the audio arrives.  Connect to `wss://api.meta.ai/v1/asr/realtime`, send the handshake as the first JSON text frame with"
+  },
+  {
+   "title": "Files schemas",
+   "url": "https://dev.meta.ai/docs/api-reference/files/schemas",
+   "section": "API reference",
+   "chunks": 7,
+   "characters": 6185,
+   "claims": 33,
+   "entities": 12,
+   "snippet": "# Files schemas  The full schema and model definitions referenced by the [Files](https://dev.meta.ai/docs/api-reference/files/upload-file) endpoints. Each endpoint page links here for the detailed shape of its request and response objects. "
+  },
+  {
+   "title": "Create a message",
+   "url": "https://dev.meta.ai/docs/api-reference/messages/create-message",
+   "section": "API reference",
+   "chunks": 5,
+   "characters": 2974,
+   "claims": 24,
+   "entities": 11,
+   "snippet": "# Create a message  Generate an Anthropic Messages-compatible assistant message. Requests are supplied in the Anthropic wire format and run through the same inference pipeline as the [Responses API](https://dev.meta.ai/docs/api-reference/re"
+  },
+  {
+   "title": "Transcribe a recording",
+   "url": "https://dev.meta.ai/docs/api-reference/voice/transcribe",
+   "section": "API reference",
+   "chunks": 5,
+   "characters": 3904,
+   "claims": 29,
+   "entities": 9,
+   "snippet": "# Transcribe a recording  Transcribe one complete audio recording in a single request.  Send `multipart/form-data` with two parts: `request`, the transcription settings as JSON, and `audio`, the clip. The `Accept` header selects between a b"
+  },
+  {
+   "title": "API reference",
+   "url": "https://dev.meta.ai/docs/api-reference",
+   "section": "API reference",
+   "chunks": 4,
+   "characters": 2284,
+   "claims": 16,
+   "entities": 7,
+   "snippet": "# API reference  Meta Model API is an HTTP API served at `https://api.meta.ai/v1` and authenticated with a bearer token. This reference documents each resource's request and response schema. For a task-oriented introduction, start with the "
+  },
+  {
+   "title": "Count tokens",
+   "url": "https://dev.meta.ai/docs/api-reference/messages/count-tokens",
+   "section": "API reference",
+   "chunks": 4,
+   "characters": 2631,
+   "claims": 16,
+   "entities": 7,
+   "snippet": "# Count tokens  Count the number of input tokens an Anthropic-format Messages request would consume, without generating a message.  ## POST /messages/count\\_tokens  Count input tokens for an Anthropic-compatible Messages request.  ### Param"
+  },
+  {
+   "title": "List files",
+   "url": "https://dev.meta.ai/docs/api-reference/files/list-files",
+   "section": "API reference",
+   "chunks": 4,
+   "characters": 2586,
+   "claims": 14,
+   "entities": 6,
+   "snippet": "# List files  List previously uploaded files.  ## GET /files  List uploaded files.  ### Parameters  #### Query parameters"
+  },
+  {
+   "title": "Retrieve a response",
+   "url": "https://dev.meta.ai/docs/api-reference/responses/retrieve-response",
+   "section": "API reference",
+   "chunks": 4,
+   "characters": 2569,
+   "claims": 15,
+   "entities": 8,
+   "snippet": "# Retrieve a response  Retrieve a previously created response by its ID.  ## GET /responses/{response\\_id}  Retrieve a stored model response by ID.  ### Parameters  #### Path parameters  | Field         | Type   | Required | Description    "
+  },
+  {
+   "title": "Create a chat completion",
+   "url": "https://dev.meta.ai/docs/api-reference/chat-completions/create-chat-completion",
+   "section": "API reference",
+   "chunks": 3,
+   "characters": 2246,
+   "claims": 16,
+   "entities": 6,
+   "snippet": "# Create a chat completion  Generate a model response from a conversation supplied as a list of messages.  ## POST /chat/completions  Generate a chat completion.  ### Request body  #### Content Type: application/json  [`CreateChatCompletion"
+  },
+  {
+   "title": "Create a response",
+   "url": "https://dev.meta.ai/docs/api-reference/responses/create-response",
+   "section": "API reference",
+   "chunks": 3,
+   "characters": 1932,
+   "claims": 11,
+   "entities": 8,
+   "snippet": "# Create a response  Create a model response. Optionally reference a previous response by ID to continue a multi-turn conversation with server-managed state, instead of resending the full message history.  ## POST /responses  Generate a mod"
+  },
+  {
+   "title": "Edit an image",
+   "url": "https://dev.meta.ai/docs/api-reference/images/edit-image",
+   "section": "API reference",
+   "chunks": 3,
+   "characters": 2313,
+   "claims": 17,
+   "entities": 10,
+   "snippet": "# Edit an image  Edit, transform, or compose one or more input images, guided by a text prompt.  With the OpenAI SDK, upload the input image(s) as `multipart/form-data` \u2014 `client.images.edit(image=..., prompt=..., model=...)`, passing a lis"
+  },
+  {
+   "title": "Generate an image",
+   "url": "https://dev.meta.ai/docs/api-reference/images/create-image",
+   "section": "API reference",
+   "chunks": 3,
+   "characters": 1994,
+   "claims": 15,
+   "entities": 10,
+   "snippet": "# Generate an image  Generate one or more images from a text prompt.  ## POST /images/generations  Generate one or more images from a text prompt.  ### Request body  #### Content Type: application/json  [`CreateImageRequest`](https://dev.me"
+  },
+  {
+   "title": "Models schemas",
+   "url": "https://dev.meta.ai/docs/api-reference/models/schemas",
+   "section": "API reference",
+   "chunks": 3,
+   "characters": 2198,
+   "claims": 11,
+   "entities": 5,
+   "snippet": "# Models schemas  The full schema and model definitions referenced by the [Models](https://dev.meta.ai/docs/api-reference/models/list-models) endpoints. Each endpoint page links here for the detailed shape of its response objects.  ## Schem"
+  },
+  {
+   "title": "Cancel a response",
+   "url": "https://dev.meta.ai/docs/api-reference/responses/cancel-response",
+   "section": "API reference",
+   "chunks": 2,
+   "characters": 1496,
+   "claims": 9,
+   "entities": 5,
+   "snippet": "# Cancel a response  Cancel an in-progress response. Only responses created for background processing can be cancelled.  ## POST /responses/{response\\_id}/cancel  Cancel a background model response by ID.  ### Parameters  #### Path paramete"
+  },
+  {
+   "title": "Count input tokens",
+   "url": "https://dev.meta.ai/docs/api-reference/responses/count-input-tokens",
+   "section": "API reference",
+   "chunks": 2,
+   "characters": 1633,
+   "claims": 8,
+   "entities": 6,
+   "snippet": "# Count input tokens  Count the tokens in the fully rendered input for a Responses request, without generating or storing a response. The count includes resolved `previous_response_id` history, current instructions and tools, media, and ser"
+  },
+  {
+   "title": "Delete a file",
+   "url": "https://dev.meta.ai/docs/api-reference/files/delete-file",
+   "section": "API reference",
+   "chunks": 2,
+   "characters": 1362,
+   "claims": 7,
+   "entities": 5,
+   "snippet": "# Delete a file  Delete a previously uploaded file by its ID.  ## DELETE /files/{file\\_id}  Delete an uploaded file.  ### Parameters  #### Path parameters  | Field     | Type   | Required | Description                       | | --------- | "
+  },
+  {
+   "title": "Delete a response",
+   "url": "https://dev.meta.ai/docs/api-reference/responses/delete-response",
+   "section": "API reference",
+   "chunks": 2,
+   "characters": 1447,
+   "claims": 8,
+   "entities": 4,
+   "snippet": "# Delete a response  Delete a previously created response by its ID.  ## DELETE /responses/{response\\_id}  Delete a stored model response by ID.  ### Parameters  #### Path parameters  | Field         | Type   | Required | Description       "
+  },
+  {
+   "title": "List models",
+   "url": "https://dev.meta.ai/docs/api-reference/models/list-models",
+   "section": "API reference",
+   "chunks": 2,
+   "characters": 1339,
+   "claims": 8,
+   "entities": 5,
+   "snippet": "# List models  List the models available through the Meta Model API.  ## GET /models  List the available models.  ### Parameters  #### Query parameters  | Field    | Type   | Required | Description                                  | | -----"
+  },
+  {
+   "title": "Messages (Anthropic-compatible)",
+   "url": "https://dev.meta.ai/docs/api-reference/messages",
+   "section": "API reference",
+   "chunks": 2,
+   "characters": 901,
+   "claims": 7,
+   "entities": 3,
+   "snippet": "# Messages (Anthropic-compatible)  The messages endpoints provide an Anthropic Messages-compatible surface over Meta Model API. Supply requests in the Anthropic wire format \u2014 `POST /v1/messages` generates an assistant message and `POST /v1/"
+  },
+  {
+   "title": "Responses",
+   "url": "https://dev.meta.ai/docs/api-reference/responses",
+   "section": "API reference",
+   "chunks": 2,
+   "characters": 1027,
+   "claims": 6,
+   "entities": 4,
+   "snippet": "# Responses  The responses endpoints create and manage model responses for agentic and multi-turn workloads. Carry the model's reasoning across turns with stateless encrypted reasoning replay or with server-managed state (`previous_response"
+  },
+  {
+   "title": "Retrieve a file",
+   "url": "https://dev.meta.ai/docs/api-reference/files/retrieve-file",
+   "section": "API reference",
+   "chunks": 2,
+   "characters": 1365,
+   "claims": 8,
+   "entities": 4,
+   "snippet": "# Retrieve a file  Retrieve metadata for a previously uploaded file by its ID.  ## GET /files/{file\\_id}  Retrieve metadata for an uploaded file.  ### Parameters  #### Path parameters  | Field     | Type   | Required | Description          "
+  },
+  {
+   "title": "Retrieve a model",
+   "url": "https://dev.meta.ai/docs/api-reference/models/retrieve-model",
+   "section": "API reference",
+   "chunks": 2,
+   "characters": 1332,
+   "claims": 8,
+   "entities": 6,
+   "snippet": "# Retrieve a model  Retrieve metadata for a single model by its ID.  ## GET /models/{model}  Retrieve metadata for a model.  ### Parameters  #### Path parameters  | Field   | Type   | Required | Description                      | | ------- "
+  },
+  {
+   "title": "Upload a file",
+   "url": "https://dev.meta.ai/docs/api-reference/files/upload-file",
+   "section": "API reference",
+   "chunks": 2,
+   "characters": 1532,
+   "claims": 8,
+   "entities": 4,
+   "snippet": "# Upload a file  Upload a file for use in inference requests.  ## POST /files  Upload a file for batch or user-data use.  ### Request body  #### Content Type: multipart/form-data  [`CreateFileRequest`](https://dev.meta.ai/docs/api-reference"
+  },
+  {
+   "title": "Chat completions",
+   "url": "https://dev.meta.ai/docs/api-reference/chat-completions",
+   "section": "API reference",
+   "chunks": 1,
+   "characters": 690,
+   "claims": 3,
+   "entities": 2,
+   "snippet": "# Chat completions  The chat completions endpoint generates a model response from a conversation supplied as a list of messages. Reasoning is not carried across turns on this endpoint; for agentic and multi-step workloads that need reasonin"
+  },
+  {
+   "title": "Files",
+   "url": "https://dev.meta.ai/docs/api-reference/files",
+   "section": "API reference",
+   "chunks": 1,
+   "characters": 728,
+   "claims": 4,
+   "entities": 1,
+   "snippet": "# Files  The files endpoints upload files for use in inference requests and manage previously uploaded files.  - [Upload a file](https://dev.meta.ai/docs/api-reference/files/upload-file) - [List files](https://dev.meta.ai/docs/api-reference"
+  },
+  {
+   "title": "Images",
+   "url": "https://dev.meta.ai/docs/api-reference/images",
+   "section": "API reference",
+   "chunks": 1,
+   "characters": 487,
+   "claims": 4,
+   "entities": 2,
+   "snippet": "# Images  The images endpoints generate an image from a text prompt and edit or compose existing images.  - [Generate an image](https://dev.meta.ai/docs/api-reference/images/create-image) - [Edit an image](https://dev.meta.ai/docs/api-refer"
+  },
+  {
+   "title": "Models",
+   "url": "https://dev.meta.ai/docs/api-reference/models",
+   "section": "API reference",
+   "chunks": 1,
+   "characters": 478,
+   "claims": 3,
+   "entities": 2,
+   "snippet": "# Models  The models endpoints list the models available through the Meta Model API and retrieve metadata for a single model.  - [List models](https://dev.meta.ai/docs/api-reference/models/list-models) - [Retrieve a model](https://dev.meta."
+  },
+  {
+   "title": "Retrieve file content",
+   "url": "https://dev.meta.ai/docs/api-reference/files/retrieve-file-content",
+   "section": "API reference",
+   "chunks": 1,
+   "characters": 767,
+   "claims": 5,
+   "entities": 2,
+   "snippet": "# Retrieve file content  Download the raw contents of a previously uploaded file by its ID.  ## GET /files/{file\\_id}/content  Download the contents of an uploaded file.  ### Parameters  #### Path parameters  | Field     | Type   | Required"
+  },
+  {
+   "title": "Status",
+   "url": "https://dev.meta.ai/docs/api-reference/status",
+   "section": "API reference",
+   "chunks": 1,
+   "characters": 789,
+   "claims": 5,
+   "entities": 2,
+   "snippet": "# Status  Report overall API status and per-model availability. This endpoint is unauthenticated: no API key is required. Check it for service disruptions before retrying failed requests; see [error handling](https://dev.meta.ai/docs/error-"
+  },
+  {
+   "title": "Voice",
+   "url": "https://dev.meta.ai/docs/api-reference/voice",
+   "section": "API reference",
+   "chunks": 1,
+   "characters": 562,
+   "claims": 3,
+   "entities": 3,
+   "snippet": "# Voice  The audio endpoints transcribe speech to text. Transcribe a complete recording in one request, or stream live audio over a WebSocket and receive transcripts as the audio arrives.  - [Transcribe a recording](https://dev.meta.ai/docs"
+  },
+  {
+   "title": "GitHub agent",
+   "url": "https://dev.meta.ai/docs/cookbook/github-agent",
+   "section": "Cookbook",
+   "chunks": 64,
+   "characters": 44618,
+   "claims": 337,
+   "entities": 65,
+   "snippet": "# GitHub agent"
+  },
+  {
+   "title": "Build a local agent that asks before calling Muse Spark",
+   "url": "https://dev.meta.ai/docs/cookbook/glimmer-api-agent",
+   "section": "Cookbook",
+   "chunks": 34,
+   "characters": 25766,
+   "claims": 201,
+   "entities": 51,
+   "snippet": "# Build a local agent that asks before calling Muse Spark"
+  },
+  {
+   "title": "Error screenshot fix",
+   "url": "https://dev.meta.ai/docs/cookbook/perception-error-screenshot-fix",
+   "section": "Cookbook",
+   "chunks": 31,
+   "characters": 23224,
+   "claims": 129,
+   "entities": 30,
+   "snippet": "# Error screenshot fix  ## Summary  This recipe shows how Muse Spark reads a screenshot of a buggy UI (via the OpenCode CLI), locates the offending component in the code, and ships a fix. The worked task fixes a footer-overlap bug reported "
+  },
+  {
+   "title": "Audit and resume agent sessions",
+   "url": "https://dev.meta.ai/docs/cookbook/audit-agent-sessions",
+   "section": "Cookbook",
+   "chunks": 30,
+   "characters": 23808,
+   "claims": 156,
+   "entities": 42,
+   "snippet": "# Audit and resume agent sessions  |                      |                                                                        | | -------------------- | ---------------------------------------------------------------------- | | **Secti"
+  },
+  {
+   "title": "Multi-agent orchestration",
+   "url": "https://dev.meta.ai/docs/cookbook/multi-agent-orchestration",
+   "section": "Cookbook",
+   "chunks": 30,
+   "characters": 22373,
+   "claims": 156,
+   "entities": 56,
+   "snippet": "# Multi-agent orchestration"
+  },
+  {
+   "title": "Iterative game dev",
+   "url": "https://dev.meta.ai/docs/cookbook/iterative-game-dev",
+   "section": "Cookbook",
+   "chunks": 29,
+   "characters": 20083,
+   "claims": 154,
+   "entities": 33,
+   "snippet": "# Iterative game dev"
+  },
+  {
+   "title": "Keep an image series consistent",
+   "url": "https://dev.meta.ai/docs/cookbook/anchored-image-series",
+   "section": "Cookbook",
+   "chunks": 29,
+   "characters": 20502,
+   "claims": 126,
+   "entities": 25,
+   "snippet": "# Keep an image series consistent"
+  },
+  {
+   "title": "Chart analysis",
+   "url": "https://dev.meta.ai/docs/cookbook/perception-chart-analysis",
+   "section": "Cookbook",
+   "chunks": 28,
+   "characters": 19795,
+   "claims": 131,
+   "entities": 29,
+   "snippet": "# Chart analysis"
+  },
+  {
+   "title": "Search-and-replace edits",
+   "url": "https://dev.meta.ai/docs/cookbook/search-and-replace-edits",
+   "section": "Cookbook",
+   "chunks": 24,
+   "characters": 17995,
+   "claims": 108,
+   "entities": 26,
+   "snippet": "# Search-and-replace edits  |                      |                                                                    | | -------------------- | ------------------------------------------------------------------ | | **Section**          |"
+  },
+  {
+   "title": "Multi-turn context management",
+   "url": "https://dev.meta.ai/docs/cookbook/multi-turn-context-management",
+   "section": "Cookbook",
+   "chunks": 22,
+   "characters": 15657,
+   "claims": 120,
+   "entities": 36,
+   "snippet": "# Multi-turn context management  |                      |                                                                    | | -------------------- | ------------------------------------------------------------------ | | **Section**      "
+  },
+  {
+   "title": "Alert fatigue copilot",
+   "url": "https://dev.meta.ai/docs/cookbook/alert-fatigue-copilot",
+   "section": "Cookbook",
+   "chunks": 20,
+   "characters": 14613,
+   "claims": 115,
+   "entities": 21,
+   "snippet": "# Alert fatigue copilot  |                      |                                                                    | | -------------------- | ------------------------------------------------------------------ | | **Section**          | [A"
+  },
+  {
+   "title": "Browser-verified web design",
+   "url": "https://dev.meta.ai/docs/cookbook/browser-verified-web-design",
+   "section": "Cookbook",
+   "chunks": 20,
+   "characters": 14563,
+   "claims": 98,
+   "entities": 21,
+   "snippet": "# Browser-verified web design"
+  },
+  {
+   "title": "Edit image details across turns",
+   "url": "https://dev.meta.ai/docs/cookbook/image-editing-with-reasoning",
+   "section": "Cookbook",
+   "chunks": 20,
+   "characters": 13352,
+   "claims": 93,
+   "entities": 22,
+   "snippet": "# Edit image details across turns"
+  },
+  {
+   "title": "Generate, edit, and compose images",
+   "url": "https://dev.meta.ai/docs/cookbook/image-generation-basics",
+   "section": "Cookbook",
+   "chunks": 20,
+   "characters": 13061,
+   "claims": 89,
+   "entities": 20,
+   "snippet": "# Generate, edit, and compose images"
+  },
+  {
+   "title": "Ground image generation with web search",
+   "url": "https://dev.meta.ai/docs/cookbook/search-grounded-image-generation",
+   "section": "Cookbook",
+   "chunks": 20,
+   "characters": 13218,
+   "claims": 89,
+   "entities": 14,
+   "snippet": "# Ground image generation with web search"
+  },
+  {
+   "title": "Bundled skills",
+   "url": "https://dev.meta.ai/docs/cookbook/bundled-skills",
+   "section": "Cookbook",
+   "chunks": 19,
+   "characters": 13994,
+   "claims": 88,
+   "entities": 22,
+   "snippet": "# Bundled skills  |                      |                                                                        | | -------------------- | ---------------------------------------------------------------------- | | **Section**          | ["
+  },
+  {
+   "title": "Interleaved reasoning and tool use",
+   "url": "https://dev.meta.ai/docs/cookbook/interleaved-reasoning-tool-use",
+   "section": "Cookbook",
+   "chunks": 19,
+   "characters": 13447,
+   "claims": 93,
+   "entities": 24,
+   "snippet": "# Interleaved reasoning and tool use  |                      |                                                                    | | -------------------- | ------------------------------------------------------------------ | | **Section** "
+  },
+  {
+   "title": "Subagent fanout",
+   "url": "https://dev.meta.ai/docs/cookbook/subagent-fanout",
+   "section": "Cookbook",
+   "chunks": 19,
+   "characters": 14958,
+   "claims": 108,
+   "entities": 30,
+   "snippet": "# Subagent fanout  |                      |                                                                        | | -------------------- | ---------------------------------------------------------------------- | | **Section**          | "
+  },
+  {
+   "title": "Chat completions: your first Muse Spark call",
+   "url": "https://dev.meta.ai/docs/cookbook/quickstart-chat-completions",
+   "section": "Cookbook",
+   "chunks": 18,
+   "characters": 13729,
+   "claims": 92,
+   "entities": 23,
+   "snippet": "# Chat completions: your first Muse Spark call  **What you'll build**: a working chat completion against Muse Spark with the OpenAI Python SDK. Then you add instruction messages, temperature control, and multi-turn conversations."
+  },
+  {
+   "title": "Fine-tune Muse Spark Open with TorchTitan",
+   "url": "https://dev.meta.ai/docs/cookbook/muse-spark-open-torchtitan-sft",
+   "section": "Cookbook",
+   "chunks": 18,
+   "characters": 14391,
+   "claims": 102,
+   "entities": 27,
+   "snippet": "# Fine-tune Muse Spark Open with TorchTitan  This recipe shows how to run supervised fine-tuning (SFT) of Muse Spark Open on your own conversations -- first text, then images and audio. It uses [TorchTitan](https://github.com/pytorch/torcht"
+  },
+  {
+   "title": "One-shot game dev",
+   "url": "https://dev.meta.ai/docs/cookbook/one-shot-game-dev",
+   "section": "Cookbook",
+   "chunks": 18,
+   "characters": 12117,
+   "claims": 94,
+   "entities": 28,
+   "snippet": "# One-shot game dev"
+  },
+  {
+   "title": "Building a computer-use agent with Muse Spark",
+   "url": "https://dev.meta.ai/docs/cookbook/computer-use",
+   "section": "Cookbook",
+   "chunks": 17,
+   "characters": 11950,
+   "claims": 86,
+   "entities": 30,
+   "snippet": "# Building a computer-use agent with Muse Spark"
+  },
+  {
+   "title": "Deterministic replay in CI",
+   "url": "https://dev.meta.ai/docs/cookbook/deterministic-replay",
+   "section": "Cookbook",
+   "chunks": 17,
+   "characters": 13491,
+   "claims": 87,
+   "entities": 23,
+   "snippet": "# Deterministic replay in CI  |                      |                                                                        | | -------------------- | ---------------------------------------------------------------------- | | **Section** "
+  },
+  {
+   "title": "Staged approvals",
+   "url": "https://dev.meta.ai/docs/cookbook/staged-approvals",
+   "section": "Cookbook",
+   "chunks": 17,
+   "characters": 13148,
+   "claims": 96,
+   "entities": 16,
+   "snippet": "# Staged approvals  |                      |                                                                        | | -------------------- | ---------------------------------------------------------------------- | | **Section**          |"
+  },
+  {
+   "title": "Error handling & retry patterns",
+   "url": "https://dev.meta.ai/docs/cookbook/error-handling-retry",
+   "section": "Cookbook",
+   "chunks": 16,
+   "characters": 11701,
+   "claims": 79,
+   "entities": 14,
+   "snippet": "# Error handling & retry patterns  **What you'll build**: a client that tells transient failures apart from permanent ones, retries the transient ones with backoff, and surfaces the permanent ones."
+  },
+  {
+   "title": "Search grounding",
+   "url": "https://dev.meta.ai/docs/cookbook/search-grounding",
+   "section": "Cookbook",
+   "chunks": 16,
+   "characters": 12415,
+   "claims": 78,
+   "entities": 16,
+   "snippet": "# Search grounding  **What you'll build**: a Responses API call that searches the live web and answers with inline citations \u2014 then you turn those citations into rendered footnotes. No retrieval pipeline, search index, or RAG setup."
+  },
+  {
+   "title": "Basic agent loop",
+   "url": "https://dev.meta.ai/docs/cookbook/basic-agent-loop",
+   "section": "Cookbook",
+   "chunks": 15,
+   "characters": 10775,
+   "claims": 77,
+   "entities": 15,
+   "snippet": "# Basic agent loop  |                      |                                                                    | | -------------------- | ------------------------------------------------------------------ | | **Section**          | [Agent "
+  },
+  {
+   "title": "Vision input",
+   "url": "https://dev.meta.ai/docs/cookbook/vision-input",
+   "section": "Cookbook",
+   "chunks": 15,
+   "characters": 11515,
+   "claims": 60,
+   "entities": 17,
+   "snippet": "# Vision input  **What you'll build**: a chat completion that takes an image plus a question and returns an analysis, using the same endpoint you already know."
+  },
+  {
+   "title": "Computer use on macOS with Muse Spark",
+   "url": "https://dev.meta.ai/docs/cookbook/computer-use-macos",
+   "section": "Cookbook",
+   "chunks": 14,
+   "characters": 9776,
+   "claims": 62,
+   "entities": 17,
+   "snippet": "# Computer use on macOS with Muse Spark"
+  },
+  {
+   "title": "Train Muse Spark Open with reinforcement learning in TorchTitan",
+   "url": "https://dev.meta.ai/docs/cookbook/muse-spark-open-torchtitan-rl",
+   "section": "Cookbook",
+   "chunks": 14,
+   "characters": 11648,
+   "claims": 83,
+   "entities": 30,
+   "snippet": "# Train Muse Spark Open with reinforcement learning in TorchTitan  This recipe shows how to post-train Muse Spark Open with reinforcement learning (RL) on a task whose answers can be checked automatically. It uses the RL stack of [TorchTita"
+  },
+  {
+   "title": "Cookbook",
+   "url": "https://dev.meta.ai/docs/cookbook",
+   "section": "Cookbook",
+   "chunks": 13,
+   "characters": 10519,
+   "claims": 57,
+   "entities": 34,
+   "snippet": "# Cookbook  Recipes for building with Muse models, from your first API call to complete solutions.  ## Meta Model API  Learn how to build on Meta Model API. Each recipe solves a specific problem with ready code samples you can copy to follo"
+  },
+  {
+   "title": "Immutable guardrails",
+   "url": "https://dev.meta.ai/docs/cookbook/immutable-guardrails",
+   "section": "Cookbook",
+   "chunks": 13,
+   "characters": 11106,
+   "claims": 71,
+   "entities": 18,
+   "snippet": "# Immutable guardrails  |                      |                                                                        | | -------------------- | ---------------------------------------------------------------------- | | **Section**       "
+  },
+  {
+   "title": "Prompt caching",
+   "url": "https://dev.meta.ai/docs/cookbook/prompt-caching",
+   "section": "Cookbook",
+   "chunks": 13,
+   "characters": 9688,
+   "claims": 60,
+   "entities": 11,
+   "snippet": "# Prompt caching  **What you'll build**: a request that reuses a long, stable prompt prefix from cache, so repeated calls skip recomputing the tokens that never change."
+  },
+  {
+   "title": "Reasoning / thinking tokens",
+   "url": "https://dev.meta.ai/docs/cookbook/reasoning-thinking-tokens",
+   "section": "Cookbook",
+   "chunks": 13,
+   "characters": 9659,
+   "claims": 62,
+   "entities": 17,
+   "snippet": "# Reasoning / thinking tokens  **What you'll build**: control how much Muse Spark thinks before answering, account for the tokens that thinking costs, and carry reasoning across turns with the Responses API."
+  },
+  {
+   "title": "Side chats",
+   "url": "https://dev.meta.ai/docs/cookbook/side-chats",
+   "section": "Cookbook",
+   "chunks": 13,
+   "characters": 9550,
+   "claims": 60,
+   "entities": 13,
+   "snippet": "# Side chats  |                      |                                                                        | | -------------------- | ---------------------------------------------------------------------- | | **Section**          | [Muse"
+  },
+  {
+   "title": "Speech to text",
+   "url": "https://dev.meta.ai/docs/cookbook/voice-api-fundamentals",
+   "section": "Cookbook",
+   "chunks": 12,
+   "characters": 8048,
+   "claims": 59,
+   "entities": 26,
+   "snippet": "# Speech to text"
+  },
+  {
+   "title": "Tool / function calling",
+   "url": "https://dev.meta.ai/docs/cookbook/tool-function-calling",
+   "section": "Cookbook",
+   "chunks": 12,
+   "characters": 9178,
+   "claims": 57,
+   "entities": 16,
+   "snippet": "# Tool / function calling  **What you'll build**: a chat completion that calls one of your functions, runs it, and uses the result to answer \u2014 the core loop behind agents."
+  },
+  {
+   "title": "Contained execution",
+   "url": "https://dev.meta.ai/docs/cookbook/contained-execution",
+   "section": "Cookbook",
+   "chunks": 11,
+   "characters": 9453,
+   "claims": 59,
+   "entities": 12,
+   "snippet": "# Contained execution  |                      |                                                                        | | -------------------- | ---------------------------------------------------------------------- | | **Section**        "
+  },
+  {
+   "title": "Long context (1M)",
+   "url": "https://dev.meta.ai/docs/cookbook/long-context",
+   "section": "Cookbook",
+   "chunks": 11,
+   "characters": 8414,
+   "claims": 46,
+   "entities": 8,
+   "snippet": "# Long context (1M)  **What you'll build**: measure how many tokens a request uses, fit large inputs inside Muse Spark's 1,048,576-token window, and keep long conversations under budget."
+  },
+  {
+   "title": "Sandboxed execution",
+   "url": "https://dev.meta.ai/docs/cookbook/sandboxed-execution",
+   "section": "Cookbook",
+   "chunks": 11,
+   "characters": 7965,
+   "claims": 51,
+   "entities": 13,
+   "snippet": "# Sandboxed execution  This shows how `muse-spark-1.3` can **execute code safely inside a throwaway Docker container**. You hand it a bug to fix; it goes into the container, reproduces the bug, fixes it, and confirms the fix by running the "
+  },
+  {
+   "title": "Streaming responses",
+   "url": "https://dev.meta.ai/docs/cookbook/streaming-responses",
+   "section": "Cookbook",
+   "chunks": 11,
+   "characters": 8615,
+   "claims": 53,
+   "entities": 12,
+   "snippet": "# Streaming responses  **What you'll build**: a chat completion that streams tokens as they generate, so your UI shows output immediately instead of waiting for the whole response."
+  },
+  {
+   "title": "Smart glasses with OpenClaw",
+   "url": "https://dev.meta.ai/docs/cookbook/rayban-openclaw",
+   "section": "Cookbook",
+   "chunks": 10,
+   "characters": 7267,
+   "claims": 50,
+   "entities": 19,
+   "snippet": "# Smart glasses with OpenClaw"
+  },
+  {
+   "title": "Structured output (JSON mode)",
+   "url": "https://dev.meta.ai/docs/cookbook/structured-output",
+   "section": "Cookbook",
+   "chunks": 10,
+   "characters": 7922,
+   "claims": 42,
+   "entities": 14,
+   "snippet": "# Structured output (JSON mode)  **What you'll build**: a call that returns JSON guaranteed to match your schema, so you can parse it directly instead of writing defensive cleanup around freeform text."
+  },
+  {
+   "title": "Goal tracking",
+   "url": "https://dev.meta.ai/docs/cookbook/goal-tracking",
+   "section": "Cookbook",
+   "chunks": 9,
+   "characters": 6730,
+   "claims": 42,
+   "entities": 13,
+   "snippet": "# Goal tracking  |                      |                                                                        | | -------------------- | ---------------------------------------------------------------------- | | **Section**          | [M"
+  },
+  {
+   "title": "Loop and cron",
+   "url": "https://dev.meta.ai/docs/cookbook/loop-and-cron",
+   "section": "Cookbook",
+   "chunks": 9,
+   "characters": 6499,
+   "claims": 44,
+   "entities": 15,
+   "snippet": "# Loop and cron  |                      |                                                                        | | -------------------- | ---------------------------------------------------------------------- | | **Section**          | [M"
+  },
+  {
+   "title": "Segment Anything Model API basics in Python and TypeScript",
+   "url": "https://dev.meta.ai/docs/cookbook/sam-api-basics",
+   "section": "Cookbook",
+   "chunks": 9,
+   "characters": 7056,
+   "claims": 38,
+   "entities": 16,
+   "snippet": "# Segment Anything Model API basics in Python and TypeScript"
+  },
+  {
+   "title": "Build multi-speaker headlocked captions",
+   "url": "https://dev.meta.ai/docs/cookbook/headlocked-speech-bubble-captions",
+   "section": "Cookbook",
+   "chunks": 8,
+   "characters": 6526,
+   "claims": 37,
+   "entities": 19,
+   "snippet": "# Build multi-speaker headlocked captions"
+  },
+  {
+   "title": "Perception grounding",
+   "url": "https://dev.meta.ai/docs/cookbook/perception-grounding",
+   "section": "Cookbook",
+   "chunks": 8,
+   "characters": 5291,
+   "claims": 40,
+   "entities": 8,
+   "snippet": "# Perception grounding  |                      |                                                          | | -------------------- | -------------------------------------------------------- | | **Section**          | [Use cases](https://dev"
+  },
+  {
+   "title": "Turn a pet video into an animated sticker pack",
+   "url": "https://dev.meta.ai/docs/cookbook/video-to-sticker-pack",
+   "section": "Cookbook",
+   "chunks": 8,
+   "characters": 6417,
+   "claims": 42,
+   "entities": 12,
+   "snippet": "# Turn a pet video into an animated sticker pack"
+  },
+  {
+   "title": "Control Apple Chess with Voice",
+   "url": "https://dev.meta.ai/docs/cookbook/voice-chess-cua",
+   "section": "Cookbook",
+   "chunks": 7,
+   "characters": 5054,
+   "claims": 41,
+   "entities": 8,
+   "snippet": "# Control Apple Chess with Voice  |                      |                                                                                  | | -------------------- | -------------------------------------------------------------------------"
+  },
+  {
+   "title": "Muse Spark Open on Mac",
+   "url": "https://dev.meta.ai/docs/cookbook/muse-spark-open-mac",
+   "section": "Cookbook",
+   "chunks": 7,
+   "characters": 5363,
+   "claims": 34,
+   "entities": 16,
+   "snippet": "# Muse Spark Open on Mac"
+  },
+  {
+   "title": "Generating slides",
+   "url": "https://dev.meta.ai/docs/cookbook/generating-slides",
+   "section": "Cookbook",
+   "chunks": 4,
+   "characters": 2944,
+   "claims": 22,
+   "entities": 10,
+   "snippet": "# Generating slides  |                      |                                                          | | -------------------- | -------------------------------------------------------- | | **Section**          | [Use cases](https://dev.me"
+  },
+  {
+   "title": "Agent patterns",
+   "url": "https://dev.meta.ai/docs/cookbook/agent-patterns",
+   "section": "Cookbook",
+   "chunks": 2,
+   "characters": 936,
+   "claims": 8,
+   "entities": 7,
+   "snippet": "# Agent patterns  Turn a model into an agent. These loops handle planning, self-correction, and staying coherent across long runs. Part of the [Cookbook](https://dev.meta.ai/docs/cookbook)."
+  },
+  {
+   "title": "API fundamentals",
+   "url": "https://dev.meta.ai/docs/cookbook/api-fundamentals",
+   "section": "Cookbook",
+   "chunks": 2,
+   "characters": 1581,
+   "claims": 9,
+   "entities": 7,
+   "snippet": "# API fundamentals  Validate one building block at a time and walk away with a starter you can extend. Part of the [Cookbook](https://dev.meta.ai/docs/cookbook)."
+  },
+  {
+   "title": "Building with Muse Code",
+   "url": "https://dev.meta.ai/docs/cookbook/muse-code",
+   "section": "Cookbook",
+   "chunks": 2,
+   "characters": 2003,
+   "claims": 11,
+   "entities": 2,
+   "snippet": "# Building with Muse Code  Build durable, auditable agents with Muse Code \u2014 the harness building blocks for safety, recovery, and orchestration. Part of the [Cookbook](https://dev.meta.ai/docs/cookbook)."
+  },
+  {
+   "title": "Muse Image",
+   "url": "https://dev.meta.ai/docs/cookbook/muse-image",
+   "section": "Cookbook",
+   "chunks": 2,
+   "characters": 1132,
+   "claims": 9,
+   "entities": 5,
+   "snippet": "# Muse Image  Use Muse Image to generate, edit, or combine images. Choose a recipe based on whether you need basic generation, web grounding, consistency across a series, or multi-turn editing. Return to the [Cookbook](https://dev.meta.ai/d"
+  },
+  {
+   "title": "Segment Anything Model",
+   "url": "https://dev.meta.ai/docs/cookbook/sam",
+   "section": "Cookbook",
+   "chunks": 2,
+   "characters": 958,
+   "claims": 9,
+   "entities": 6,
+   "snippet": "# Segment Anything Model  Use Segment Anything Model to find and cut out objects in images and video from a short noun phrase. SAM 3.1 returns a box and a pixel mask for every match, and in video it follows each object across frames. Return"
+  },
+  {
+   "title": "Use cases",
+   "url": "https://dev.meta.ai/docs/cookbook/use-cases",
+   "section": "Cookbook",
+   "chunks": 2,
+   "characters": 1960,
+   "claims": 10,
+   "entities": 5,
+   "snippet": "# Use cases  Build end-to-end: multimodal perception, orchestration, and complete apps you can adapt. Part of the [Cookbook](https://dev.meta.ai/docs/cookbook)."
+  },
+  {
+   "title": "Muse Voice Transcribe",
+   "url": "https://dev.meta.ai/docs/cookbook/muse-voice-transcribe",
+   "section": "Cookbook",
+   "chunks": 1,
+   "characters": 855,
+   "claims": 5,
+   "entities": 1,
+   "snippet": "# Muse Voice Transcribe  Use Muse Voice Transcribe to turn speech into text \u2014 streaming over a WebSocket while the speaker is still talking, or in one HTTP request for a recording you already have. The model handles punctuation, speech-boun"
+  },
+  {
+   "title": "Post-training",
+   "url": "https://dev.meta.ai/docs/cookbook/post-training",
+   "section": "Cookbook",
+   "chunks": 1,
+   "characters": 485,
+   "claims": 3,
+   "entities": 3,
+   "snippet": "# Post-training  Fine-tune a Muse open-weight model on your own data, step by step. Return to the [Cookbook](https://dev.meta.ai/docs/cookbook) for other patterns.  - [RL with TorchTitan](https://dev.meta.ai/docs/cookbook/muse-spark-open-to"
+  },
+  {
+   "title": "Run locally",
+   "url": "https://dev.meta.ai/docs/cookbook/run-locally",
+   "section": "Cookbook",
+   "chunks": 1,
+   "characters": 293,
+   "claims": 3,
+   "entities": 3,
+   "snippet": "# Run locally  Serve a Muse open-weight model on your own machines, step by step. Return to the [Cookbook](https://dev.meta.ai/docs/cookbook) for other patterns.  - [Muse Spark Open on Mac](https://dev.meta.ai/docs/cookbook/muse-spark-open-"
+  },
+  {
+   "title": "Changelog",
+   "url": "https://dev.meta.ai/docs/muse-code/changelog",
+   "section": "Muse Code",
+   "chunks": 95,
+   "characters": 83956,
+   "claims": 407,
+   "entities": 138,
+   "snippet": "# Changelog  What's new, improved, and fixed in each Muse Code release. For install and upgrade steps, see the [Muse Code overview](https://dev.meta.ai/docs/muse-code).  ## 1.4.13  ### New"
+  },
+  {
+   "title": "Extending and automating",
+   "url": "https://dev.meta.ai/docs/muse-code/extending",
+   "section": "Muse Code",
+   "chunks": 20,
+   "characters": 14259,
+   "claims": 124,
+   "entities": 51,
+   "snippet": "# Extending and automating  Take Muse Code past a single interactive session: distribute work across parallel agents, package reusable workflows as skills, wire your own commands into the lifecycle with hooks, connect external tools through"
+  },
+  {
+   "title": "Working with the agent",
+   "url": "https://dev.meta.ai/docs/muse-code/interactive",
+   "section": "Muse Code",
+   "chunks": 19,
+   "characters": 14046,
+   "claims": 116,
+   "entities": 51,
+   "snippet": "# Working with the agent  The interactive session is where you drive Muse Code. Run `muse` in a project and you get a terminal UI: type a prompt to start a turn, watch the agent work, and steer it with **slash commands**. This page covers t"
+  },
+  {
+   "title": "Permissions and safety",
+   "url": "https://dev.meta.ai/docs/muse-code/permissions",
+   "section": "Muse Code",
+   "chunks": 14,
+   "characters": 9592,
+   "claims": 91,
+   "entities": 31,
+   "snippet": "# Permissions and safety  Grant Muse Code only the access you intend. Approval and sandboxing are on by default. The agent asks before any risky action, and every shell command runs inside an OS-enforced sandbox.  > **NOTE: Guardrails are o"
+  },
+  {
+   "title": "Run multi-agent workflows",
+   "url": "https://dev.meta.ai/docs/muse-code/workflows",
+   "section": "Muse Code",
+   "chunks": 14,
+   "characters": 9698,
+   "claims": 79,
+   "entities": 25,
+   "snippet": "# Run multi-agent workflows  Use a workflow when one task benefits from several agents working independently or in stages. Muse Code creates the orchestration, runs the child agents, and returns a synthesized result to your session.  > **IM"
+  },
+  {
+   "title": "Configuration and context",
+   "url": "https://dev.meta.ai/docs/muse-code/configuration",
+   "section": "Muse Code",
+   "chunks": 12,
+   "characters": 8881,
+   "claims": 73,
+   "entities": 35,
+   "snippet": "# Configuration and context  Set Muse Code up once for your machine and once per project, and give the agent the durable project knowledge it needs. This way, you don't repeat yourself every session. User settings live in a JSON file. Proje"
+  },
+  {
+   "title": "Subscriptions",
+   "url": "https://dev.meta.ai/docs/muse-code/subscriptions",
+   "section": "Muse Code",
+   "chunks": 12,
+   "characters": 8986,
+   "claims": 70,
+   "entities": 21,
+   "snippet": "# Subscriptions  With a Muse Code subscription, you pay a flat monthly rate for usage of [Muse Code](https://dev.meta.ai/products/muse-code), instead of paying per token. Subscription benefits and availability may vary by region. Available "
+  },
+  {
+   "title": "Coordinate sessions with messages",
+   "url": "https://dev.meta.ai/docs/muse-code/session-messaging",
+   "section": "Muse Code",
+   "chunks": 10,
+   "characters": 7875,
+   "claims": 61,
+   "entities": 13,
+   "snippet": "# Coordinate sessions with messages  Send a bounded piece of context from one live Muse Code session to another. Each session keeps its own transcript, workspace, permissions, and active task while the agents coordinate locally.  ## Run ses"
+  },
+  {
+   "title": "Muse Code",
+   "url": "https://dev.meta.ai/docs/muse-code",
+   "section": "Muse Code",
+   "chunks": 8,
+   "characters": 5059,
+   "claims": 45,
+   "entities": 14,
+   "snippet": "# Muse Code  Muse Code is Meta's coding agent for the terminal and CI, built for [Muse Spark](https://dev.meta.ai/docs/models#muse-spark). Run it in a project and it plans, edits, and runs commands to do a task, with approvals and an OS san"
+  },
+  {
+   "title": "Authentication and billing",
+   "url": "https://dev.meta.ai/docs/muse-code/auth",
+   "section": "Muse Code",
+   "chunks": 6,
+   "characters": 4821,
+   "claims": 34,
+   "entities": 13,
+   "snippet": "# Authentication and billing  Muse Code needs a Meta credential before it can call the model. On first run it prompts you to choose how to authenticate: a browser sign-in or an API key. For scripts and CI, use an API key.  ## Sign in  The f"
+  },
+  {
+   "title": "Rewind a conversation",
+   "url": "https://dev.meta.ai/docs/muse-code/rewind",
+   "section": "Muse Code",
+   "chunks": 6,
+   "characters": 4583,
+   "claims": 38,
+   "entities": 9,
+   "snippet": "# Rewind a conversation  Return to an earlier message when you want to take the conversation in a different direction. Rewind creates a retained conversation branch and restores the selected message as an unsent draft.  ## Rewind to a messa"
+  },
+  {
+   "title": "Run inference",
+   "url": "https://dev.meta.ai/docs/muse-spark-open/deploy",
+   "section": "Muse Spark Open",
+   "chunks": 99,
+   "characters": 74461,
+   "claims": 541,
+   "entities": 152,
+   "snippet": "# Run inference  Run Muse Spark Open on your own infrastructure or call it through a hosted inference provider. The self-hosted runtimes load the released checkpoints and use the Muse Spark Open chat format described in the [prompting guide"
+  },
+  {
+   "title": "Post-training",
+   "url": "https://dev.meta.ai/docs/muse-spark-open/post-training",
+   "section": "Muse Spark Open",
+   "chunks": 38,
+   "characters": 29483,
+   "claims": 211,
+   "entities": 77,
+   "snippet": "# Post-training  Fine-tune Muse Spark Open with an open-source training framework on your own GPUs, or with a hosted service that runs the job for you. Each option has its own section below."
+  },
+  {
+   "title": "Hardware platforms",
+   "url": "https://dev.meta.ai/docs/muse-spark-open/hardware-platforms",
+   "section": "Muse Spark Open",
+   "chunks": 15,
+   "characters": 11018,
+   "claims": 73,
+   "entities": 28,
+   "snippet": "# Hardware platforms  Run Muse Spark Open on NVIDIA, AMD, Intel, and Apple hardware. Each section lists the checkpoints, parallelism, and runtime for its platform, with sample commands. Pick a platform to jump to it."
+  },
+  {
+   "title": "Prompting guide",
+   "url": "https://dev.meta.ai/docs/muse-spark-open/prompting",
+   "section": "Muse Spark Open",
+   "chunks": 14,
+   "characters": 10421,
+   "claims": 75,
+   "entities": 27,
+   "snippet": "# Prompting guide  Write requests that get the most out of Muse Spark Open: how a conversation is structured, how to write a system prompt, how to set reasoning strength, how to call tools, and how to send images, video, and audio.  Most re"
+  },
+  {
+   "title": "Get the model",
+   "url": "https://dev.meta.ai/docs/muse-spark-open/get-the-model",
+   "section": "Muse Spark Open",
+   "chunks": 7,
+   "characters": 4528,
+   "claims": 39,
+   "entities": 11,
+   "snippet": "# Get the model  Download Muse Spark Open from Meta or Hugging Face and pick the checkpoint that matches your hardware. Everything runs offline once the weights land: there's no API key.  ## Prerequisites  - Python 3.10 or later - Transform"
+  },
+  {
+   "title": "Recommended settings",
+   "url": "https://dev.meta.ai/docs/muse-spark-open/settings",
+   "section": "Muse Spark Open",
+   "chunks": 7,
+   "characters": 5422,
+   "claims": 41,
+   "entities": 9,
+   "snippet": "# Recommended settings  The settings that most affect Muse Spark Open's output quality and throughput on a self-hosted server. Sampling, reasoning strength, and streaming are per-request, so tune them against a running server. Parallelism a"
+  },
+  {
+   "title": "Muse Spark Open",
+   "url": "https://dev.meta.ai/docs/muse-spark-open",
+   "section": "Muse Spark Open",
+   "chunks": 5,
+   "characters": 3723,
+   "claims": 30,
+   "entities": 6,
+   "snippet": "# Muse Spark Open  Muse Spark Open is the open-weight release of Muse Spark, Meta's agentic and coding model. Run it two ways:  - **Self-host:** download a checkpoint and serve it on your own GPUs with SGLang, vLLM, or another [runtime](htt"
+  },
+  {
+   "title": "Run inference",
+   "url": "https://dev.meta.ai/docs/muse-glimmer/deploy",
+   "section": "Muse Glimmer",
+   "chunks": 92,
+   "characters": 73210,
+   "claims": 513,
+   "entities": 130,
+   "snippet": "# Run inference  Run Muse Glimmer on your own infrastructure or call it through a hosted inference provider. The self-hosted runtimes load the released checkpoints, or a quantized version of them, and use the Muse Glimmer chat format descri"
+  },
+  {
+   "title": "Post-training",
+   "url": "https://dev.meta.ai/docs/muse-glimmer/post-training",
+   "section": "Muse Glimmer",
+   "chunks": 61,
+   "characters": 45385,
+   "claims": 334,
+   "entities": 90,
+   "snippet": "# Post-training  Adapt Muse Glimmer to your task with an open-source training framework on your own GPUs. There are two training objectives. Use **supervised fine-tuning (SFT)** when you have examples of the response you want, and **reinfor"
+  },
+  {
+   "title": "Hardware platforms",
+   "url": "https://dev.meta.ai/docs/muse-glimmer/hardware-platforms",
+   "section": "Muse Glimmer",
+   "chunks": 17,
+   "characters": 11697,
+   "claims": 83,
+   "entities": 26,
+   "snippet": "# Hardware platforms  Run Muse Glimmer on specific partner hardware. Each partner verified its deployment on its own machines at the software versions listed; we don't re-run these verifications. Pick a platform to jump to its deploy steps."
+  },
+  {
+   "title": "Prompting guide",
+   "url": "https://dev.meta.ai/docs/muse-glimmer/prompting",
+   "section": "Muse Glimmer",
+   "chunks": 13,
+   "characters": 10043,
+   "claims": 67,
+   "entities": 14,
+   "snippet": "# Prompting guide  Get the most out of Muse Glimmer by using the correct chat template and following these prompting best practices. Small format details \u2014 special tokens, role headers, turn separators \u2014 have a measurable impact on output q"
+  },
+  {
+   "title": "Quantization",
+   "url": "https://dev.meta.ai/docs/muse-glimmer/quantization",
+   "section": "Muse Glimmer",
+   "chunks": 7,
+   "characters": 5118,
+   "claims": 39,
+   "entities": 15,
+   "snippet": "# Quantization  Muse Glimmer ships pre-quantized GGUF checkpoints, so you can run it on a single GPU without converting anything. At roughly 4-bit precision the language model fits under 20 GB, which leaves room for the KV cache, the vision"
+  },
+  {
+   "title": "Get the model",
+   "url": "https://dev.meta.ai/docs/muse-glimmer/get-the-model",
+   "section": "Muse Glimmer",
+   "chunks": 6,
+   "characters": 5301,
+   "claims": 32,
+   "entities": 16,
+   "snippet": "# Get the model  Download Muse Glimmer from Hugging Face and pick the build that matches your runtime. Everything runs offline once the weights land: there's no API key and no gated access.  ## Prerequisites  - Python 3.10 or later - The Hu"
+  },
+  {
+   "title": "Speculative decoding",
+   "url": "https://dev.meta.ai/docs/muse-glimmer/spec-decode",
+   "section": "Muse Glimmer",
+   "chunks": 5,
+   "characters": 3332,
+   "claims": 21,
+   "entities": 13,
+   "snippet": "# Speculative decoding  Speed up Muse Glimmer with DFlash, its block-diffusion speculative decoding. A small draft model proposes continuation tokens and Muse Glimmer verifies them, so more than one token can land per verification step. Tha"
+  },
+  {
+   "title": "Muse Glimmer",
+   "url": "https://dev.meta.ai/docs/muse-glimmer",
+   "section": "Muse Glimmer",
+   "chunks": 4,
+   "characters": 2644,
+   "claims": 20,
+   "entities": 5,
+   "snippet": "# Muse Glimmer  [Muse Glimmer](https://dev.meta.ai/docs/models#muse-glimmer) is Meta's 30-billion-parameter open-source multimodal model, distilled from [Muse Spark](https://dev.meta.ai/docs/models#muse-spark) and built for local agentic wo"
+  },
+  {
+   "title": "Private cloud deployment for Llama models | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/private-cloud-deployment",
+   "section": "Llama docs",
+   "chunks": 34,
+   "characters": 26274,
+   "claims": 226,
+   "entities": 89,
+   "snippet": "Private cloud deployment for Llama models | Deployment guides Deployment guides Private cloud deployment for Llama models Overview Private cloud deployment of Llama models addresses enterprise requirements for data sovereignty, regulatory c"
+  },
+  {
+   "title": "Production pipelines for Llama deployments | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/production-deployment-pipelines",
+   "section": "Llama docs",
+   "chunks": 33,
+   "characters": 26653,
+   "claims": 229,
+   "entities": 89,
+   "snippet": "Production pipelines for Llama deployments | Deployment guides Deployment guides Production pipelines for Llama deployments Overview Production Llama deployments require orchestrated pipelines that handle data processing, model training, ev"
+  },
+  {
+   "title": "Cost projection | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/cost-projection",
+   "section": "Llama docs",
+   "chunks": 29,
+   "characters": 23536,
+   "claims": 164,
+   "entities": 55,
+   "snippet": "Cost projection | Deployment guides Deployment guides Cost projection Introduction This guide provides a comprehensive cost projection methodology for LLMs, including hosted APIs, cloud deployments, and on-premises deployments. It is design"
+  },
+  {
+   "title": "Llama 3.1 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/llama3_1",
+   "section": "Llama docs",
+   "chunks": 29,
+   "characters": 21815,
+   "claims": 138,
+   "entities": 46,
+   "snippet": "Llama 3.1 | Model Cards and Prompt formats Model Cards & Prompt formats Llama 3.1 Introduction This page describes the prompt format for Llama 3.1 with an emphasis on new features in that release. With the subsequent release of Llama 3.2, w"
+  },
+  {
+   "title": "Security in production | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/security-in-production",
+   "section": "Llama docs",
+   "chunks": 28,
+   "characters": 23273,
+   "claims": 154,
+   "entities": 73,
+   "snippet": "Security in production | Deployment guides Deployment guides Security in production Introduction Securing a production Llama deployment introduces unique challenges that go beyond traditional application security. While standard practices p"
+  },
+  {
+   "title": "Llama 3.2 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/llama3_2",
+   "section": "Llama docs",
+   "chunks": 24,
+   "characters": 18279,
+   "claims": 123,
+   "entities": 48,
+   "snippet": "Llama 3.2 | Model Cards and Prompt formats Model Cards & Prompt formats Llama 3.2   Introduction  This page covers capabilities and guidance specific to the models released with Llama 3.2: The Llama 3.2 quantized models (1B/3B) , the Llama "
+  },
+  {
+   "title": "Llama 4 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/llama4",
+   "section": "Llama docs",
+   "chunks": 24,
+   "characters": 18183,
+   "claims": 115,
+   "entities": 34,
+   "snippet": "Llama 4 | Model Cards and Prompt formats Model Cards & Prompt formats Llama 4   Introduction  The Llama 4 Models are a collection of pretrained and instruction-tuned mixture-of-experts LLMs offered in two sizes: Llama 4 Scout & Llama 4 Mave"
+  },
+  {
+   "title": "Accelerator management | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/accelerator-management",
+   "section": "Llama docs",
+   "chunks": 23,
+   "characters": 17488,
+   "claims": 127,
+   "entities": 43,
+   "snippet": "Accelerator management | Deployment guides Deployment guides Accelerator management Introduction Large language models (LLMs) require significantly more computational resources to run than traditional software workloads. While possible to d"
+  },
+  {
+   "title": "Fine-tuning | How-to guides",
+   "url": "https://dev.meta.ai/llama/docs/how-to-guides/fine-tuning",
+   "section": "Llama docs",
+   "chunks": 21,
+   "characters": 17159,
+   "claims": 125,
+   "entities": 37,
+   "snippet": "Fine-tuning | How-to guides How-to guides Fine-tuning What is fine-tuning? Fine tuning enables you to take a pre-trained model and adapt it to perform better for a specific use case by training it on your own data. Large language models lik"
+  },
+  {
+   "title": "Quantization and performance optimization | How-to guides",
+   "url": "https://dev.meta.ai/llama/docs/how-to-guides/quantization",
+   "section": "Llama docs",
+   "chunks": 21,
+   "characters": 17221,
+   "claims": 126,
+   "entities": 48,
+   "snippet": "Quantization and performance optimization | How-to guides How-to guides Quantization and performance optimization What is quantization? Quantization is a technique used in machine learning to reduce the computational and memory requirements"
+  },
+  {
+   "title": "Vision Capabilities | How-to guides",
+   "url": "https://dev.meta.ai/llama/docs/how-to-guides/vision-capabilities",
+   "section": "Llama docs",
+   "chunks": 20,
+   "characters": 16506,
+   "claims": 84,
+   "entities": 23,
+   "snippet": "Vision Capabilities | How-to guides How-to guides Llama Vision Capabilities Note: Access to the Llama vision models is restricted in some countries, including the European Union (EU). For more information, see the FAQ and AUP . Llama as a m"
+  },
+  {
+   "title": "Versioning, updates and migration | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/versioning",
+   "section": "Llama docs",
+   "chunks": 19,
+   "characters": 15212,
+   "claims": 111,
+   "entities": 36,
+   "snippet": "Versioning, updates and migration | Deployment guides Deployment guides Versioning, updates and migration seo title: \"Versioning, updates and migration | Deployment guides\"  seo description: \"Learn how to effectively migrate between differe"
+  },
+  {
+   "title": "Autoscaling self-hosted Llama models | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/autoscaling",
+   "section": "Llama docs",
+   "chunks": 17,
+   "characters": 13371,
+   "claims": 103,
+   "entities": 48,
+   "snippet": "Autoscaling self-hosted Llama models | Deployment guides Deployment guides Autoscaling self-hosted Llama models Overview Autoscaling self-hosted Llama models requires balancing GPU costs, model loading times, and inference performance. Unli"
+  },
+  {
+   "title": "Infrastructure migration | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/infrastructure-migration",
+   "section": "Llama docs",
+   "chunks": 17,
+   "characters": 12900,
+   "claims": 111,
+   "entities": 38,
+   "snippet": "Infrastructure migration | Deployment guides Deployment guides Infrastructure migration Overview This guide outlines a four-phase approach for migrating from OpenAI to Llama models: assessment, proof of concept, gradual migration, and optim"
+  },
+  {
+   "title": "Other Models | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/other-models",
+   "section": "Llama docs",
+   "chunks": 17,
+   "characters": 13131,
+   "claims": 84,
+   "entities": 22,
+   "snippet": "Other Models | Model Cards and Prompt formats Model Cards & Prompt formats Other Models Llama 3 Llama Guard 2 Code Llama 70B Llama Guard 1 Code Llama Llama 2   Llama 3  Model Card You can find details about this model in the model card . Sp"
+  },
+  {
+   "title": "Prompt engineering | How-to Guides",
+   "url": "https://dev.meta.ai/llama/docs/how-to-guides/prompting",
+   "section": "Llama docs",
+   "chunks": 17,
+   "characters": 13625,
+   "claims": 71,
+   "entities": 19,
+   "snippet": "Prompt engineering | How-to Guides How-to Guides Prompt engineering What is prompt engineering? Prompt engineering is a technique used in natural language processing (NLP) to improve the performance of large language models (LLMs) by provid"
+  },
+  {
+   "title": "Meta Llama in the Cloud | Llama Everywhere",
+   "url": "https://dev.meta.ai/llama/docs/llama-everywhere/running-meta-llama-in-the-cloud",
+   "section": "Llama docs",
+   "chunks": 16,
+   "characters": 12906,
+   "claims": 83,
+   "entities": 39,
+   "snippet": "Meta Llama in the Cloud | Llama Everywhere Meta Llama in the Cloud This tutorial is a part of our Build with Meta Llama series, where we demonstrate the capabilities and practical applications of Llama for developers like you, so that you c"
+  },
+  {
+   "title": "Llama Guard 4 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/llama-guard-4",
+   "section": "Llama docs",
+   "chunks": 15,
+   "characters": 12798,
+   "claims": 87,
+   "entities": 29,
+   "snippet": "Llama Guard 4 | Model Cards and Prompt formats Model Cards & Prompt formats Introduction Introduction Llama Guard 4 (12B) is our latest safeguard model with improved inference for detecting problematic prompts and responses. It is designed "
+  },
+  {
+   "title": "Llama Guard 3 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/llama-guard-3",
+   "section": "Llama docs",
+   "chunks": 14,
+   "characters": 10882,
+   "claims": 81,
+   "entities": 21,
+   "snippet": "Llama Guard 3 | Model Cards and Prompt formats Model Cards & Prompt formats Introduction Introduction Llama Guard comes in three flavors now: Llama Guard 3 1B , Llama Guard 3 8B and Llama Guard 3 11B-Vision . The first two models are text o"
+  },
+  {
+   "title": "Self-hosted Llama deployments for regulated industries | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/regulated-industry-self-hosting",
+   "section": "Llama docs",
+   "chunks": 14,
+   "characters": 11520,
+   "claims": 87,
+   "entities": 36,
+   "snippet": "Self-hosted Llama deployments for regulated industries | Deployment guides Deployment guides Self-hosted Llama deployments for regulated industries Overview Organizations that work in regulated industries like healthcare require complete co"
+  },
+  {
+   "title": "Cloud partners | Getting the models",
+   "url": "https://dev.meta.ai/llama/docs/getting-the-models/405b-partners",
+   "section": "Llama docs",
+   "chunks": 11,
+   "characters": 8882,
+   "claims": 60,
+   "entities": 42,
+   "snippet": "Cloud partners | Getting the models Use our models Cloud partners Llama and our cloud partners will help you unlock Llama\u2019s full potential, please refer to the partner guides below. Our partner guides offer tailored support and expertise to"
+  },
+  {
+   "title": "Cost comparison and basic deployment patterns | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/cost-comparison",
+   "section": "Llama docs",
+   "chunks": 10,
+   "characters": 7706,
+   "claims": 58,
+   "entities": 16,
+   "snippet": "Cost comparison and basic deployment patterns | Deployment guides Deployment guides Cost comparison and basic deployment patterns Overview This framework provides a methodology for comparing different compute options for Llama inference to "
+  },
+  {
+   "title": "Distillation | How-to guides",
+   "url": "https://dev.meta.ai/llama/docs/how-to-guides/distillation",
+   "section": "Llama docs",
+   "chunks": 10,
+   "characters": 8118,
+   "claims": 53,
+   "entities": 20,
+   "snippet": "Distillation | How-to guides How-to guides Distillation What is distillation? Large, powerful models tend to be generalists ; they have the ability to perform a wide variety of tasks well. Smaller, weaker models can be just as good as the g"
+  },
+  {
+   "title": "Running Llama on Windows | Llama Everywhere",
+   "url": "https://dev.meta.ai/llama/docs/llama-everywhere/running-meta-llama-on-windows",
+   "section": "Llama docs",
+   "chunks": 10,
+   "characters": 7544,
+   "claims": 49,
+   "entities": 22,
+   "snippet": "Running Llama on Windows | Llama Everywhere Running Llama on Windows This tutorial is a part of our Build with Meta Llama series, where we demonstrate the capabilities and practical applications of Llama for developers like you, so that you"
+  },
+  {
+   "title": "Developer use guide resources | How-to guides",
+   "url": "https://dev.meta.ai/llama/docs/how-to-guides/responsible-use-guide-resources",
+   "section": "Llama docs",
+   "chunks": 9,
+   "characters": 6697,
+   "claims": 51,
+   "entities": 26,
+   "snippet": "Developer use guide resources | How-to guides How-to guides Developer use guide resources Introduction We are committed to supporting our community in building Llama applications responsibly. In addition to our Llama Protections effort, we "
+  },
+  {
+   "title": "Running Llama on Linux | Llama Everywhere",
+   "url": "https://dev.meta.ai/llama/docs/llama-everywhere/running-meta-llama-on-linux",
+   "section": "Llama docs",
+   "chunks": 9,
+   "characters": 6842,
+   "claims": 50,
+   "entities": 23,
+   "snippet": "Running Llama on Linux | Llama Everywhere Running Llama on Linux This tutorial is a part of our Build with Llama series, where we demonstrate the capabilities and practical applications of Llama for developers like you, so that you can leve"
+  },
+  {
+   "title": "Running Llama on Mac | Llama Everywhere",
+   "url": "https://dev.meta.ai/llama/docs/llama-everywhere/running-meta-llama-on-mac",
+   "section": "Llama docs",
+   "chunks": 8,
+   "characters": 6577,
+   "claims": 40,
+   "entities": 15,
+   "snippet": "Running Llama on Mac | Llama Everywhere Running Llama on Mac This tutorial is a part of our Build with Meta Llama series, where we demonstrate the capabilities and practical applications of Llama for developers like you, so that you can lev"
+  },
+  {
+   "title": "Docs & Resources | Llama AI",
+   "url": "https://dev.meta.ai/llama/docs/deployment",
+   "section": "Llama docs",
+   "chunks": 7,
+   "characters": 4937,
+   "claims": 34,
+   "entities": 14,
+   "snippet": "Docs & Resources | Llama AI Documentation Deployment Deploy and operate Llama models at scale. Production deployment with Llama Deploying and operating Llama models at scale requires a comprehensive approach that spans infrastructure, model"
+  },
+  {
+   "title": "Llama 3.3 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/llama3_3",
+   "section": "Llama docs",
+   "chunks": 7,
+   "characters": 5293,
+   "claims": 32,
+   "entities": 13,
+   "snippet": "Llama 3.3 | Model Cards and Prompt formats Model Cards & Prompt formats Llama 3.3   Introduction  Llama 3.3 is a text-only 70B instruction-tuned model that provides enhanced performance relative to Llama 3.1 70B\u2013and relative to Llama 3.2 90"
+  },
+  {
+   "title": "Validation | How-to guides",
+   "url": "https://dev.meta.ai/llama/docs/how-to-guides/validation",
+   "section": "Llama docs",
+   "chunks": 7,
+   "characters": 5688,
+   "claims": 40,
+   "entities": 15,
+   "snippet": "Validation | How-to guides How-to guides Validation As the saying goes, if you can't measure it, you can't improve it., In this section, we are going to cover different ways to measure and ultimately validate Llama so it's possible to deter"
+  },
+  {
+   "title": "Llama Guard 2 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/meta-llama-guard-2",
+   "section": "Llama docs",
+   "chunks": 6,
+   "characters": 5046,
+   "claims": 34,
+   "entities": 12,
+   "snippet": "Llama Guard 2 | Model Cards and Prompt formats Model Cards & Prompt formats Llama Guard 2 Model Card You can find details about this model in the model card . Prompt format As the guardrails can be applied both on the input and output of th"
+  },
+  {
+   "title": "Meta Llama Guard 1 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/meta-llama-guard-1",
+   "section": "Llama docs",
+   "chunks": 6,
+   "characters": 4928,
+   "claims": 38,
+   "entities": 8,
+   "snippet": "Meta Llama Guard 1 | Model Cards and Prompt formats Model Cards & Prompt formats Meta Llama Guard 1 Model Card You can find details about this model in the model card . Prompt format As the guardrails can be applied both on the input and ou"
+  },
+  {
+   "title": "Llama 3 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/meta-llama-3",
+   "section": "Llama docs",
+   "chunks": 5,
+   "characters": 3701,
+   "claims": 23,
+   "entities": 6,
+   "snippet": "Llama 3 | Model Cards and Prompt formats Model Cards & Prompt formats Llama 3 Model Card You can find details about this model in the model card . Special Tokens used with Llama 3 <|begin_of_text|> : This is equivalent to the BOS token <|eo"
+  },
+  {
+   "title": "Llama Prompt Guard 2 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/prompt-guard",
+   "section": "Llama docs",
+   "chunks": 5,
+   "characters": 3540,
+   "claims": 27,
+   "entities": 10,
+   "snippet": "Llama Prompt Guard 2 | Model Cards and Prompt formats Model Cards & Prompt formats Llama Prompt Guard 2   New Updated Model  We have released Llama Prompt Guard 2, a new high-performance update that is designed to support the Llama 4 line o"
+  },
+  {
+   "title": "Docs & Resources | Llama AI",
+   "url": "https://dev.meta.ai/llama/docs/how-to-guides",
+   "section": "Llama docs",
+   "chunks": 4,
+   "characters": 3071,
+   "claims": 21,
+   "entities": 11,
+   "snippet": "Docs & Resources | Llama AI Documentation How-to guides A collection of hands-on guides covering using Llama models. Develop with Llama This collection of guides provides a comprehensive overview of best practices, techniques, and tools for"
+  },
+  {
+   "title": "Edge partners | Getting the models",
+   "url": "https://dev.meta.ai/llama/docs/getting-the-models/1b3b-partners",
+   "section": "Llama docs",
+   "chunks": 4,
+   "characters": 2993,
+   "claims": 21,
+   "entities": 16,
+   "snippet": "Edge partners | Getting the models Use our models Edge partners Llama and our on-prem and cloud partners enable developers to bring Llama\u2019s capabilities to mobile and embedded devices. Meta is collaborating with the following partners to pr"
+  },
+  {
+   "title": "Guides, Docs & Videos | Llama Resources",
+   "url": "https://dev.meta.ai/llama/docs/community-support-and-resources",
+   "section": "Llama docs",
+   "chunks": 4,
+   "characters": 3208,
+   "claims": 25,
+   "entities": 13,
+   "snippet": "Guides, Docs & Videos | Llama Resources Resources Meta and Community Resources A repository of Llama resources from videos to cookbooks. If you have any feature requests, suggestions, bugs to report we encourage you to report the issue in t"
+  },
+  {
+   "title": "LangChain | Integration guides",
+   "url": "https://dev.meta.ai/llama/docs/integration-guides/langchain",
+   "section": "Llama docs",
+   "chunks": 4,
+   "characters": 2912,
+   "claims": 22,
+   "entities": 13,
+   "snippet": "LangChain | Integration guides Integration guides LangChain LangChain is an open source framework for building LLM powered applications. It implements common abstractions and higher-level APIs to make the app building process easier, so you"
+  },
+  {
+   "title": "Meta and Community Resources",
+   "url": "https://dev.meta.ai/llama/docs/resources",
+   "section": "Llama docs",
+   "chunks": 4,
+   "characters": 3197,
+   "claims": 24,
+   "entities": 15,
+   "snippet": "Meta and Community Resources Resources Meta and Community Resources A repository of Llama resources from videos to cookbooks. If you have any feature requests, suggestions, bugs to report we encourage you to report the issue in the respecti"
+  },
+  {
+   "title": "Llama Models",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats",
+   "section": "Llama docs",
+   "chunks": 3,
+   "characters": 1984,
+   "claims": 15,
+   "entities": 8,
+   "snippet": "Llama Models Llama Models Llama 3.1 Enhancements Llama 3.1 represents Meta's most capable model to date, including enhanced reasoning and coding capabilities, multilingual support, and an all-new reference system. Check out the following vi"
+  },
+  {
+   "title": "LlamaIndex | Integration guides",
+   "url": "https://dev.meta.ai/llama/docs/integration-guides/llamaindex",
+   "section": "Llama docs",
+   "chunks": 3,
+   "characters": 1909,
+   "claims": 15,
+   "entities": 11,
+   "snippet": "LlamaIndex | Integration guides Integration guides LlamaIndex LlamaIndex is another popular open source framework for building LLM applications. Like LangChain, LlamaIndex can also be used to build RAG applications by easily integrating dat"
+  },
+  {
+   "title": "Getting the models",
+   "url": "https://dev.meta.ai/llama/docs/getting-the-models",
+   "section": "Llama docs",
+   "chunks": 2,
+   "characters": 956,
+   "claims": 9,
+   "entities": 6,
+   "snippet": "Getting the models Getting the models The pages in this section describe how to obtain the Llama models Note: Kaggle and our ecosystem partners are preparing support for Llama 4 Scout and Llama 4 Maverick. Please check these pages for the m"
+  },
+  {
+   "title": "Getting the models",
+   "url": "https://dev.meta.ai/llama/docs/getting-the-models/meta",
+   "section": "Llama docs",
+   "chunks": 2,
+   "characters": 1449,
+   "claims": 13,
+   "entities": 6,
+   "snippet": "Getting the models Getting the models Meta You can get the Llama models directly from Meta or through Hugging Face or Kaggle. However you get the models, you will first need to accept the license agreements for the models you want. For more"
+  },
+  {
+   "title": "Hugging Face | Getting the models",
+   "url": "https://dev.meta.ai/llama/docs/getting-the-models/hugging-face",
+   "section": "Llama docs",
+   "chunks": 2,
+   "characters": 963,
+   "claims": 7,
+   "entities": 3,
+   "snippet": "Hugging Face | Getting the models Getting the models Hugging Face To obtain the models from Hugging Face (HF), sign into your account at https://huggingface.co/meta-llama Select the model you want. You will be taken to a page where you can "
+  },
+  {
+   "title": "Kaggle | Getting the models",
+   "url": "https://dev.meta.ai/llama/docs/getting-the-models/kaggle",
+   "section": "Llama docs",
+   "chunks": 2,
+   "characters": 1192,
+   "claims": 10,
+   "entities": 2,
+   "snippet": "Kaggle | Getting the models Getting the models Kaggle To obtain the models from Kaggle\u2013including the HF versions of the models\u2013sign into your account at: https://www.kaggle.com/organizations/metaresearch/models Before you can access the mod"
+  },
+  {
+   "title": "Llama Everywhere",
+   "url": "https://dev.meta.ai/llama/docs/llama-everywhere",
+   "section": "Llama docs",
+   "chunks": 2,
+   "characters": 1372,
+   "claims": 8,
+   "entities": 6,
+   "snippet": "Llama Everywhere Llama Everywhere Although Meta Llama models are often hosted by Cloud Service Providers (CSP), Meta Llama can be used in other contexts as well, such as Linux, the Windows Subsystem for Linux (WSL), macOS, Jupyter notebooks"
+  },
+  {
+   "title": "Meta Code Llama 70B | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/meta-code-llama-70b",
+   "section": "Llama docs",
+   "chunks": 2,
+   "characters": 1573,
+   "claims": 9,
+   "entities": 4,
+   "snippet": "Meta Code Llama 70B | Model Cards and Prompt formats Model Cards & Prompt formats Meta Code Llama 70B Model Card You can find details about this model in the model card . Note that Meta Code Llama 70B uses the same model card as Meta Code L"
+  },
+  {
+   "title": "Meta Code Llama | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/meta-code-llama",
+   "section": "Llama docs",
+   "chunks": 2,
+   "characters": 1635,
+   "claims": 11,
+   "entities": 7,
+   "snippet": "Meta Code Llama | Model Cards and Prompt formats Model Cards & Prompt formats Meta Code Llama Model Card You can find details about this model in the model card . Meta Code Llama 7B, 13B, and 34B Completion In this format, the model continu"
+  },
+  {
+   "title": "Meta Llama 2 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/meta-llama-2",
+   "section": "Llama docs",
+   "chunks": 2,
+   "characters": 1429,
+   "claims": 11,
+   "entities": 4,
+   "snippet": "Meta Llama 2 | Model Cards and Prompt formats Model Cards & Prompt formats Meta Llama 2 Model Card You can find details about this model in the model card . Special Tokens used with Meta Llama 2 <s></s> : These are the BOS and EOS tokens fr"
+  },
+  {
+   "title": "Integration guides",
+   "url": "https://dev.meta.ai/llama/docs/integration-guides",
+   "section": "Llama docs",
+   "chunks": 1,
+   "characters": 458,
+   "claims": 3,
+   "entities": 4,
+   "snippet": "Integration guides Integration guides The pages in this section describe how to develop code-generation solutions based on Code Llama . They also provide information on LangChain and LlamaIndex , which are useful frameworks if you want to i"
+  }
+ ]
+}

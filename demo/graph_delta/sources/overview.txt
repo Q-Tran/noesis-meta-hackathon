@@ -1,0 +1,106 @@
+SOURCE: https://dev.meta.ai/docs/overview
+
+Meta Model API is an inference API for the latest models from Meta, including Muse Wonder and Muse Spark, and Muse Code is a coding agent built for Muse Spark.
+Call the API to build your own app or agent, or run Muse Code for a ready-made agent in your terminal — same models, same auth.
+Muse Wonder is Meta's most capable model, built for complex software engineering and long-horizon agentic work.
+It makes changes across many files in real repositories, delegates to sub-agents, and works through long tasks with parallel tool calls and a 1M-token context window.
+Muse Spark is served through Model API, with agent-ready primitives and no extra setup: parallel tool calls, streamed tool-call arguments, reasoning that carries across turns, and a 1M-token context window.
+Muse Image is served through Model API too.
+It generates and edits images from a text prompt and refines them across turns.
+Muse Voice Transcribe is a speech-to-text model on Model API.
+It transcribes streaming and non-streaming audio, with speaker attribution and turn detection in the model.
+Segment Anything Model 3.1 (SAM 3.1) , an open-weight model from Meta, is also available on Model API.
+It finds and outlines objects in images and video from a short text prompt, returning boxes and masks.
+Muse Spark Open is the open-weight release of Muse Spark.
+Download the BF16 or NVFP4 checkpoint and serve it on your own GPUs, or call it through a hosted inference provider.
+Muse Glimmer is open-weight too, built for local and edge deployment: you download the weights and run it on your own hardware instead of calling it through Model API, under a permissive Apache 2.0 license.
+Muse Code is a coding agent from Meta for the terminal and CI, built for Muse Spark and powered by Model API.
+Install it, sign in, and run it in a project.
+It plans, edits, and runs commands to do tasks, with approvals and an OS sandbox on from the first run.
+Build with Muse Code Install the CLI on macOS or Linux: bash curl -fsSL https://dev.meta.ai/install.sh | sh Or install it on Windows with PowerShell: powershell irm https://dev.meta.ai/install.ps1 | iex Start building: bash muse # start Muse Code; on first run, choose a browser sign-in or paste an API key Muse Code or the API Muse Code and the API are two ways to use the same model.
+Run Muse Code for a ready-made agent at the command line or in CI; call the API directly when you build your own agent or app.
+Build with Muse Wonder Run Muse Wonder for complex coding work and for agents that plan, delegate to sub-agents, and work through long tasks.
+Muse Wonder and Muse Spark take the same requests, so any example in these docs that uses Muse Spark also runs on Muse Wonder: change the model to muse-wonder-1.0 .
+Muse Wonder takes on longer, more complex tasks; Muse Spark costs less and, on Model API, offers a discounted Contributor mode.
+Muse Code subscription plans can also include Muse Wonder Full and Contributor mode; see Muse Wonder availability .
+To decide between Muse Wonder and Muse Spark, see Choose Muse Wonder or Muse Spark .
+Build with Muse Spark Call Model API directly, run Muse Code, or connect the coding agent you already use.
+All three drive the same model over the same auth.
+At a glance Everything you need to make your first call.
+Base URL https://api.meta.ai/v1 Standard mode models muse-spark-1.3 , muse-spark-1.2 , muse-spark-1.1 Contributor mode models muse-spark-1.3-contributor , muse-spark-1.2-contributor Context window 1,048,576 tokens Auth Bearer token ( MODEL_API_KEY ) Pricing Pay-as-you-go; see Pricing and rate limits Call the API directly Model API is drop-in compatible with the OpenAI SDK, the Anthropic SDK, and OpenAI-compatible agent CLIs.
+Set your client's base URL, add your key, and keep the rest of your code.
+Walk through your first call in the quickstart , or compare request formats in Choosing an API .
+Connect your coding agent Already have a coding agent?
+Connect it to Model API and keep working.
+Muse Spark drives the same agentic loop of file edits, shell commands, and tool calls over an OpenAI- or Anthropic-compatible surface.
+Muse Spark Open Alongside our hosted models, you can also download Muse Spark Open , the open-weight release of Muse Spark, and run it on your own GPUs.
+Build with Muse Image Muse Image generates and edits images through Model API.
+Send a text prompt and get an image back, refine it across turns, or edit an existing image.
+It uses the same base URL and auth as Muse Spark.
+At a glance Everything you need to make your first image request.
+Base URL https://api.meta.ai/v1 Model muse-image-1.0 Endpoints /v1/images/generations , /v1/images/edits Multi-turn editing Responses API Output Image, as base64 or a signed URL Auth Bearer token ( MODEL_API_KEY ) Generate your first image and learn multi-turn editing in the Image generation guide .
+Build with Muse Voice Transcribe Muse Voice Transcribe brings speech-to-text to Model API.
+Use it to transcribe live audio streams or supported audio files with one model that can detect speech turns, attribute speakers, and bias recognition toward your vocabulary.
+At a glance Base URL https://api.meta.ai/v1 Model muse-voice-transcribe-1.0 Realtime endpoint wss://api.meta.ai/v1/asr/realtime File endpoint POST /v1/asr/transcribe Input Audio Output Transcript text with turn-level timing and optional speaker labels Pricing $0.18 per hour; see Pricing and rate limits Muse Voice Transcribe is built for developers adding real-time speech to voice agents, meeting and call intelligence, live transcription, dictation, captioning, and high-volume transcription products.
+It supports streaming speaker diarization, native endpointing and voice activity detection, contextual and keyword biasing, and 25 evaluated languages with code-switching.
+It returns turn-level timestamps, but not word-level timestamps.
+It is speech-to-text only; it does not synthesize speech or provide a speech-to-speech conversation API.
+Start with the Muse Voice Transcribe guide .
+Build with Segment Anything Model SAM 3.1 segments images and video through Model API.
+Name an object in a short text prompt and get back a box and a pixel-accurate mask for every match, and in video follow each object across frames.
+It uses the same base URL and auth as Muse Spark.
+At a glance Everything you need to make your first segmentation request.
+Base URL https://api.meta.ai/v1 Model sam-3.1 Endpoints POST /v1/responses , POST /v1/files Input Text prompt, image, video Output Boxes and masks Auth Bearer token ( MODEL_API_KEY ) Segment your first image in the Media segmentation guide .
+Build with Muse Spark Open Muse Spark Open is the open-weight release of Muse Spark: an 816B-parameter mixture-of-experts model with 42B active parameters that reads text, images, audio, and video and writes text.
+Instead of calling it over Model API, you download the BF16 or NVFP4 checkpoint and serve it on your own GPUs with a runtime such as SGLang or vLLM, or call it through a hosted inference provider.
+You run Muse Spark Open yourself or through a hosted provider, not on Model API, so the API pricing and specs above don't apply.
+Its own documentation section covers how to get the model, prompt it, run it, and post-train it.
+Muse Spark Open overview : architecture, checkpoints, hardware, and launch partners.
+Get the model : download the weights and verify your setup.
+Run inference : self-host with a runtime or call a hosted provider.
+Post-training : fine-tune the model with a framework or a hosted service.
+Build locally with Muse Glimmer Muse Glimmer is an open-weight multimodal model, distilled from Muse Spark and built to run on your own hardware.
+You run it yourself instead of calling it over Model API: download the weights and serve them through a runtime such as vLLM, SGLang, llama.cpp, or ExecuTorch.
+Because Muse Glimmer is self-hosted, the API pricing and specs above don't apply.
+Its own documentation section covers how to get the model, prompt it, deploy it, and customize it.
+Muse Glimmer overview : variants, architecture, license, and launch partners.
+Get the model : download the weights and verify your setup.
+Run inference : pick a runtime and serve it locally.
+Explore the docs Jump to the surface you need.
+Quickstart Set your key, call the API, and read your first response.
+Models Muse Wonder, Muse Spark, Muse Image, Muse Voice Transcribe, SAM, Muse Spark Open, and Muse Glimmer specs, plus Standard and Contributor mode pricing.
+SDKs and libraries Call Model API with the OpenAI SDK, the Anthropic SDK, or OpenAI-compatible clients.
+Cookbook Copy-paste recipes for primitives, agent loops, and use cases.
+Pricing and rate limits Per-token, per-image, per-frame, and per-hour audio pricing, plus rate limits.
+API reference Full request and response schemas for every endpoint.
+Capabilities Muse Wonder, Muse Spark, Muse Image, Muse Voice Transcribe, and SAM ship production capabilities through Model API.
+Each page explains the concept, shows code, and covers constraints.
+For the open-weight equivalents, see the Muse Spark Open and Muse Glimmer prompting guides.
+Speech to text Transcribe streaming audio and supported files with Muse Voice Transcribe.
+Tool calling Connect the model to your APIs with parallel, streamed tool calls.
+Tool search Discover and load deferred tools on demand to save tokens.
+Search grounding Real-time answers with inline citations, no retrieval stack to build.
+Image understanding Read photos, charts, documents, and screenshots.
+Image generation Generate and edit images with Muse Image, and refine them turn by turn.
+Video understanding Summarize clips, ask questions about footage, and transcribe speech.
+Media segmentation Find and outline objects in images and video with SAM.
+File handling Upload once and reference files by ID across requests.
+Reasoning Dial reasoning effort up or down per request.
+Structured output Return valid JSON that matches your schema every time.
+Prompt caching Cache repeated prefixes to cut latency and cost.
+Token counting Count input tokens before you send to estimate cost and fit context.
+Protocols Pick the request format your code already speaks: same models, same auth, same cost per token.
+A self-hosted Muse Spark Open server exposes its own OpenAI-compatible endpoint through SGLang or vLLM .
+A local Muse Glimmer server does the same through vLLM or llama.cpp .
+See Choosing an API to compare the request formats.
+Responses API Agentic, multi-step workloads with reasoning replay and server-managed state.
+Chat Completions API The OpenAI-compatible messages-array endpoint.
+Messages API The Anthropic Messages-compatible endpoint.
+Agent guides Go deeper on building agents and integrations.
+Coding agents Wire Muse Wonder and Muse Spark into OpenCode, Codex, and Claude Code.
+Agent frameworks Run your own agent loop with the Claude Agent SDK or the OpenAI Codex app-server.
+Computer use Drive a desktop from screenshots with a computer-use agent.
+Get unblocked Browse the Help Center for accounts, API keys, billing, and rate-limit questions.
+For anything it doesn't cover, contact support through the Help Center.
+On this page Please confirm your identity For added security, you need to confirm your identity.
+You will be taken to your single sign-on provider, where you can enter your password.

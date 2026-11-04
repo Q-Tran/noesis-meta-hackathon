@@ -1,0 +1,2591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%235eead4'/%3E%3C/svg%3E">
+<title>Noesis · Corpus Explorer</title>
+<style>
+  :root {
+    --bg: #0a0e13;
+    --panel: #11161d;
+    --panel-2: #161d26;
+    --border: #232c38;
+    --text: #dbe4ee;
+    --text-dim: #8595a7;
+    --accent: #5eead4;
+    --accent-2: #7dd3fc;
+    --danger: #f87171;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Inter, Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; font-family: var(--sans); background: var(--bg); color: var(--text);
+    font-size: 14px; line-height: 1.45; overflow: hidden;
+  }
+  #app { display: flex; flex-direction: column; height: 100vh; }
+
+  /* ---------- header ---------- */
+  header {
+    display: flex; align-items: center; gap: 12px; padding: 0 16px; height: 52px;
+    background: var(--panel); border-bottom: 1px solid var(--border); flex: none;
+  }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 650; font-size: 15px; white-space: nowrap; color: var(--text); text-decoration: none; }
+  .brand:hover { text-decoration: none; }
+  .brand .dot { color: var(--accent); font-size: 18px; }
+  #search-wrap { position: relative; flex: 1; max-width: 560px; }
+  #search {
+    width: 100%; padding: 7px 12px 7px 32px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--panel-2); color: var(--text); font-size: 13px; outline: none;
+  }
+  #search:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(94,234,212,.15); }
+  #search-wrap .icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none; }
+  #search-wrap kbd {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    font-family: var(--mono); font-size: 11px; color: var(--text-dim);
+    border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px;
+  }
+  .tabs { display: flex; gap: 4px; margin-left: auto; }
+  .tab {
+    padding: 6px 14px; border-radius: 8px; border: 1px solid transparent; background: transparent;
+    color: var(--text-dim); font-size: 13px; font-weight: 550; cursor: pointer;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { background: var(--panel-2); border-color: var(--border); color: var(--accent); }
+
+  /* ---------- layout ---------- */
+  #body { display: flex; flex: 1; min-height: 0; }
+  aside {
+    width: 264px; flex: none; background: var(--panel); border-right: 1px solid var(--border);
+    overflow-y: auto; padding: 14px 12px;
+  }
+  main { flex: 1; min-width: 0; overflow-y: auto; padding: 20px 24px 60px; }
+
+  /* ---------- mobile: sidebar becomes a drawer, header wraps to two rows ---------- */
+  #menu-btn {
+    display: none; appearance: none; align-items: center; justify-content: center;
+    width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--panel-2); color: var(--text); font-size: 16px; cursor: pointer; flex: none;
+  }
+  #scrim { display: none; }
+  @media (max-width: 860px) {
+    header { flex-wrap: wrap; height: auto; padding: 8px 12px; row-gap: 8px; }
+    #menu-btn { display: inline-flex; }
+    .tabs { margin-left: auto; }
+    #search-wrap { order: 3; flex-basis: 100%; max-width: none; }
+    #search-wrap kbd { display: none; }
+    aside {
+      position: fixed; left: 0; top: 0; bottom: 0; width: min(300px, 85vw); z-index: 40;
+      transform: translateX(-105%); transition: transform .2s ease;
+    }
+    aside.open { transform: none; }
+    #scrim.show { display: block; position: fixed; inset: 0; background: rgba(4,7,11,.66); z-index: 30; }
+    main { padding: 14px 14px 60px; }
+    .props th { width: 110px; }
+  }
+
+  /* ---------- sidebar ---------- */
+  .side-section { margin-bottom: 20px; }
+  .side-title {
+    font-size: 11px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--text-dim); margin: 0 4px 8px;
+  }
+  .side-stat { display: flex; gap: 10px; padding: 4px; }
+  .side-stat .num { font-family: var(--mono); font-size: 18px; font-weight: 650; color: var(--accent); }
+  .side-stat .lbl { color: var(--text-dim); font-size: 12px; padding-top: 5px; }
+  .label-row {
+    display: flex; align-items: center; gap: 8px; width: 100%; padding: 4px 8px;
+    border: none; background: transparent; color: var(--text); border-radius: 6px;
+    cursor: pointer; font-size: 13px; text-align: left;
+  }
+  .label-row:hover { background: var(--panel-2); }
+  .label-row.active { background: var(--panel-2); outline: 1px solid var(--accent); }
+  .label-row .swatch { width: 8px; height: 8px; border-radius: 3px; flex: none; }
+  .label-row .count { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
+  .rel-row { display: flex; padding: 3px 8px; color: var(--text-dim); font-size: 12px; }
+  .rel-row .t { font-family: var(--mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rel-row .count { margin-left: auto; font-family: var(--mono); font-size: 11px; }
+
+  /* ---------- panels & cards ---------- */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;
+  }
+  .card .num { font-family: var(--mono); font-size: 24px; font-weight: 650; color: var(--accent); }
+  .card .num.sky { color: var(--accent-2); }
+  .card .lbl { color: var(--text-dim); font-size: 12px; margin-top: 2px; }
+  .panel {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; margin-bottom: 16px;
+  }
+  .panel h2 { margin: 0 0 12px; font-size: 13px; font-weight: 650; }
+  .panel h2 .hint { color: var(--text-dim); font-weight: 400; font-size: 12px; margin-left: 8px; }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 1100px) { .split { grid-template-columns: 1fr; } }
+
+  /* ---------- result rows ---------- */
+  .result {
+    display: block; width: 100%; text-align: left; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; cursor: pointer; color: var(--text);
+  }
+  .result:hover { border-color: var(--accent); }
+  .result .top { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px; padding: 1px 8px; border-radius: 999px;
+    font-size: 11px; font-weight: 600; border: 1px solid var(--border); background: var(--panel-2);
+    white-space: nowrap;
+  }
+  .chip .swatch { width: 7px; height: 7px; border-radius: 2px; }
+  .result .title { font-weight: 550; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .result .top .graph-link { margin-left: auto; cursor: pointer; }
+  .result .snippet { color: var(--text-dim); font-size: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .result .snippet mark { background: rgba(94,234,212,.25); color: var(--accent); border-radius: 2px; }
+
+  /* ---------- node detail ---------- */
+  .crumbs { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; color: var(--text-dim); font-size: 13px; }
+  .crumbs button { background: none; border: none; color: var(--accent-2); cursor: pointer; font-size: 13px; padding: 0; }
+  .crumbs button:hover { text-decoration: underline; }
+  .node-title { font-size: 17px; font-weight: 650; margin: 0 0 4px; word-break: break-word; }
+  .props { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .props th, .props td { text-align: left; padding: 5px 10px 5px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .props th { font-family: var(--mono); color: var(--text-dim); font-weight: 500; white-space: nowrap; width: 160px; }
+  .props td { font-family: var(--mono); word-break: break-word; }
+  .props details summary { cursor: pointer; color: var(--accent-2); }
+  .props details pre {
+    margin: 6px 0 4px; padding: 10px; background: var(--panel-2); border-radius: 8px;
+    white-space: pre-wrap; word-break: break-word; font-family: var(--mono); font-size: 12px; max-height: 320px; overflow-y: auto;
+  }
+  .neighbor-group { margin-bottom: 10px; }
+  .neighbor-group .g-title { font-family: var(--mono); font-size: 12px; color: var(--text-dim); margin-bottom: 5px; }
+  .neighbor-group .g-title .dir { color: var(--accent); }
+  .neighbor-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .neighbor-chips .chip { cursor: pointer; }
+  .neighbor-chips .chip:hover { border-color: var(--accent); }
+  #graph-canvas {
+    width: 100%; height: 380px; display: block; border-radius: 10px;
+    background: var(--panel-2); border: 1px solid var(--border); cursor: grab;
+  }
+  #graph-canvas.dragging { cursor: grabbing; }
+
+  /* ---------- graph explorer ---------- */
+  .explorer-wrap {
+    position: relative; padding: 0; overflow: hidden;
+    height: calc(100vh - 52px - 40px); background: #0c1118;
+  }
+  #explorer-canvas { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
+  #explorer-canvas.dragging { cursor: grabbing; }
+  .explorer-hint {
+    position: absolute; top: 10px; left: 14px; pointer-events: none;
+    font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+    background: rgba(13,18,25,.85); border: 1px solid var(--border);
+    border-radius: 8px; padding: 4px 10px; max-width: 46%;
+  }
+  .explorer-toolbar {
+    position: absolute; top: 10px; right: 14px; display: flex; gap: 6px;
+    align-items: center; flex-wrap: wrap; justify-content: flex-end; z-index: 9;
+    max-width: 52%;
+  }
+  .explorer-toolbar .btn-ghost { background: rgba(13,18,25,.9); }
+  .layer-pill {
+    appearance: none; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--border);
+    background: rgba(13,18,25,.9); color: var(--text-dim); font-size: 11px;
+    font-weight: 550; cursor: pointer; transition: background .15s, color .15s;
+  }
+  .layer-pill.on { color: #052e2b; background: var(--accent); border-color: var(--accent); }
+  @media (max-width: 860px) {
+    .explorer-toolbar { max-width: 60%; }
+    .explorer-hint { display: none; }
+  }
+  .explorer-info {
+    position: absolute; left: 14px; bottom: 14px; width: 320px; max-height: 56%;
+    overflow-y: auto; background: rgba(13,18,25,.97); border: 1px solid #33404a;
+    border-radius: 10px; padding: 12px 14px; box-shadow: 0 20px 50px rgba(0,0,0,.6);
+  }
+  .explorer-info.hidden { display: none; }
+  .explorer-info h3 { margin: 0 0 6px; font-size: 14px; font-weight: 650; word-break: break-word; }
+  .explorer-info .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .explorer-info .kv {
+    font-family: var(--mono); font-size: 11px; display: grid;
+    grid-template-columns: 96px 1fr; gap: 3px 8px; margin-bottom: 10px;
+  }
+  .explorer-info .kv .k { color: var(--text-dim); }
+  .explorer-info .kv .v { color: var(--text); word-break: break-word; }
+  .explorer-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btn-ghost {
+    appearance: none; padding: 5px 10px; border-radius: 7px; border: 1px solid var(--border);
+    background: var(--panel-2); color: var(--text-dim); font-size: 11px; cursor: pointer;
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--accent); }
+  .btn-ghost:disabled { opacity: .5; cursor: default; }
+  .explorer-empty {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: var(--text-dim); font-size: 13px; text-align: center; padding: 24px;
+  }
+  @media (max-width: 860px) {
+    .explorer-wrap { height: calc(100vh - 100px - 28px); }
+    .explorer-info { left: 8px; right: 8px; width: auto; bottom: 8px; max-height: 46%; }
+  }
+
+  /* ---------- activity ---------- */
+  .activity-row { display: flex; align-items: baseline; gap: 10px; padding: 6px 2px; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .activity-row:last-child { border-bottom: none; }
+  .activity-row .kind { font-family: var(--mono); font-weight: 600; width: 110px; flex: none; }
+  .activity-row .kind.Session { color: var(--accent-2); }
+  .activity-row .kind.RoutingTrace { color: var(--accent); }
+  .activity-row .id { font-family: var(--mono); color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+  .activity-row .when { color: var(--text-dim); white-space: nowrap; }
+  .activity-row .status { font-size: 11px; padding: 0 6px; border-radius: 999px; border: 1px solid var(--border); }
+  .activity-row .status.error { color: var(--danger); border-color: var(--danger); }
+
+  /* ---------- ask ---------- */
+  #ask-thread { max-width: 760px; margin: 0 auto; padding-top: 6px; }
+  .qa { margin-bottom: 26px; display: flex; flex-direction: column; gap: 12px; animation: rise .25s ease-out; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+  .qa .q {
+    align-self: flex-end; max-width: 78%;
+    background: linear-gradient(135deg, rgba(94,234,212,.17), rgba(94,234,212,.07));
+    border: 1px solid rgba(94,234,212,.30); border-radius: 18px 18px 4px 18px;
+    padding: 10px 15px; font-weight: 500; line-height: 1.5;
+  }
+  .qa .a-row { display: flex; gap: 10px; align-items: flex-start; }
+  .qa .avatar {
+    flex: none; width: 28px; height: 28px; border-radius: 50%; margin-top: 2px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(94,234,212,.14); border: 1px solid rgba(94,234,212,.4);
+    color: var(--accent); font-size: 13px;
+  }
+  .qa .a {
+    min-width: 0; max-width: calc(100% - 38px);
+    background: var(--panel); border: 1px solid var(--border); border-radius: 4px 18px 18px 18px;
+    padding: 12px 16px; line-height: 1.6;
+  }
+  .qa .a.pending { color: var(--text-dim); }
+  .qa .a.error { color: var(--danger); border-color: var(--danger); }
+  .typing { display: inline-flex; gap: 5px; align-items: center; margin-right: 8px; vertical-align: -2px; }
+  .typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: blink 1.2s infinite; }
+  .typing i:nth-child(2) { animation-delay: .18s; }
+  .typing i:nth-child(3) { animation-delay: .36s; }
+  @keyframes blink { 0%, 60%, 100% { opacity: .25; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+  #ask-head { max-width: 760px; margin: 2px auto 14px; display: flex; justify-content: center; gap: 8px; }
+  .model-chip {
+    display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 9.5px;
+    color: var(--text-dim); border: 1px solid var(--border); border-radius: 999px;
+    padding: 3px 10px; background: rgba(255,255,255,.02);
+  }
+  .model-chip b { color: var(--accent); font-weight: 600; }
+  .map-model { margin-top: 9px; }
+  .md h1, .md h2, .md h3 { margin: 14px 0 6px; line-height: 1.3; }
+  .md h1 { font-size: 18px; } .md h2 { font-size: 16px; } .md h3 { font-size: 14px; }
+  .md p { margin: 8px 0; }
+  .md ul, .md ol { margin: 8px 0; padding-left: 22px; }
+  .md li { margin: 3px 0; }
+  .md code { font-family: var(--mono); font-size: 12px; background: var(--panel-2); padding: 1px 5px; border-radius: 4px; }
+  .md pre { background: var(--panel-2); padding: 12px; border-radius: 8px; overflow-x: auto; }
+  .md pre code { background: none; padding: 0; }
+  .md a { color: var(--accent-2); }
+  .md blockquote { border-left: 3px solid var(--border); margin: 8px 0; padding: 2px 12px; color: var(--text-dim); }
+  .md table { border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+  .md th, .md td { border: 1px solid var(--border); padding: 5px 10px; text-align: left; }
+  .md th { background: var(--panel-2); }
+  #ask-form {
+    max-width: 760px; margin: 18px auto 0; display: flex; gap: 8px; align-items: center;
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 999px;
+    padding: 5px 5px 5px 18px; transition: border-color .15s;
+  }
+  #ask-form:focus-within { border-color: var(--accent); }
+  .ask-quick { max-width: 760px; margin: 12px auto 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .ask-quick span { font-family: var(--mono); font-size: 10px; color: var(--text-dim); }
+  .ask-quick button {
+    appearance: none; font-family: var(--sans); font-size: 11.5px; color: var(--text-dim);
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 999px; padding: 6px 13px; cursor: pointer; transition: all .15s;
+  }
+  .ask-quick button:hover { color: var(--accent); border-color: rgba(94,234,212,.45); transform: translateY(-1px); }
+  .msg-toolsearch {
+    margin: 2px 0 8px; font-family: var(--mono); font-size: 10px; color: var(--accent-2);
+    border: 1px solid rgba(125,211,252,.45); background: rgba(125,211,252,.10);
+    border-radius: 8px; padding: 7px 11px; line-height: 1.55; overflow-wrap: anywhere;
+    box-shadow: 0 0 12px rgba(125,211,252,.10);
+  }
+  .msg-progress { margin-top: 9px; display: flex; flex-direction: column; gap: 4px; }
+  .msg-progress:empty { display: none; }
+  .prog-row {
+    display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 10px;
+    color: var(--text-dim); line-height: 1.5; animation: rise .2s ease-out;
+  }
+  .prog-row .prog-dot {
+    flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+    animation: blink 1s infinite;
+  }
+  .prog-row.done .prog-dot { animation: none; background: none; width: auto; height: auto; color: var(--green); font-size: 10px; }
+  .prog-row.error .prog-dot { background: var(--danger); animation: none; }
+  .prog-row.write .prog-name { color: #ffd07a; }
+  .prog-row .prog-name { color: #9fb0cc; }
+  .prog-row .prog-detail { overflow-wrap: anywhere; opacity: .85; }
+  .prog-search { margin: 2px 0; }
+  .ask-status { color: var(--text-dim); }
+  .mini-graph { margin-top: 10px; border: 1px solid var(--border); border-radius: 10px; background: rgba(13,18,25,.7); padding: 10px 12px; }
+  .mini-graph .mini-head { font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+  .mini-graph canvas { width: 100%; height: 210px; display: block; border-radius: 6px; cursor: crosshair; }
+  .msg-tools { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .tchip {
+    font-family: var(--mono); font-size: 9px; color: #9fb0cc;
+    border: 1px solid var(--border); border-radius: 999px; padding: 2px 7px;
+    background: rgba(255,255,255,.03); white-space: nowrap;
+  }
+  .msg-writes { margin-top: 6px; font-family: var(--mono); font-size: 9.5px; color: #ffd07a; overflow-wrap: anywhere; }
+  .delta-card { margin-top: 10px; border: 1px solid var(--border); border-radius: 10px; background: rgba(13,18,25,.7); padding: 10px 12px; }
+  .delta-head { font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 7px; }
+  .delta-row { display: flex; gap: 8px; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 11px; line-height: 1.45; }
+  .delta-row:last-child { border-bottom: none; }
+  .delta-row .mark { flex: none; width: 14px; text-align: center; font-weight: 700; }
+  .delta-row .mark.m-\+ { color: var(--green); }
+  .delta-row .mark.m-Δ { color: #ffc247; }
+  .delta-row .mark.m-⚔ { color: var(--danger); }
+  .delta-row .mark.m-✓ { color: var(--accent); }
+  .delta-row .why { display: block; color: var(--text-dim); font-size: 10px; margin-top: 1px; }
+  .msg-tracebtn {
+    margin-top: 8px; appearance: none; background: none; border: none; color: var(--text-dim);
+    font-family: var(--mono); font-size: 10px; cursor: pointer; padding: 0;
+  }
+  .msg-tracebtn:hover { color: var(--accent); }
+  .msg-trace { margin-top: 7px; border-left: 2px solid var(--border); padding-left: 10px; }
+  .trace-span { font-family: var(--mono); font-size: 9.5px; color: var(--text-dim); padding: 3px 0; line-height: 1.5; }
+  .trace-span b { color: var(--accent); }
+  .trace-span .err { color: var(--danger); }
+  .trace-io { display: block; color: var(--text-dim); opacity: .8; overflow-wrap: anywhere; }
+  #ask-input {
+    flex: 1; padding: 9px 0; border: none; background: none;
+    color: var(--text); font-size: 14px; outline: none;
+  }
+  .btn-primary {
+    padding: 10px 20px; border-radius: 10px; border: none; background: var(--accent);
+    color: #052e2b; font-weight: 650; font-size: 14px; cursor: pointer;
+  }
+  .btn-primary:disabled { opacity: .5; cursor: default; }
+  #ask-form .btn-primary {
+    flex: none; width: 36px; height: 36px; padding: 0; border-radius: 50%;
+    font-size: 16px; line-height: 1; display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ---------- states ---------- */
+  #offline-banner {
+    display: none; padding: 8px 16px; background: rgba(248,113,113,.12); color: var(--danger);
+    border-bottom: 1px solid rgba(248,113,113,.3); font-size: 12px; flex: none;
+  }
+  #offline-banner.show { display: block; }
+  .empty { color: var(--text-dim); text-align: center; padding: 40px 0; font-size: 13px; }
+  .loading { color: var(--text-dim); padding: 12px 4px; font-size: 13px; }
+  .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: -2px; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; border: 2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <button id="menu-btn" aria-label="Browse the corpus">☰</button>
+    <a class="brand" href="/" title="Back to the overview"><span class="dot">◈</span> Noesis</a>
+    <div id="search-wrap">
+      <span class="icon">⌕</span>
+      <input id="search" type="text" placeholder="Search the entire corpus…" autocomplete="off" spellcheck="false">
+      <kbd>/</kbd>
+    </div>
+    <nav class="tabs">
+      <button class="tab active" data-view="graph">Graph</button>
+      <button class="tab" data-view="dashboard">Dashboard</button>
+      <button class="tab" data-view="ask">Ask</button>
+    </nav>
+  </header>
+  <div id="offline-banner">Neo4j is unreachable — start it with <code>./scripts/start_local.sh</code>. The page will retry on your next action.</div>
+  <div id="body">
+    <div id="scrim"></div>
+    <aside id="sidebar"><div class="loading"><span class="spinner"></span>Loading corpus…</div></aside>
+    <main id="main"></main>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ============================== utilities ============================== */
+
+const $ = (sel, root = document) => root.querySelector(sel);
+const main = $("main");
+const sidebar = $("#sidebar");
+
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function fmtNum(n) { return (n ?? 0).toLocaleString("en-US"); }
+
+function relTime(iso) {
+  if (!iso) return "";
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return String(iso).slice(0, 19);
+  const s = Math.max(1, (Date.now() - t) / 1000);
+  if (s < 60) return `${Math.floor(s)}s ago`;
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  return `${Math.floor(s / 86400)}d ago`;
+}
+
+/* Deterministic color per label: hash to a hue, fixed s/l for the dark theme. */
+const colorCache = new Map();
+function labelColor(label) {
+  if (!colorCache.has(label)) {
+    let h = 0;
+    for (const ch of String(label)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    colorCache.set(label, `hsl(${h % 360}, 65%, 62%)`);
+  }
+  return colorCache.get(label);
+}
+
+function chip(label, { title = "", click = null } = {}) {
+  const c = document.createElement(click ? "button" : "span");
+  c.className = "chip";
+  c.innerHTML = `<span class="swatch" style="background:${labelColor(label)}"></span>${esc(label)}${title ? ` · ${esc(title)}` : ""}`;
+  if (click) c.addEventListener("click", e => { e.stopPropagation(); click(); });
+  return c;
+}
+
+/* ============================== API layer ============================== */
+
+let offline = false;
+
+async function api(path, options = {}) {
+  const res = await fetch(path, options);
+  if (res.status === 503) {
+    setOffline(true);
+    throw new Error((await res.json().catch(() => ({}))).detail || "Neo4j unavailable");
+  }
+  setOffline(false);
+  if (res.status === 404) { const e = new Error("Not found"); e.status = 404; throw e; }
+  if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+  return res.json();
+}
+
+function setOffline(flag) {
+  if (offline === flag) return;
+  offline = flag;
+  $("#offline-banner").classList.toggle("show", flag);
+}
+
+/* ============================== router ============================== */
+
+const state = { view: "graph", activeLabel: null, searchSeq: 0 };
+
+function setView(view) {
+  state.view = view;
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.view === view));
+  if (view === "graph") renderGraphExplorer();
+  if (view === "dashboard") renderDashboard();
+  if (view === "ask") renderAsk();
+  renderSidebar(); // view-aware: the graph gets the map sidebar
+}
+
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => setView(t.dataset.view)));
+
+/* ---------- mobile drawer ---------- */
+
+const scrim = $("#scrim");
+
+function setDrawer(open) {
+  sidebar.classList.toggle("open", open);
+  scrim.classList.toggle("show", open);
+}
+
+$("#menu-btn").addEventListener("click", () => setDrawer(!sidebar.classList.contains("open")));
+scrim.addEventListener("click", () => setDrawer(false));
+// Picking a node kind navigates; the drawer gets out of the way itself.
+sidebar.addEventListener("click", e => { if (e.target.closest(".label-row")) setDrawer(false); });
+
+/* ============================== sidebar ============================== */
+
+let overviewData = null;
+
+async function renderSidebar() {
+  // The sidebar is view-aware: on the graph it speaks about the map (a select
+  // subset); elsewhere it speaks about the corpus (everything).
+  if (state.view === "graph" || state.view === "node") return renderGraphSidebar();
+  return renderCorpusSidebar();
+}
+
+async function renderCorpusSidebar() {
+  try {
+    overviewData = await api("/api/overview");
+  } catch (e) {
+    sidebar.innerHTML = `<div class="empty">Corpus unavailable.<br>${esc(e.message)}</div>`;
+    return;
+  }
+  sidebar.innerHTML = "";
+
+  const stats = document.createElement("div");
+  stats.className = "side-section";
+  stats.innerHTML = `
+    <div class="side-title">Corpus</div>
+    <div class="side-stat"><span class="num">${fmtNum(overviewData.total_nodes)}</span><span class="lbl">nodes</span></div>
+    <div class="side-stat"><span class="num">${fmtNum(overviewData.total_relationships)}</span><span class="lbl">relationships</span></div>`;
+  sidebar.appendChild(stats);
+
+  const labels = document.createElement("div");
+  labels.className = "side-section";
+  labels.innerHTML = `<div class="side-title">Node kinds</div>`;
+  for (const { label, count } of overviewData.labels) {
+    const row = document.createElement("button");
+    row.className = "label-row" + (state.activeLabel === label ? " active" : "");
+    row.dataset.label = label;
+    row.innerHTML = `<span class="swatch" style="background:${labelColor(label)}"></span>${esc(label)}<span class="count">${fmtNum(count)}</span>`;
+    row.addEventListener("click", () => browseLabel(label));
+    labels.appendChild(row);
+  }
+  sidebar.appendChild(labels);
+
+  const rels = document.createElement("div");
+  rels.className = "side-section";
+  rels.innerHTML = `<div class="side-title">Relationships</div>`;
+  for (const { type, count } of overviewData.relationships.slice(0, 20)) {
+    const row = document.createElement("div");
+    row.className = "rel-row";
+    row.innerHTML = `<span class="t">${esc(type)}</span><span class="count">${fmtNum(count)}</span>`;
+    rels.appendChild(row);
+  }
+  sidebar.appendChild(rels);
+}
+
+async function renderGraphSidebar() {
+  const ex = explorerInstance;
+  // The subset only means anything against the corpus totals; fetch them on
+  // any path that lands here first (graph is the default view).
+  if (!overviewData) {
+    try { overviewData = await api("/api/overview"); }
+    catch { overviewData = null; }
+  }
+  const nodeCount = ex ? ex.nodes.length : 0;
+  const totalNodes = overviewData ? overviewData.total_nodes : null;
+  const totalRels = overviewData ? overviewData.total_relationships : null;
+  sidebar.innerHTML = "";
+
+  const stats = document.createElement("div");
+  stats.className = "side-section";
+  stats.innerHTML = `
+    <div class="side-title">This map</div>
+    <div class="side-stat"><span class="num">${fmtNum(nodeCount)}</span><span class="lbl">of ${totalNodes ? fmtNum(totalNodes) : "…"} nodes in the corpus</span></div>
+    <div class="side-stat"><span class="num sky">${fmtNum(ex ? ex.edges.length : 0)}</span><span class="lbl">of ${totalRels ? fmtNum(totalRels) : "…"} relationships</span></div>
+    <div class="model-chip map-model" title="extraction model: muse-spark-1.3">⬡ corpus ingested by <b>Muse Spark 1.3</b></div>`;
+  sidebar.appendChild(stats);
+
+  const counts = new Map();
+  if (ex) for (const n of ex.nodes) counts.set(n.label, (counts.get(n.label) || 0) + 1);
+  const kinds = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+
+  const sec = document.createElement("div");
+  sec.className = "side-section";
+  sec.innerHTML = `<div class="side-title">On this map · filters (multi-select)</div>`;
+  for (const [label, count] of kinds) {
+    const row = document.createElement("button");
+    row.className = "label-row" + (ex && ex.filterLabels.has(label) ? " active" : "");
+    row.dataset.label = label;
+    row.innerHTML = `<span class="swatch" style="background:${labelColor(label)}"></span>${esc(label)}<span class="count">${fmtNum(count)}</span>`;
+    row.addEventListener("click", () => ex && ex.toggleGraphFilter(label));
+    sec.appendChild(row);
+  }
+  if (ex && ex.filterLabels.size) {
+    const clear = document.createElement("button");
+    clear.className = "btn-ghost";
+    clear.style.marginTop = "8px";
+    clear.textContent = ex.filterLabels.size === 1
+      ? `clear filter · ${[...ex.filterLabels][0]}`
+      : `clear ${ex.filterLabels.size} filters`;
+    clear.addEventListener("click", () => ex.clearGraphFilters());
+    sec.appendChild(clear);
+  }
+  if (!ex) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "Loading the map…";
+    sec.appendChild(empty);
+  }
+  sidebar.appendChild(sec);
+}
+
+/* ============================== dashboard ============================== */
+
+async function renderDashboard() {
+  main.innerHTML = `<div class="loading"><span class="spinner"></span>Loading dashboard…</div>`;
+  let ov, growth, activity;
+  try {
+    [ov, growth, activity] = await Promise.all([
+      overviewData ? Promise.resolve(overviewData) : api("/api/overview"),
+      api("/api/growth?days=30").catch(() => []),
+      api("/api/activity?limit=14").catch(() => []),
+    ]);
+    overviewData = ov;
+  } catch (e) {
+    main.innerHTML = `<div class="empty">Dashboard unavailable.<br>${esc(e.message)}</div>`;
+    return;
+  }
+
+  main.innerHTML = "";
+
+  const cards = document.createElement("div");
+  cards.className = "cards";
+  const topLabel = ov.labels[0];
+  cards.innerHTML = `
+    <div class="card"><div class="num">${fmtNum(ov.total_nodes)}</div><div class="lbl">nodes in the corpus</div></div>
+    <div class="card"><div class="num sky">${fmtNum(ov.total_relationships)}</div><div class="lbl">relationships</div></div>
+    <div class="card"><div class="num">${ov.labels.length}</div><div class="lbl">node kinds</div></div>
+    <div class="card"><div class="num sky">${topLabel ? esc(topLabel.label) : "—"}</div><div class="lbl">largest kind${topLabel ? ` · ${fmtNum(topLabel.count)}` : ""}</div></div>`;
+  main.appendChild(cards);
+
+  if (growth.length) {
+    const panel = document.createElement("div");
+    panel.className = "panel";
+    panel.innerHTML = `<h2>Corpus growth <span class="hint">new nodes per day, last 30 days</span></h2>`;
+    panel.appendChild(sparkline(growth));
+    main.appendChild(panel);
+  }
+
+  const split = document.createElement("div");
+  split.className = "split";
+
+  const kindsPanel = document.createElement("div");
+  kindsPanel.className = "panel";
+  kindsPanel.innerHTML = `<h2>Node kinds <span class="hint">click to browse</span></h2>`;
+  for (const { label, count } of ov.labels.slice(0, 12)) {
+    const row = document.createElement("button");
+    row.className = "label-row";
+    row.innerHTML = `<span class="swatch" style="background:${labelColor(label)}"></span>${esc(label)}<span class="count">${fmtNum(count)}</span>`;
+    row.addEventListener("click", () => browseLabel(label));
+    kindsPanel.appendChild(row);
+  }
+  split.appendChild(kindsPanel);
+
+  const actPanel = document.createElement("div");
+  actPanel.className = "panel";
+  actPanel.innerHTML = `<h2>Recent activity <span class="hint">harness sessions & routing traces</span></h2>`;
+  if (!activity.length) {
+    actPanel.innerHTML += `<div class="empty">No recorded activity yet.</div>`;
+  } else {
+    for (const item of activity) actPanel.appendChild(activityRow(item));
+  }
+  split.appendChild(actPanel);
+
+  main.appendChild(split);
+}
+
+function sparkline(points) {
+  const w = 600, h = 90, pad = 4;
+  const max = Math.max(...points.map(p => p.count), 1);
+  const step = points.length > 1 ? (w - pad * 2) / (points.length - 1) : 0;
+  const coords = points.map((p, i) => `${(pad + i * step).toFixed(1)},${(h - pad - (p.count / max) * (h - pad * 2)).toFixed(1)}`);
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  svg.style.width = "100%";
+  svg.style.height = "auto";
+  svg.innerHTML = `
+    <polyline points="${coords.join(" ")}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <polygon points="${pad},${h - pad} ${coords.join(" ")} ${(pad + (points.length - 1) * step).toFixed(1)},${h - pad}"
+             fill="rgba(94,234,212,.08)" stroke="none"/>
+    <text x="${pad}" y="${h - pad + 2}" fill="var(--text-dim)" font-size="9" transform="translate(0,-1)">${esc(points[0].day)}</text>
+    <text x="${w - pad}" y="${h - pad - 1}" fill="var(--text-dim)" font-size="9" text-anchor="end">${esc(points[points.length - 1].day)} · peak ${fmtNum(max)}/day</text>`;
+  return svg;
+}
+
+function activityRow(item) {
+  const row = document.createElement("div");
+  row.className = "activity-row";
+  const status = item.error
+    ? `<span class="status error">error</span>`
+    : (item.status ? `<span class="status">${esc(item.status)}</span>` : "");
+  row.innerHTML = `
+    <span class="kind ${esc(item.kind)}">${esc(item.kind)}</span>
+    <span class="id" title="${esc(item.id)}">${esc(item.id)}</span>
+    ${status}
+    <span class="when">${relTime(item.last_active_at || item.started_at)}</span>`;
+  row.style.cursor = "pointer";
+  row.addEventListener("click", () => searchFor(item.id));
+  return row;
+}
+
+/* ============================== search ============================== */
+
+const searchInput = $("#search");
+let searchAbort = null;
+let searchTimer = null;
+
+searchInput.addEventListener("input", () => {
+  clearTimeout(searchTimer);
+  const q = searchInput.value.trim();
+  if (!q) { renderDashboardIfIdle(); return; }
+  searchTimer = setTimeout(() => runSearch(q, state.activeLabel), 220);
+});
+
+searchInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    clearTimeout(searchTimer);
+    const q = searchInput.value.trim();
+    if (q) runSearch(q, state.activeLabel);
+  }
+  if (e.key === "Escape") { searchInput.value = ""; renderDashboardIfIdle(); }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.key === "/" && document.activeElement !== searchInput && document.activeElement !== $("#ask-input")) {
+    e.preventDefault();
+    searchInput.focus();
+  }
+});
+
+function renderDashboardIfIdle() {
+  state.activeLabel = null;
+  document.querySelectorAll("#sidebar .label-row.active").forEach(r => r.classList.remove("active"));
+  setView("dashboard");
+}
+
+function searchFor(q) {
+  searchInput.value = q;
+  runSearch(q, null);
+}
+
+function browseLabel(label) {
+  if (state.activeLabel === label) { renderDashboardIfIdle(); return; }
+  state.activeLabel = label;
+  document.querySelectorAll("#sidebar .label-row").forEach(r =>
+    r.classList.toggle("active", r.dataset.label === label));
+  searchInput.value = "";
+  runSearch("", label);
+}
+
+async function runSearch(q, label) {
+  const seq = ++state.searchSeq;
+  setViewKeep("search");
+  main.innerHTML = `<div class="loading"><span class="spinner"></span>Searching…</div>`;
+  if (searchAbort) searchAbort.abort();
+  searchAbort = new AbortController();
+  try {
+    const params = new URLSearchParams();
+    if (q) params.set("q", q);
+    if (label) params.set("label", label);
+    const results = await api(`/api/search?${params}`, { signal: searchAbort.signal });
+    if (seq !== state.searchSeq) return; // a newer search superseded this one
+    renderSearchResults(results, q, label);
+  } catch (e) {
+    if (e.name === "AbortError") return;
+    if (seq !== state.searchSeq) return;
+    main.innerHTML = `<div class="empty">Search failed.<br>${esc(e.message)}</div>`;
+  }
+}
+
+function setViewKeep(view) {
+  // Search results and node detail are transient views: no top tab owns them.
+  state.view = view;
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+}
+
+function renderSearchResults(results, q, label) {
+  main.innerHTML = "";
+  const crumbs = document.createElement("div");
+  crumbs.className = "crumbs";
+  const back = document.createElement("button");
+  back.textContent = "← Dashboard";
+  back.addEventListener("click", renderDashboardIfIdle);
+  crumbs.appendChild(back);
+  const what = label ? `kind ${label}` : "all kinds";
+  crumbs.insertAdjacentHTML("beforeend",
+    `<span>${q ? `Search “${esc(q)}” in ${esc(what)}` : `Browsing ${esc(what)}`} · ${results.length} result${results.length === 1 ? "" : "s"}</span>`);
+  main.appendChild(crumbs);
+
+  if (!results.length) {
+    main.insertAdjacentHTML("beforeend", `<div class="empty">Nothing in the corpus matches.</div>`);
+    return;
+  }
+  for (const node of results) main.appendChild(resultRow(node, q));
+}
+
+function resultRow(node, q) {
+  const row = document.createElement("button");
+  row.className = "result";
+  const label = node.labels[0] || "Node";
+  const props = node.properties || {};
+  const snippetSource = props.statement || props.text || props.description || props.surface_text || "";
+  let snippet = esc(String(snippetSource).slice(0, 240));
+  if (q && snippet) {
+    const needle = esc(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    snippet = snippet.replace(new RegExp(`(${needle})`, "ig"), "<mark>$1</mark>");
+  }
+  row.innerHTML = `
+    <div class="top"></div>
+    <div class="title">${esc(node.title)}</div>
+    ${snippet ? `<div class="snippet">${snippet}</div>` : ""}`;
+  row.querySelector(".top").appendChild(chip(label));
+  const graphLink = document.createElement("span");
+  graphLink.className = "chip graph-link";
+  graphLink.textContent = "◈ graph";
+  graphLink.title = "Open in the graph explorer";
+  graphLink.addEventListener("click", e => { e.stopPropagation(); openInExplorer(node.element_id); });
+  row.querySelector(".top").appendChild(graphLink);
+  row.addEventListener("click", () => openNode(node.element_id));
+  return row;
+}
+
+/* ============================== node detail ============================== */
+
+async function openNode(elementId) {
+  const seq = ++state.searchSeq;
+  state.view = "node";
+  main.innerHTML = `<div class="loading"><span class="spinner"></span>Loading node…</div>`;
+  try {
+    const [detail, neighborhood] = await Promise.all([
+      api(`/api/node/${encodeURIComponent(elementId)}`),
+      api(`/api/node/${encodeURIComponent(elementId)}/neighbors?limit=60`),
+    ]);
+    if (seq !== state.searchSeq) return;
+    renderNode(detail, neighborhood);
+  } catch (e) {
+    if (seq !== state.searchSeq) return;
+    main.innerHTML = e.status === 404
+      ? `<div class="empty">That node no longer exists in the corpus.</div>`
+      : `<div class="empty">Failed to load node.<br>${esc(e.message)}</div>`;
+  }
+}
+
+function renderNode(detail, neighborhood) {
+  main.innerHTML = "";
+  const label = detail.labels[0] || "Node";
+
+  const crumbs = document.createElement("div");
+  crumbs.className = "crumbs";
+  const back = document.createElement("button");
+  back.textContent = "← Back";
+  back.addEventListener("click", renderDashboardIfIdle);
+  crumbs.appendChild(back);
+  crumbs.insertAdjacentHTML("beforeend", `<span>Node</span>`);
+  crumbs.appendChild(chip(label));
+  main.appendChild(crumbs);
+
+  const head = document.createElement("div");
+  head.className = "panel";
+  head.innerHTML = `<h1 class="node-title">${esc(detail.title)}</h1>`;
+  const openEx = document.createElement("button");
+  openEx.className = "btn-ghost";
+  openEx.textContent = "◈ Open in graph explorer";
+  openEx.addEventListener("click", () => openInExplorer(detail.element_id));
+  head.appendChild(openEx);
+  const props = detail.properties || {};
+  const keys = Object.keys(props).filter(k => !k.startsWith("_") && k !== detail.title && props[k] !== detail.title).sort();
+  if (keys.length) {
+    const table = document.createElement("table");
+    table.className = "props";
+    for (const key of keys) table.appendChild(propRow(key, props[key]));
+    head.appendChild(table);
+  }
+  main.appendChild(head);
+
+  const graphPanel = document.createElement("div");
+  graphPanel.className = "panel";
+  graphPanel.innerHTML = `<h2>Neighborhood <span class="hint">${neighborhood.edges.length} edge${neighborhood.edges.length === 1 ? "" : "s"} · drag nodes, click to open</span></h2>`;
+  const canvas = document.createElement("canvas");
+  canvas.id = "graph-canvas";
+  graphPanel.appendChild(canvas);
+  main.appendChild(graphPanel);
+
+  const groups = groupBy(neighborhood.edges, e => `${e.outgoing ? "→" : "←"} ${e.type}`);
+  const listPanel = document.createElement("div");
+  listPanel.className = "panel";
+  listPanel.innerHTML = `<h2>Connections</h2>`;
+  const nodeByEid = new Map(neighborhood.nodes.map(n => [n.element_id, n]));
+  for (const [gtitle, edges] of [...groups.entries()].sort()) {
+    const g = document.createElement("div");
+    g.className = "neighbor-group";
+    const [dir, type] = gtitle.split(" ", 2);
+    g.innerHTML = `<div class="g-title"><span class="dir">${esc(dir)}</span> ${esc(type)} <span style="opacity:.7">(${edges.length})</span></div>`;
+    const chips = document.createElement("div");
+    chips.className = "neighbor-chips";
+    for (const e of edges) {
+      const other = nodeByEid.get(e.outgoing ? e.target : e.source);
+      if (!other) continue;
+      const otherLabel = (other.labels[0] || "Node") + " · " + shortTitle(other.title);
+      chips.appendChild(chip(otherLabel, { click: () => openNode(other.element_id) }));
+    }
+    g.appendChild(chips);
+    listPanel.appendChild(g);
+  }
+  main.appendChild(listPanel);
+
+  new ForceGraph(canvas, neighborhood);
+}
+
+function groupBy(items, keyFn) {
+  const m = new Map();
+  for (const item of items) {
+    const k = keyFn(item);
+    if (!m.has(k)) m.set(k, []);
+    m.get(k).push(item);
+  }
+  return m;
+}
+
+function shortTitle(title) {
+  const t = String(title || "");
+  return t.length > 42 ? t.slice(0, 60) + "…" : t;
+}
+
+function propRow(key, value) {
+  const tr = document.createElement("tr");
+  const th = document.createElement("th");
+  th.textContent = key;
+  const td = document.createElement("td");
+  const s = typeof value === "string" ? value : JSON.stringify(value, null, 1);
+  if (s && s.length > 160) {
+    const details = document.createElement("details");
+    const summary = document.createElement("summary");
+    summary.textContent = `${esc(s.slice(0, 120))}… (${fmtNum(s.length)} chars — expand)`;
+    const pre = document.createElement("pre");
+    pre.textContent = s;
+    details.append(summary, pre);
+    td.appendChild(details);
+  } else {
+    td.textContent = s;
+  }
+  tr.append(th, td);
+  return tr;
+}
+
+/* ============================== graph explorer ============================== */
+
+/* Mirrors corpus.py's layer taxonomy (keep the two in sync): canonical is the
+   complement, computed client-side. Tool is canonical (a callable capability
+   is product knowledge, not evidence). */
+const EPISTEMOLOGY_LABELS = new Set(["Claim", "Argument"]);
+const PROVENANCE_LABELS = new Set(["SourceNode", "Chunk", "RoutingTrace", "Session", "Span", "TraceOutcome"]);
+
+function layerOf(label) {
+  if (EPISTEMOLOGY_LABELS.has(label)) return "epistemology";
+  if (PROVENANCE_LABELS.has(label)) return "provenance";
+  return "canonical";
+}
+
+/* Rehydrate the indexed wire form (ids table + label/type dictionaries);
+   node rows are [labelIdx, title] or [labelIdx, title, degree]. */
+function rehydrateGraph(payload) {
+  const nodes = payload.nodes.map((row, i) => ({
+    element_id: payload.ids[i],
+    labels: row[0] >= 0 ? [payload.labels_dict[row[0]]] : [],
+    title: row[1],
+    degree: row[2] || 0,
+  }));
+  const edges = payload.edges.map(([typeIdx, src, tgt]) => ({
+    element_id: null,
+    type: payload.rel_types[typeIdx],
+    source: payload.ids[src],
+    target: payload.ids[tgt],
+  }));
+  return { nodes, edges };
+}
+
+/* The explorer is the productive view of the corpus: home is a representative
+   ~100-node canonical subset laid out by force, so connected nodes settle
+   together. "Load all" renders whole layers in a static community layout.
+   State persists across tab visits. */
+
+let explorerState = null;
+let pendingExplorerFocus = null;
+
+async function renderGraphExplorer() {
+  main.innerHTML = "";
+  const wrap = document.createElement("div");
+  wrap.className = "panel explorer-wrap";
+  const canvas = document.createElement("canvas");
+  canvas.id = "explorer-canvas";
+  const hint = document.createElement("div");
+  hint.className = "explorer-hint";
+  hint.textContent = "double-click to expand · drag to pan · wheel / pinch to zoom";
+  const info = document.createElement("div");
+  info.className = "explorer-info hidden";
+  const toolbar = document.createElement("div");
+  toolbar.className = "explorer-toolbar";
+  wrap.append(canvas, hint, toolbar, info);
+  main.appendChild(wrap);
+
+  let homeData = null;
+  if (!explorerState || !explorerState.nodes.length) {
+    try {
+      const payload = await api("/api/graph/subset?limit=100");
+      homeData = rehydrateGraph(payload);
+    }
+    catch (e) {
+      wrap.innerHTML = "";
+      const empty = document.createElement("div");
+      empty.className = "explorer-empty";
+      empty.textContent = e.status === 404
+        ? "The corpus is empty — nothing to explore yet."
+        : `Could not load the corpus map: ${e.message}`;
+      wrap.appendChild(empty);
+      explorerState = { nodes: [], edges: [] };
+      return;
+    }
+  }
+  new GraphExplorer(canvas, info, explorerState, homeData);
+  explorerState = explorerInstance.state; // bind the live state object so it persists
+  renderSidebar(); // the first render happened before the explorer existed
+
+  // Toolbar: layer pills mirror the explorer's layer state; actions act on it.
+  const syncPills = () => toolbar.querySelectorAll(".layer-pill").forEach(p =>
+    p.classList.toggle("on", !!explorerInstance.state.layers[p.dataset.layer]));
+  for (const layer of ["canonical", "epistemology", "provenance"]) {
+    const pill = document.createElement("button");
+    pill.className = "layer-pill";
+    pill.dataset.layer = layer;
+    pill.textContent = layer;
+    pill.title = `toggle the ${layer} layer (on: adds its ring around your map · off: removes it)`;
+    pill.addEventListener("click", async () => {
+      await explorerInstance.toggleLayer(layer);
+      syncPills();
+      hint.textContent = `${fmtNum(explorerInstance.nodes.length)} nodes · ${fmtNum(explorerInstance.edges.length)} edges on your map`;
+    });
+    toolbar.appendChild(pill);
+  }
+  syncPills();
+  for (const [label, fn] of [
+    ["Load all", async btn => {
+      btn.disabled = true;
+      btn.textContent = "Loading…";
+      try {
+        await explorerInstance.loadFull();
+        hint.textContent = `${fmtNum(explorerInstance.nodes.length)} nodes · ${fmtNum(explorerInstance.edges.length)} edges · community layout — Fit frames it, zoom to read`;
+      } catch (e) {
+        hint.textContent = `Load failed: ${e.message}`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Load all";
+      }
+    }],
+    ["Fit", () => explorerInstance.fit()],
+    ["Reset", async () => {
+      await explorerInstance.resetHome();
+      hint.textContent = "double-click to expand · drag to pan · wheel / pinch to zoom";
+    }],
+  ]) {
+    const btn = document.createElement("button");
+    btn.className = "btn-ghost";
+    btn.textContent = label;
+    if (label === "Load all") btn.title = "Load every node of the enabled layers (first time takes a while with all three; cached for 5 minutes after)";
+    btn.addEventListener("click", () => fn(btn));
+    toolbar.appendChild(btn);
+  }
+
+  if (pendingExplorerFocus) {
+    const eid = pendingExplorerFocus;
+    pendingExplorerFocus = null;
+    explorerInstance.focusNode(eid);
+  }
+}
+
+let explorerInstance = null;
+
+function openInExplorer(eid) {
+  // renderGraphExplorer consumes pendingExplorerFocus once the (possibly
+  // re-created) explorer instance exists.
+  pendingExplorerFocus = eid;
+  setView("graph");
+}
+
+class GraphExplorer {
+  constructor(canvas, info, state, seedData) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d");
+    this.info = info;
+    this.cam = state && state.cam ? state.cam : { x: 0, y: 0, scale: 1 };
+    this.selected = null;
+    this.hover = null;
+    this.drag = null;
+    this.pan = null;
+    this.pointers = new Map();
+    this.pinch = null;
+    this.expanding = false;
+
+    if (state && state.nodes.length) {
+      this.state = state;
+      this.state.layers = this.state.layers || { canonical: true, epistemology: false, provenance: false };
+      this.state.mode = this.state.mode || "force";
+    } else {
+      this.state = {
+        nodes: [], edges: [], cam: this.cam,
+        layers: { canonical: true, epistemology: false, provenance: false },
+        mode: "force",
+      };
+    }
+    this.filterLabels = new Set(
+      this.state.filterLabels || (this.state.filterLabel ? [this.state.filterLabel] : [])
+    );
+    this.nodes = this.state.nodes;
+    this.edges = this.state.edges;
+    this.nodeById = new Map(this.nodes.map(n => [n.id, n]));
+    this.edgeIds = new Set(this.edges.map(e => e.id));
+    if (seedData && !(state && state.nodes.length)) this.merge(seedData, { center: true });
+
+    this.resize();
+    this.bind();
+    this.alpha = 0.7;
+    this.dirty = true; // static mode renders on demand; force mode renders always
+    explorerInstance = this;
+    this.loop();
+  }
+
+  /* ---------- data ---------- */
+
+  makeNode(n) {
+    return {
+      id: n.element_id,
+      label: n.labels[0] || "Node",
+      title: shortTitle(n.title),
+      degree: n.degree || 0,
+      props: n.properties || {},
+      x: 0, y: 0, vx: 0, vy: 0,
+      // Hubs read as hubs: radius grows (sub-linearly) with degree.
+      r: 7 + Math.min(5, Math.sqrt(n.degree || 0)),
+    };
+  }
+
+  merge(payload, { center = false, place = true } = {}) {
+    // Every payload respects the layer toggles: disabled layers never enter.
+    const incoming = [];
+    let filtered = 0;
+    for (const n of payload.nodes || []) {
+      if (!this.state.layers[layerOf(n.labels[0] || "")]) { filtered++; continue; }
+      if (this.nodeById.has(n.element_id)) {
+        const existing = this.nodeById.get(n.element_id);
+        if (n.degree) existing.degree = Math.max(existing.degree, n.degree);
+        continue;
+      }
+      const node = this.makeNode(n);
+      this.nodes.push(node);
+      this.nodeById.set(node.id, node);
+      incoming.push(node);
+    }
+    for (const e of payload.edges || []) {
+      // O(1) dedupe: edges.some() per incoming edge is O(m²) on bulk loads.
+      const id = e.element_id != null ? e.element_id : `${e.source}->${e.target}:${e.type}`;
+      if (this.edgeIds.has(id)) continue;
+      const source = this.nodeById.get(e.source), target = this.nodeById.get(e.target);
+      if (!source || !target) continue;
+      this.edges.push({ id, type: e.type, source, target });
+      this.edgeIds.add(id);
+      source.degree++; target.degree++;
+    }
+    // Interactive loads (seed, expand) place newcomers on a ring around their
+    // anchors. Bulk loads skip this: scanning every edge per node is O(n×m),
+    // and staticLayout() positions everything right after anyway.
+    if (place && incoming.length) {
+      let cx = 0, cy = 0, anchors = 0;
+      for (const node of incoming) {
+        for (const e of this.edges) {
+          const other = e.source === node ? e.target : e.target === node ? e.source : null;
+          if (other && !incoming.includes(other)) { cx += other.x; cy += other.y; anchors++; }
+        }
+      }
+      if (anchors) { cx /= anchors; cy /= anchors; }
+      incoming.forEach((node, i) => {
+        if (center && i === 0 && node.degree > 0) { node.x = cx; node.y = cy; return; }
+        const a = (i / incoming.length) * Math.PI * 2;
+        const r = 130 + 40 * Math.sqrt(incoming.length);
+        node.x = cx + Math.cos(a) * r;
+        node.y = cy + Math.sin(a) * r;
+      });
+      this.alpha = Math.max(this.alpha, 0.5);
+    }
+    this.dirty = true;
+    return { filtered };
+  }
+
+  /* ---------- layers ---------- */
+
+  async populateLayer(layer) {
+    // The current canonical map gains this layer's bounded neighborhood: the
+    // top few (by weight) justification/evidence nodes per canonical node.
+    const ids = this.nodes.filter(n => layerOf(n.label) === "canonical").map(n => n.id);
+    if (!ids.length) return;
+    try {
+      const payload = await api("/api/graph/layer_neighbors", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids, layer, per_node: 5 }),
+      });
+      this.merge(payload);
+      renderSidebar();
+    } catch { /* the toggle stays on; double-click expansion still works */ }
+  }
+
+  toggleGraphFilter(label) {
+    // Multi-select: clicked kinds accumulate (the map shows their union);
+    // clicking a kind again drops it; an empty set shows everything. The
+    // layer pills govern what may load; these filters govern what's shown.
+    if (this.filterLabels.has(label)) this.filterLabels.delete(label);
+    else this.filterLabels.add(label);
+    this._persistFilters();
+  }
+
+  clearGraphFilters() {
+    this.filterLabels.clear();
+    this._persistFilters();
+  }
+
+  _persistFilters() {
+    this.state.filterLabels = [...this.filterLabels];
+    delete this.state.filterLabel; // the single-kind predecessor
+    if (this.selected && this.filterLabels.size && !this.filterLabels.has(this.selected.label)) {
+      this.selected = null;
+      this.info.classList.add("hidden");
+    }
+    this.dirty = true;
+    renderGraphSidebar();
+  }
+
+  async toggleLayer(layer) {
+    this.state.layers[layer] = !this.state.layers[layer];
+    if (this.state.layers[layer]) {
+      if (layer !== "canonical") await this.populateLayer(layer);
+      return;
+    }
+    // Toggling off removes the disabled layer's nodes in one rebuild.
+    const doomed = new Set(
+      this.nodes.filter(n => layerOf(n.label) === layer).map(n => n.id)
+    );
+    if (!doomed.size) return;
+    this.state.nodes = this.nodes = this.nodes.filter(n => !doomed.has(n.id));
+    this.state.edges = this.edges = this.edges.filter(
+      e => !doomed.has(e.source.id) && !doomed.has(e.target.id)
+    );
+    this.nodeById = new Map(this.nodes.map(n => [n.id, n]));
+    this.edgeIds = new Set(this.edges.map(e => e.id));
+    if (this.selected && doomed.has(this.selected.id)) {
+      this.selected = null;
+      this.info.classList.add("hidden");
+    }
+    if (this.groupLabels) {
+      this.groupLabels = this.groupLabels.filter(g => layerOf(g.label) !== layer);
+    }
+    this.dirty = true;
+    renderSidebar();
+  }
+
+  async loadFull() {
+    const layers = Object.keys(this.state.layers).filter(l => this.state.layers[l]);
+    if (!layers.length) return;
+    const payload = await api(`/api/graph/full?layers=${layers.join(",")}`);
+    // Rehydrate the indexed wire form: ids table + label/type dictionaries.
+    const nodes = payload.nodes.map(([labelIdx, title], i) => ({
+      element_id: payload.ids[i],
+      labels: labelIdx >= 0 ? [payload.labels_dict[labelIdx]] : [],
+      title,
+    }));
+    const edges = payload.edges.map(([typeIdx, src, tgt]) => ({
+      element_id: null,
+      type: payload.rel_types[typeIdx],
+      source: payload.ids[src],
+      target: payload.ids[tgt],
+    }));
+    this.state.nodes = this.nodes = [];
+    this.state.edges = this.edges = [];
+    this.nodeById = new Map();
+    this.edgeIds = new Set();
+    this.selected = null;
+    this.info.classList.add("hidden");
+    this.merge({ nodes, edges }, { place: false }); // staticLayout positions them
+    this.state.mode = "static";
+    this.alpha = 0;
+    this.staticLayout();
+    this.fit();
+    renderSidebar();
+  }
+
+  /* Community layout: connected components laid out as BFS rings out from
+     each community's hub, so visual proximity tracks graph proximity rather
+     than entity kind (colors still carry the kind). O(n + m), no physics. */
+  staticLayout() {
+    const adj = new Map(this.nodes.map(n => [n.id, []]));
+    for (const e of this.edges) {
+      adj.get(e.source.id)?.push(e.target);
+      adj.get(e.target.id)?.push(e.source);
+    }
+    const unvisited = new Set(this.nodes);
+    const components = [];
+    for (const n of this.nodes) {
+      if (!unvisited.has(n)) continue;
+      const comp = [];
+      const queue = [n];
+      unvisited.delete(n);
+      for (let qi = 0; qi < queue.length; qi++) {
+        const cur = queue[qi];
+        comp.push(cur);
+        for (const next of adj.get(cur.id) || []) {
+          if (unvisited.has(next)) { unvisited.delete(next); queue.push(next); }
+        }
+      }
+      components.push(comp);
+    }
+    components.sort((a, b) => b.length - a.length);
+
+    const spacing = 30;
+    const targetW = Math.ceil(Math.sqrt(this.nodes.length)) * spacing * 2.2;
+    this.groupLabels = [];
+    let ox = 0, oy = 0, rowH = 0;
+    for (const comp of components) {
+      // BFS rings from the community's highest-degree node.
+      const root = comp.reduce((a, b) => (a.degree >= b.degree ? a : b));
+      const rings = [[root]];
+      const seen = new Set([root]);
+      for (let k = 0; k < rings.length; k++) {
+        const next = [];
+        for (const cur of rings[k]) {
+          for (const nb of adj.get(cur.id) || []) {
+            if (!seen.has(nb)) { seen.add(nb); next.push(nb); }
+          }
+        }
+        if (next.length) rings.push(next);
+      }
+      const lastR = rings.length > 1
+        ? Math.max(60, (rings[rings.length - 1].length * spacing) / (2 * Math.PI))
+        : 0;
+      const diameter = 2 * lastR + spacing;
+      if (ox + diameter > targetW && ox > 0) { ox = 0; oy += rowH + 140; rowH = 0; }
+      rings.forEach((ring, k) => {
+        const r = k === 0 ? 0 : Math.max(60, (ring.length * spacing) / (2 * Math.PI));
+        ring.forEach((node, i) => {
+          const a = (i / ring.length) * Math.PI * 2;
+          node.x = ox + r * Math.cos(a);
+          node.y = oy + r * Math.sin(a);
+          node.vx = 0; node.vy = 0;
+        });
+      });
+      // Caption: the community's dominant kind and size.
+      const counts = new Map();
+      for (const node of comp) counts.set(node.label, (counts.get(node.label) || 0) + 1);
+      const [domLabel, domCount] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+      this.groupLabels.push({
+        label: domCount === comp.length ? domLabel : `mostly ${domLabel}`,
+        count: comp.length, x: ox - diameter / 2, y: oy - diameter / 2 - 34,
+      });
+      ox += diameter + 140;
+      rowH = Math.max(rowH, diameter);
+    }
+    // Center the whole map on the origin.
+    if (this.nodes.length) {
+      const { minX, maxX, minY, maxY } = this._bounds();
+      const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+      for (const n of this.nodes) { n.x -= cx; n.y -= cy; }
+      for (const g of this.groupLabels) { g.x -= cx; g.y -= cy; }
+    }
+  }
+
+  /* Min/max over the node set without spreading: Math.min(...xs) with 35k
+     args is one layer away from a mobile-Safari argument-count crash. */
+  _bounds() {
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (const n of this.nodes) {
+      if (n.x < minX) minX = n.x;
+      if (n.x > maxX) maxX = n.x;
+      if (n.y < minY) minY = n.y;
+      if (n.y > maxY) maxY = n.y;
+    }
+    return { minX, maxX, minY, maxY };
+  }
+
+  fit() {
+    if (!this.nodes.length) return;
+    const { minX, maxX, minY, maxY } = this._bounds();
+    const pad = 80;
+    const sx = this.w / (maxX - minX + pad), sy = this.h / (maxY - minY + pad);
+    this.cam.scale = Math.min(4, Math.max(0.02, Math.min(sx, sy)));
+    this.cam.x = (minX + maxX) / 2;
+    this.cam.y = (minY + maxY) / 2;
+    this.dirty = true;
+  }
+
+  async resetHome() {
+    const payload = await api("/api/graph/subset?limit=100");
+    this.state.nodes = this.nodes = [];
+    this.state.edges = this.edges = [];
+    this.nodeById = new Map();
+    this.edgeIds = new Set();
+    this.cam = this.state.cam = { x: 0, y: 0, scale: 1 };
+    this.selected = null;
+    this.info.classList.add("hidden");
+    this.groupLabels = null;
+    this.state.mode = "force";
+    this.merge(rehydrateGraph(payload), { center: true });
+    // Re-populate the layers the pills say are on.
+    for (const layer of ["epistemology", "provenance"]) {
+      if (this.state.layers[layer]) await this.populateLayer(layer);
+    }
+    this.alpha = 0.7;
+    renderSidebar();
+  }
+
+  async expand(node) {
+    if (this.expanding) return;
+    this.expanding = true;
+    try {
+      const payload = await api(`/api/node/${encodeURIComponent(node.id)}/neighbors?limit=40`);
+      const { filtered } = this.merge(payload);
+      renderSidebar();
+      this.showInfo(node, filtered);
+    } catch (e) {
+      if (e.status === 404) this.hideNode(node);
+    } finally {
+      this.expanding = false;
+    }
+  }
+
+  async focusNode(eid) {
+    if (!this.nodeById.has(eid)) {
+      try {
+        const payload = await api(`/api/node/${encodeURIComponent(eid)}/neighbors?limit=25`);
+        this.merge(payload);
+      } catch { return; }
+    }
+    const node = this.nodeById.get(eid);
+    if (!node) return;
+    this.selected = node;
+    this.showInfo(node);
+    // Glide the camera onto the focused node.
+    this.camTarget = { x: node.x, y: node.y };
+  }
+
+  hideNode(node) {
+    const i = this.nodes.indexOf(node);
+    if (i < 0) return;
+    this.dirty = true;
+    this.nodes.splice(i, 1);
+    this.nodeById.delete(node.id);
+    this.state.edges = this.edges = this.edges.filter(e => e.source !== node && e.target !== node);
+    this.edgeIds = new Set(this.edges.map(e => e.id));
+    if (this.selected === node) { this.selected = null; this.info.classList.add("hidden"); }
+  }
+
+  /* ---------- info panel ---------- */
+
+  showInfo(node, filtered = 0) {
+    this.selected = node;
+    this.dirty = true;
+    this.info.classList.remove("hidden");
+    this.info.innerHTML = "";
+    const h = document.createElement("h3");
+    h.textContent = node.title || "(unnamed)";
+    this.info.appendChild(h);
+    const chips = document.createElement("div");
+    chips.className = "chips";
+    chips.appendChild(chip(node.label));
+    chips.insertAdjacentHTML("beforeend", `<span class="chip">${node.degree} edge${node.degree === 1 ? "" : "s"}</span>`);
+    this.info.appendChild(chips);
+    if (filtered) {
+      const note = document.createElement("div");
+      note.style.cssText = "font-size:11px;color:var(--text-dim);margin-bottom:8px";
+      note.textContent = `${filtered} neighbor${filtered === 1 ? "" : "s"} hidden by the layer toggles`;
+      this.info.appendChild(note);
+    }
+
+    const kv = document.createElement("div");
+    kv.className = "kv";
+    const skip = new Set(["text", "statement", "surface_text", "input_schema", "system_prompt", "content"]);
+    let shown = 0;
+    for (const [k, v] of Object.entries(node.props)) {
+      if (k.startsWith("_") || skip.has(k) || v == null || shown >= 5) continue;
+      const s = typeof v === "string" ? v : JSON.stringify(v);
+      if (!s || s.length > 90) continue;
+      kv.insertAdjacentHTML("beforeend", `<span class="k">${esc(k)}</span><span class="v">${esc(s)}</span>`);
+      shown++;
+    }
+    if (shown) this.info.appendChild(kv);
+
+    const actions = document.createElement("div");
+    actions.className = "explorer-actions";
+    const expandBtn = document.createElement("button");
+    expandBtn.className = "btn-ghost";
+    expandBtn.textContent = "Expand neighbors";
+    expandBtn.addEventListener("click", () => this.expand(node));
+    const detailBtn = document.createElement("button");
+    detailBtn.className = "btn-ghost";
+    detailBtn.textContent = "Full detail";
+    detailBtn.addEventListener("click", () => openNode(node.id));
+    const hideBtn = document.createElement("button");
+    hideBtn.className = "btn-ghost";
+    hideBtn.textContent = "Hide";
+    hideBtn.addEventListener("click", () => this.hideNode(node));
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "btn-ghost";
+    closeBtn.textContent = "✕";
+    closeBtn.addEventListener("click", () => { this.selected = null; this.info.classList.add("hidden"); });
+    actions.append(expandBtn, detailBtn, hideBtn, closeBtn);
+    this.info.appendChild(actions);
+  }
+
+  /* ---------- layout & camera ---------- */
+
+  resize() {
+    const dpr = window.devicePixelRatio || 1;
+    this.w = this.canvas.clientWidth;
+    this.h = this.canvas.clientHeight;
+    this.canvas.width = this.w * dpr;
+    this.canvas.height = this.h * dpr;
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  toWorld(p) {
+    return { x: (p.x - this.w / 2) / this.cam.scale + this.cam.x,
+             y: (p.y - this.h / 2) / this.cam.scale + this.cam.y };
+  }
+
+  pick(p) {
+    const w = this.toWorld(p);
+    let best = null, bestD = Infinity;
+    for (const n of this.nodes) {
+      if (this.filterLabels.size && !this.filterLabels.has(n.label)) continue;
+      const d = (n.x - w.x) ** 2 + (n.y - w.y) ** 2;
+      if (d < bestD && d < (n.r + 6 / this.cam.scale) ** 2) { best = n; bestD = d; }
+    }
+    return best;
+  }
+
+  zoomAt(p, factor) {
+    const before = this.toWorld(p);
+    this.cam.scale = Math.min(4, Math.max(0.02, this.cam.scale * factor));
+    const after = this.toWorld(p);
+    this.cam.x += before.x - after.x;
+    this.cam.y += before.y - after.y;
+    this.dirty = true;
+  }
+
+  bind() {
+    const pos = e => {
+      const rect = this.canvas.getBoundingClientRect();
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    };
+
+    this.canvas.addEventListener("pointerdown", e => {
+      this.canvas.setPointerCapture(e.pointerId);
+      this.pointers.set(e.pointerId, pos(e));
+      if (this.pointers.size === 2) {
+        const [a, b] = [...this.pointers.values()];
+        this.pinch = { dist: Math.hypot(a.x - b.x, a.y - b.y) };
+        this.drag = null; this.pan = null;
+        return;
+      }
+      const p = pos(e);
+      const n = this.pick(p);
+      if (n) { this.drag = { node: n, moved: false }; this.canvas.classList.add("dragging"); }
+      else this.pan = { last: p };
+    });
+
+    this.canvas.addEventListener("pointermove", e => {
+      if (this.pointers.has(e.pointerId)) this.pointers.set(e.pointerId, pos(e));
+      if (this.pinch && this.pointers.size === 2) {
+        const [a, b] = [...this.pointers.values()];
+        const dist = Math.hypot(a.x - b.x, a.y - b.y);
+        if (this.pinch.dist > 0) this.zoomAt({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }, dist / this.pinch.dist);
+        this.pinch.dist = dist;
+        return;
+      }
+      const p = pos(e);
+      if (this.drag) {
+        this.drag.node.x = this.toWorld(p).x;
+        this.drag.node.y = this.toWorld(p).y;
+        this.drag.node.vx = 0; this.drag.node.vy = 0;
+        this.drag.moved = true;
+        this.alpha = Math.max(this.alpha, 0.15);
+        this.dirty = true;
+      } else if (this.pan) {
+        this.cam.x -= (p.x - this.pan.last.x) / this.cam.scale;
+        this.cam.y -= (p.y - this.pan.last.y) / this.cam.scale;
+        this.pan.last = p;
+        this.dirty = true;
+      } else {
+        const hover = this.pick(p);
+        if (hover !== this.hover) { this.hover = hover; this.dirty = true; }
+        this.canvas.style.cursor = this.hover ? "pointer" : "grab";
+      }
+    });
+
+    const release = e => {
+      this.pointers.delete(e.pointerId);
+      if (this.pointers.size < 2) this.pinch = null;
+      if (this.drag && !this.drag.moved) this.showInfo(this.drag.node);
+      this.drag = null; this.pan = null;
+      this.canvas.classList.remove("dragging");
+    };
+    this.canvas.addEventListener("pointerup", release);
+    this.canvas.addEventListener("pointercancel", release);
+
+    this.canvas.addEventListener("dblclick", e => {
+      const n = this.pick(pos(e));
+      if (n) this.expand(n);
+    });
+
+    this.canvas.addEventListener("wheel", e => {
+      e.preventDefault();
+      this.zoomAt(pos(e), Math.pow(1.0015, -e.deltaY));
+    }, { passive: false });
+
+    const onResize = () => {
+      if (!document.body.contains(this.canvas)) {
+        window.removeEventListener("resize", onResize);
+        return;
+      }
+      this.resize();
+      this.dirty = true;
+    };
+    window.addEventListener("resize", onResize);
+  }
+
+  /* ---------- physics ---------- */
+
+  tick() {
+    // Camera glide (focusNode) runs in every mode.
+    if (this.camTarget) {
+      const dx = this.camTarget.x - this.cam.x, dy = this.camTarget.y - this.cam.y;
+      this.cam.x += dx * 0.12; this.cam.y += dy * 0.12;
+      this.dirty = true;
+      if (Math.abs(dx) < 1 && Math.abs(dy) < 1) this.camTarget = null;
+    }
+    if (this.state.mode === "static") return;
+
+    if (this.alpha < 0.005) {
+      // Settled: snap velocities to zero and stop simulating (interactions
+      // reheat via alpha bumps). One final dirty frame renders the rest state.
+      if (!this.settled) {
+        for (const n of this.nodes) { n.vx = 0; n.vy = 0; }
+        this.settled = true;
+        this.dirty = true;
+      }
+      return;
+    }
+    this.settled = false;
+
+    // Repulsion, magnitude-capped per pair (4 px/frame): an uncapped inverse
+    // square gives close nodes hundred-pixel velocity kicks, which is the
+    // jitter. The cutoff keeps it local.
+    const cutoff = 26000;
+    for (let i = 0; i < this.nodes.length; i++) {
+      const a = this.nodes[i];
+      for (let j = i + 1; j < this.nodes.length; j++) {
+        const b = this.nodes[j];
+        let dx = a.x - b.x, dy = a.y - b.y;
+        const d2 = dx * dx + dy * dy || 0.01;
+        if (d2 < cutoff) {
+          const mag = (Math.min(4, 1100 / d2) * this.alpha) / Math.sqrt(d2);
+          dx *= mag; dy *= mag;
+          a.vx += dx; a.vy += dy; b.vx -= dx; b.vy -= dy;
+        }
+      }
+    }
+    // Springs, also capped (2 px/frame).
+    for (const e of this.edges) {
+      const dx = e.target.x - e.source.x, dy = e.target.y - e.source.y;
+      const d = Math.hypot(dx, dy) || 0.01;
+      const f = Math.min(2, Math.abs(d - 120) * 0.02) * this.alpha * Math.sign(d - 120);
+      const fx = (dx / d) * f, fy = (dy / d) * f;
+      e.source.vx += fx; e.source.vy += fy;
+      e.target.vx -= fx; e.target.vy -= fy;
+    }
+    // Weak gravity, strong velocity damping (0.65), and a velocity ceiling as
+    // the safety net under the caps.
+    for (const n of this.nodes) {
+      if (this.drag && n === this.drag.node) continue;
+      n.vx -= n.x * 0.0016 * this.alpha;
+      n.vy -= n.y * 0.0016 * this.alpha;
+      n.vx *= 0.65; n.vy *= 0.65;
+      if (n.vx > 20) n.vx = 20; else if (n.vx < -20) n.vx = -20;
+      if (n.vy > 20) n.vy = 20; else if (n.vy < -20) n.vy = -20;
+      n.x += n.vx; n.y += n.vy;
+    }
+    // Fast cooldown: alpha halves every ~23 frames, so the map settles in a
+    // couple of seconds instead of ringing for ten.
+    this.alpha *= 0.97;
+  }
+
+  draw() {
+    const { ctx, cam } = this;
+    ctx.clearRect(0, 0, this.w, this.h);
+    ctx.save();
+    ctx.translate(this.w / 2, this.h / 2);
+    ctx.scale(cam.scale, cam.scale);
+    ctx.translate(-cam.x, -cam.y);
+
+    if (this.nodes.length > 2000) { this.drawDense(); ctx.restore(); return; }
+
+    // Edges (both ends must pass the entity-kind filter).
+    ctx.lineWidth = 1 / cam.scale;
+    ctx.strokeStyle = "rgba(133,149,167,.4)";
+    for (const e of this.edges) {
+      if (this.filterLabels.size && (!this.filterLabels.has(e.source.label) || !this.filterLabels.has(e.target.label))) continue;
+      ctx.beginPath();
+      ctx.moveTo(e.source.x, e.source.y);
+      ctx.lineTo(e.target.x, e.target.y);
+      ctx.stroke();
+      const a = Math.atan2(e.target.y - e.source.y, e.target.x - e.source.x);
+      const tx = e.target.x - Math.cos(a) * e.target.r, ty = e.target.y - Math.sin(a) * e.target.r;
+      ctx.fillStyle = "rgba(133,149,167,.55)";
+      ctx.beginPath();
+      ctx.moveTo(tx, ty);
+      ctx.lineTo(tx - Math.cos(a - 0.4) * 6, ty - Math.sin(a - 0.4) * 6);
+      ctx.lineTo(tx - Math.cos(a + 0.4) * 6, ty - Math.sin(a + 0.4) * 6);
+      ctx.fill();
+    }
+    // Edge labels only when few enough and zoomed enough to stay readable.
+    if (this.edges.length <= 50 && cam.scale > 0.85) {
+      ctx.font = `${9 / cam.scale}px ui-monospace, monospace`;
+      ctx.fillStyle = "rgba(133,149,167,.8)";
+      ctx.textAlign = "center";
+      for (const e of this.edges) {
+        if (this.filterLabels.size && (!this.filterLabels.has(e.source.label) || !this.filterLabels.has(e.target.label))) continue;
+        ctx.fillText(e.type, (e.source.x + e.target.x) / 2, (e.source.y + e.target.y) / 2 - 3);
+      }
+    }
+
+    // Nodes (the entity-kind filter hides everything else).
+    const labelAll = this.nodes.length <= 60;
+    for (const n of this.nodes) {
+      if (this.filterLabels.size && !this.filterLabels.has(n.label)) continue;
+      ctx.fillStyle = labelColor(n.label);
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      ctx.fill();
+      if (n === this.selected || n === this.hover) {
+        ctx.strokeStyle = n === this.selected ? "#5eead4" : "#fff";
+        ctx.lineWidth = 2 / cam.scale;
+        ctx.stroke();
+      }
+      if (labelAll || n === this.selected || n === this.hover) {
+        ctx.font = `${10 / cam.scale}px ui-monospace, monospace`;
+        ctx.fillStyle = n === this.selected ? "#fff" : "rgba(219,228,238,.75)";
+        ctx.textAlign = "center";
+        ctx.fillText(n.title || n.label, n.x, n.y + n.r + 12 / cam.scale);
+      }
+    }
+    ctx.restore();
+  }
+
+  /* Dense mode: beyond ~2k nodes, per-node circles/arrows/labels cost more
+     than they tell. Batched rects + group captions keep 35k nodes fluid, and
+     viewport culling keeps zoomed-in panning cheap. */
+  drawDense() {
+    const { ctx, cam } = this;
+    // Visible world rect, with a margin so partially-visible edges survive.
+    const margin = 30;
+    const minX = cam.x - this.w / 2 / cam.scale - margin;
+    const maxX = cam.x + this.w / 2 / cam.scale + margin;
+    const minY = cam.y - this.h / 2 / cam.scale - margin;
+    const maxY = cam.y + this.h / 2 / cam.scale + margin;
+
+    // Edges in a single batched path, culled to the viewport and the filter.
+    ctx.strokeStyle = "rgba(133,149,167,.22)";
+    ctx.lineWidth = 1 / cam.scale;
+    ctx.beginPath();
+    for (const e of this.edges) {
+      const s = e.source, t = e.target;
+      if (this.filterLabels.size && (!this.filterLabels.has(s.label) || !this.filterLabels.has(t.label))) continue;
+      if ((s.x < minX && t.x < minX) || (s.x > maxX && t.x > maxX) ||
+          (s.y < minY && t.y < minY) || (s.y > maxY && t.y > maxY)) continue;
+      ctx.moveTo(s.x, s.y);
+      ctx.lineTo(t.x, t.y);
+    }
+    ctx.stroke();
+    // Nodes batched by color, culled to the viewport and the filter.
+    const byColor = new Map();
+    for (const n of this.nodes) {
+      if (this.filterLabels.size && !this.filterLabels.has(n.label)) continue;
+      if (n.x < minX || n.x > maxX || n.y < minY || n.y > maxY) continue;
+      const c = labelColor(n.label);
+      if (!byColor.has(c)) byColor.set(c, []);
+      byColor.get(c).push(n);
+    }
+    const s = Math.min(8, Math.max(1.2, 4 / cam.scale));
+    for (const [c, ns] of byColor) {
+      ctx.fillStyle = c;
+      for (const n of ns) ctx.fillRect(n.x - s / 2, n.y - s / 2, s, s);
+    }
+    // Group captions: the readable names of the map's neighborhoods.
+    if (this.groupLabels) {
+      ctx.font = "600 30px system-ui";
+      ctx.fillStyle = "rgba(219,228,238,.85)";
+      ctx.textAlign = "left";
+      for (const g of this.groupLabels) {
+        if (g.x < minX - 400 || g.x > maxX || g.y < minY - 60 || g.y > maxY) continue;
+        ctx.fillText(`${g.label} · ${g.count}`, g.x, g.y);
+      }
+    }
+    // Selection and hover stay legible.
+    for (const n of [this.selected, this.hover]) {
+      if (!n) continue;
+      ctx.strokeStyle = n === this.selected ? "#5eead4" : "#fff";
+      ctx.lineWidth = 2 / cam.scale;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, s + 3 / cam.scale, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+
+  loop() {
+    const frame = () => {
+      if (!document.body.contains(this.canvas)) {
+        if (explorerInstance === this) explorerInstance = null;
+        return; // navigated away; state survives in explorerState
+      }
+      this.tick();
+      // Static mode renders on demand; force mode renders while simulating or
+      // when interactions dirty it. A settled map costs one flag check a frame.
+      const idle = this.state.mode === "static"
+        ? !this.dirty
+        : this.settled && !this.dirty;
+      if (!idle) this.draw();
+      this.dirty = false;
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  }
+}
+
+/* ============================== force graph ============================== */
+
+class ForceGraph {
+  constructor(canvas, data) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d");
+    this.centerId = data.nodes[0]?.element_id;
+    this.nodes = data.nodes.map(n => ({
+      id: n.element_id,
+      label: n.labels[0] || "Node",
+      title: shortTitle(n.title),
+      x: 0, y: 0, vx: 0, vy: 0,
+      r: n.element_id === this.centerId ? 9 : 6,
+    }));
+    this.nodeById = new Map(this.nodes.map(n => [n.id, n]));
+    this.edges = data.edges
+      .map(e => ({ source: this.nodeById.get(e.source), target: this.nodeById.get(e.target), type: e.type }))
+      .filter(e => e.source && e.target);
+
+    // Seed: center in the middle, neighbors on a circle for a stable first frame.
+    this.resize();
+    const cx = this.w / 2, cy = this.canvas.height / 2, R = Math.min(this.w, this.canvas.height) * 0.36;
+    this.nodes.forEach((n, i) => {
+      if (n.id === this.centerId) { n.x = cx; n.y = cy; }
+      else {
+        const a = (i / Math.max(1, this.nodes.length - 1)) * Math.PI * 2;
+        n.x = cx + Math.cos(a) * R; n.y = cy + Math.sin(a) * R;
+      }
+    });
+
+    this.alpha = 1;
+    this.drag = null;
+    this.hover = null;
+    this._bind();
+    this._loop();
+  }
+
+  resize() {
+    const dpr = window.devicePixelRatio || 1;
+    this.w = this.canvas.clientWidth;
+    this.h = this.canvas.clientHeight;
+    this.canvas.width = this.w * dpr;
+    this.canvas.height = this.h * dpr;
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  _bind() {
+    const pos = e => {
+      const rect = this.canvas.getBoundingClientRect();
+      const p = e.touches ? e.touches[0] : e;
+      return { x: p.clientX - rect.left, y: p.clientY - rect.top };
+    };
+    const pick = p => this.nodes.find(n => (n.x - p.x) ** 2 + (n.y - p.y) ** 2 < (n.r + 4) ** 2);
+
+    this.canvas.addEventListener("pointerdown", e => {
+      const n = pick(pos(e));
+      if (n) { this.drag = n; this.dragMoved = false; this.canvas.classList.add("dragging"); this.canvas.setPointerCapture(e.pointerId); }
+    });
+    this.canvas.addEventListener("pointermove", e => {
+      const p = pos(e);
+      if (this.drag) {
+        this.drag.x = p.x; this.drag.y = p.y; this.drag.vx = 0; this.drag.vy = 0;
+        this.dragMoved = true; this.alpha = Math.max(this.alpha, 0.15);
+      } else {
+        this.hover = pick(p) || null;
+        this.canvas.style.cursor = this.hover ? "pointer" : "grab";
+      }
+    });
+    this.canvas.addEventListener("pointerup", () => {
+      if (this.drag && !this.dragMoved && this.drag.id !== this.centerId) openNode(this.drag.id);
+      this.drag = null; this.canvas.classList.remove("dragging");
+    });
+    const onResize = () => {
+      if (!document.body.contains(this.canvas)) {
+        window.removeEventListener("resize", onResize); // navigated away
+        return;
+      }
+      this.resize();
+    };
+    window.addEventListener("resize", onResize);
+  }
+
+  _tick() {
+    const center = this.nodeById.get(this.centerId);
+    // Repulsion (cheap O(n²) is fine for ≤ 60 nodes).
+    for (let i = 0; i < this.nodes.length; i++) {
+      const a = this.nodes[i];
+      for (let j = i + 1; j < this.nodes.length; j++) {
+        const b = this.nodes[j];
+        let dx = a.x - b.x, dy = a.y - b.y;
+        let d2 = dx * dx + dy * dy || 0.01;
+        const min = 900;
+        if (d2 < 22000) {
+          const f = (min / d2) * this.alpha;
+          dx *= f; dy *= f;
+          a.vx += dx; a.vy += dy; b.vx -= dx; b.vy -= dy;
+        }
+      }
+    }
+    // Springs.
+    for (const e of this.edges) {
+      const dx = e.target.x - e.source.x, dy = e.target.y - e.source.y;
+      const d = Math.hypot(dx, dy) || 0.01;
+      const f = (d - 110) * 0.02 * this.alpha;
+      const fx = (dx / d) * f, fy = (dy / d) * f;
+      e.source.vx += fx; e.source.vy += fy;
+      e.target.vx -= fx; e.target.vy -= fy;
+    }
+    // Gravity toward the canvas center.
+    const cx = this.w / 2, cy = this.canvas.height / 2;
+    for (const n of this.nodes) {
+      if (n === this.drag) continue;
+      n.vx += (cx - n.x) * 0.002 * this.alpha;
+      n.vy += (cy - n.y) * 0.002 * this.alpha;
+      n.vx *= 0.86; n.vy *= 0.86;
+      n.x += n.vx; n.y += n.vy;
+    }
+    if (center) { center.vx += (cx - center.x) * 0.05 * this.alpha; center.vy += (cy - center.y) * 0.05 * this.alpha; }
+    this.alpha *= 0.995;
+  }
+
+  _draw() {
+    const { ctx } = this;
+    ctx.clearRect(0, 0, this.w, this.h);
+    ctx.lineWidth = 1;
+    ctx.font = "10px " + getComputedStyle(document.body).getPropertyValue("--mono");
+    for (const e of this.edges) {
+      ctx.strokeStyle = "rgba(133,149,167,.35)";
+      ctx.beginPath();
+      ctx.moveTo(e.source.x, e.source.y);
+      ctx.lineTo(e.target.x, e.target.y);
+      ctx.stroke();
+      // Arrowhead toward the target.
+      const a = Math.atan2(e.target.y - e.source.y, e.target.x - e.source.x);
+      const tx = e.target.x - Math.cos(a) * (e.target.r + 2), ty = e.target.y - Math.sin(a) * (e.target.r + 2);
+      ctx.fillStyle = "rgba(133,149,167,.5)";
+      ctx.beginPath();
+      ctx.moveTo(tx, ty);
+      ctx.lineTo(tx - Math.cos(a - 0.4) * 6, ty - Math.sin(a - 0.4) * 6);
+      ctx.lineTo(tx - Math.cos(a + 0.4) * 6, ty - Math.sin(a + 0.4) * 6);
+      ctx.fill();
+    }
+    for (const n of this.nodes) {
+      const isCenter = n.id === this.centerId;
+      ctx.fillStyle = labelColor(n.label);
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      ctx.fill();
+      if (isCenter || n === this.hover) {
+        ctx.strokeStyle = isCenter ? "var(--accent)" : "#fff";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+      if (isCenter || n === this.hover || this.nodes.length <= 25) {
+        ctx.fillStyle = isCenter ? "#fff" : "rgba(219,228,238,.75)";
+        ctx.textAlign = "center";
+        ctx.fillText(n.title || n.label, n.x, n.y + n.r + 12);
+      }
+    }
+  }
+
+  _loop() {
+    const frame = () => {
+      if (!document.body.contains(this.canvas)) return; // navigated away
+      this._tick();
+      this._draw();
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  }
+}
+
+/* ============================== ask ============================== */
+
+const ASK_PROMPTS = [
+  { label: "What is tool search?", q: "What is tool search and how does it save tokens?" },
+  { label: "Metrics on token usage", q: "Which metrics cover token usage?" },
+  { label: "Test a correction", q: "The graph says tool search is not available on Chat Completions, grounded in the tool-search docs page. That is stale: tool search launched on Chat Completions this week." },
+];
+
+function renderAsk() {
+  main.innerHTML = `
+    <div id="ask-head"><span class="model-chip" title="chat model: muse-wonder-1.0">✦ chat powered by <b>Muse Wonder</b></span></div>
+    <div id="ask-thread">
+      <div class="qa"><div class="a-row"><div class="avatar">✦</div><div class="a md"><p>Ask the graph anything — the agent reads the corpus with bounded tools, uses Meta's tool search to pick them, and records every call as a trace span. Corrections are epistemic: challenged or repointed, never deleted, never re-ingested.</p></div></div></div>
+    </div>
+    <div class="ask-quick" id="ask-quick"></div>
+    <form id="ask-form">
+      <input id="ask-input" type="text" placeholder="Ask the graph…" autocomplete="off">
+      <button class="btn-primary" type="submit" title="Send">↑</button>
+    </form>`;
+  const quick = $("#ask-quick");
+  quick.innerHTML = `<span>try:</span>`;
+  for (const p of ASK_PROMPTS) {
+    const b = document.createElement("button");
+    b.textContent = p.label;
+    b.addEventListener("click", () => runAsk(p.q));
+    quick.appendChild(b);
+  }
+  const form = $("#ask-form");
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const q = $("#ask-input").value.trim();
+    if (!q) return;
+    $("#ask-input").value = "";
+    runAsk(q);
+  });
+  $("#ask-input").focus();
+}
+
+async function runAsk(q) {
+  const thread = $("#ask-thread");
+  const qa = document.createElement("div");
+  qa.className = "qa";
+  qa.innerHTML = `<div class="q">${esc(q)}</div>` +
+    `<div class="a-row"><div class="avatar">✦</div>` +
+    `<div class="a pending"><span class="typing"><i></i><i></i><i></i></span><span class="ask-status">picking tools and reading the graph — this can take a minute…</span><div class="msg-progress"></div></div></div>`;
+  thread.appendChild(qa);
+  qa.scrollIntoView({ behavior: "smooth", block: "end" });
+  const a = qa.querySelector(".a");
+  const progress = qa.querySelector(".msg-progress");
+  const status = qa.querySelector(".ask-status");
+  let sawEvent = false;
+  try {
+    let res = null;
+    try {
+      res = await streamAsk(q, ev => {
+        sawEvent = true;
+        renderProgressEvent(progress, status, ev);
+        qa.scrollIntoView({ behavior: "smooth", block: "end" });
+      });
+    } catch (streamErr) {
+      if (sawEvent) throw streamErr;
+      // No stream at all (old server, no body): one-shot, same final render.
+      res = await api("/api/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: q }),
+      });
+    }
+    if (!res) throw new Error("the stream ended without an answer");
+    renderFinalAnswer(a, qa, res);
+  } catch (err) {
+    a.className = "a error";
+    a.textContent = `The agent could not answer: ${err.message}`;
+  }
+  qa.scrollIntoView({ behavior: "smooth", block: "end" });
+}
+
+// The final answer render -- identical whether the turn streamed or not.
+function renderFinalAnswer(a, qa, res) {
+  a.className = "a md";
+  a.innerHTML = renderMarkdown(res.answer) + renderAskMeta(res);
+  const tools = res.tools || [];
+  const searchEvents = res.tool_search || [];
+  if (res.trace_id && (tools.length || searchEvents.length)) {
+    const btn = document.createElement("button");
+    btn.className = "msg-tracebtn";
+    btn.textContent = `🔍 trace · ${tools.length} tool call${tools.length === 1 ? "" : "s"}` +
+      (searchEvents.length ? ` · 🔎 tool search` : "") +
+      (res.model ? ` · ${res.model}` : "");
+    btn.addEventListener("click", () => showTrace(btn, res.trace_id, qa, searchEvents));
+    a.appendChild(btn);
+  }
+  const dv = a.querySelector(".delta-visual");
+  if (dv && res.delta && (res.delta.nodes || []).length) {
+    const canvas = document.createElement("canvas");
+    dv.appendChild(canvas);
+    renderDeltaGraph(canvas, res.delta);
+  }
+  if ((res.entities || []).length) renderRelatedCard(a, res.entities);
+}
+
+async function streamAsk(question, onEvent) {
+  const res = await fetch("/api/ask/stream", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question }),
+  });
+  if (!res.ok || !res.body) throw new Error(`stream failed (${res.status})`);
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let finalRes = null;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let idx;
+    while ((idx = buffer.indexOf("\n\n")) >= 0) {
+      const raw = buffer.slice(0, idx);
+      buffer = buffer.slice(idx + 2);
+      const line = raw.split("\n").find(l => l.startsWith("data:"));
+      if (!line) continue;
+      const ev = JSON.parse(line.slice(5));
+      if (ev.type === "final") finalRes = ev.result;
+      else if (ev.type === "error") throw new Error(ev.detail || "the agent failed");
+      else onEvent(ev);
+    }
+  }
+  return finalRes;
+}
+
+function renderProgressEvent(progress, status, ev) {
+  if (!progress) return;
+  if (ev.type === "thinking") {
+    if (status) status.textContent = `thinking… (step ${ev.iteration})`;
+    return;
+  }
+  if (ev.type === "tool_search") {
+    if (status) status.textContent = "Meta tool search picked the tools…";
+    const div = document.createElement("div");
+    div.className = "msg-toolsearch prog-search";
+    div.textContent = `🔎 Meta tool search → loaded ${(ev.loaded || []).join(", ") || "none"}`;
+    progress.appendChild(div);
+    return;
+  }
+  if (ev.type === "tool_start") {
+    if (status) status.textContent = `running ${ev.name}…`;
+    const row = document.createElement("div");
+    row.className = "prog-row running";
+    row.dataset.name = ev.name;
+    row.innerHTML = `<span class="prog-dot"></span><span class="prog-name">${esc(ev.name)}</span><span class="prog-detail">running…</span>`;
+    progress.appendChild(row);
+    return;
+  }
+  if (ev.type === "tool_done") {
+    if (status) status.textContent = "reading the graph…";
+    const rows = progress.querySelectorAll(".prog-row.running");
+    const row = [...rows].reverse().find(r => r.dataset.name === ev.name) || [...rows].pop();
+    if (!row) return;
+    const failed = !!(ev.summary && ev.summary.error);
+    row.className = "prog-row done" + (ev.write ? " write" : "") + (failed ? " error" : "");
+    row.querySelector(".prog-dot").textContent = failed ? "✕" : "✓";
+    const secs = ev.duration_ms >= 1000 ? `${(ev.duration_ms / 1000).toFixed(1)}s` : `${ev.duration_ms}ms`;
+    const detail = progSummary(ev.summary);
+    row.querySelector(".prog-detail").textContent =
+      (ev.write ? "wrote · " : "") + secs + (detail ? ` · ${detail}` : "");
+  }
+}
+
+function progSummary(s) {
+  if (!s) return "";
+  if (s.error) return `error: ${String(s.error).slice(0, 60)}`;
+  const bits = [];
+  if (s.hits != null) bits.push(`${s.hits} hits`);
+  if (s.pages && s.pages.length) bits.push(s.pages[0]);
+  if (s.entities && s.entities.length) bits.push(s.entities.filter(Boolean).slice(0, 2).join(", "));
+  if (s.claim_id) bits.push(s.claim_id);
+  if (s.argument_id) bits.push(s.argument_id);
+  if (s.attack_argument_id) bits.push(`attacks ${s.attacks || "an argument"}`);
+  if (s.concludes) bits.push(`concludes ${s.concludes}`);
+  return bits.join(" · ");
+}
+
+// A small canvas map: focus nodes on an inner ring, their depth-1 neighbors
+// fanned around them. Nodes click through to the corpus map (#n= deep link).
+function renderMiniGraph(canvas, data, { keyOf = n => n.element_id, focusKeys = [] } = {}) {
+  const nodes = data.nodes || [];
+  const edges = (data.edges || []).filter(e => e.source && e.target);
+  if (!nodes.length || !canvas.getContext) return;
+  const W = canvas.clientWidth || 600, H = canvas.clientHeight || 210;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+  const byKey = new Map(nodes.map(n => [keyOf(n), n]));
+  const deg = new Map(nodes.map(n => [keyOf(n), 0]));
+  for (const e of edges) {
+    if (deg.has(e.source)) deg.set(e.source, deg.get(e.source) + 1);
+    if (deg.has(e.target)) deg.set(e.target, deg.get(e.target) + 1);
+  }
+  let focus = focusKeys.filter(k => byKey.has(k));
+  if (!focus.length) {
+    focus = [...byKey.keys()].sort((a, b) => deg.get(b) - deg.get(a)).slice(0, Math.min(6, nodes.length));
+  }
+  const focusSet = new Set(focus);
+  const cx = W / 2, cy = H / 2;
+  const outerR = Math.min(W, H) * 0.40, innerR = focus.length > 2 ? Math.min(W, H) * 0.22 : 0;
+  const pos = new Map();
+  focus.forEach((k, i) => {
+    const a = (i / focus.length) * 2 * Math.PI - Math.PI / 2;
+    pos.set(k, { x: cx + innerR * Math.cos(a), y: cy + innerR * Math.sin(a) });
+  });
+  const angleOf = k => Math.atan2(pos.get(k).y - cy, pos.get(k).x - cx);
+  const grouped = new Map(focus.map(k => [k, []]));
+  const stray = [];
+  for (const n of nodes) {
+    const k = keyOf(n);
+    if (focusSet.has(k)) continue;
+    const link = edges.find(e => (e.source === k && focusSet.has(e.target)) || (e.target === k && focusSet.has(e.source)));
+    const fk = link ? (focusSet.has(link.source) ? link.source : link.target) : null;
+    if (fk) grouped.get(fk).push(n); else stray.push(n);
+  }
+  for (const fk of focus) {
+    const g = grouped.get(fk), base = angleOf(fk);
+    const spread = Math.min(Math.max(g.length - 1, 0), 5) * 0.26;
+    g.forEach((n, j) => {
+      const a = g.length === 1 ? base : base - spread / 2 + spread * (j / (g.length - 1));
+      pos.set(keyOf(n), { x: cx + outerR * Math.cos(a), y: cy + outerR * Math.sin(a) });
+    });
+  }
+  stray.forEach((n, j) => {
+    const a = (j / Math.max(stray.length, 1)) * 2 * Math.PI + 0.3;
+    pos.set(keyOf(n), { x: cx + outerR * Math.cos(a), y: cy + outerR * Math.sin(a) });
+  });
+  const MARK_COLORS = { "+": "#4ade80", "⚔": "#f87171", "Δ": "#ffc247", "✓": "#5eead4" };
+  for (const e of edges) {
+    const s = pos.get(e.source), t = pos.get(e.target);
+    if (!s || !t) continue;
+    ctx.strokeStyle = e.mark ? (MARK_COLORS[e.mark] || "#8b98b8") : "rgba(139,152,184,.45)";
+    ctx.globalAlpha = e.mark ? 0.85 : 1;
+    ctx.lineWidth = e.mark ? 1.6 : 1;
+    ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(t.x, t.y); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  const hit = [];
+  for (const n of nodes) {
+    const k = keyOf(n), p = pos.get(k);
+    if (!p) continue;
+    const isFocus = focusSet.has(k);
+    const r = isFocus ? 7 : 4.5;
+    ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 2 * Math.PI);
+    ctx.fillStyle = MARK_COLORS[n.mark] || labelColor(n.label);
+    ctx.fill();
+    if (isFocus) { ctx.strokeStyle = "rgba(255,255,255,.75)"; ctx.lineWidth = 1.4; ctx.stroke(); }
+    if (isFocus || n.mark) {
+      const title = String(n.title || k);
+      ctx.fillStyle = "rgba(203,213,235,.85)";
+      ctx.font = "9px ui-monospace, monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(title.length > 26 ? title.slice(0, 25) + "…" : title, p.x, p.y + r + 11);
+    }
+    hit.push({ x: p.x, y: p.y, node: n });
+  }
+  canvas.addEventListener("click", ev => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = ev.clientX - rect.left, my = ev.clientY - rect.top;
+    let best = null, bd = 12;
+    for (const h of hit) {
+      const d = Math.hypot(h.x - mx, h.y - my);
+      if (d < bd) { bd = d; best = h.node; }
+    }
+    if (best && best.element_id) location.hash = `#n=${best.element_id}`;
+  });
+}
+
+// The delta payload lists only the turn's own nodes; edges reaching a
+// pre-existing entity (e.g. what the new argument concludes) name it without a
+// node row. Derive those context nodes so every delta edge can draw.
+function deltaVisualData(delta) {
+  const nodes = [...(delta.nodes || [])];
+  const seen = new Set(nodes.map(n => n.id));
+  for (const e of delta.edges || []) {
+    for (const [id, label, title] of [[e.source, e.source_label, e.source_title], [e.target, e.target_label, e.target_title]]) {
+      if (id && !seen.has(id)) { seen.add(id); nodes.push({ id, label, title: title || id }); }
+    }
+  }
+  return { nodes, edges: delta.edges || [] };
+}
+
+// The delta as a story, not a hairball: premise claims on the left, arguments
+// in the middle, what they conclude on the right. Created nodes are big and
+// green (+), the challenged red (⚔), the superseded amber (Δ); context is
+// small and gray. Provenance grounding (FOUND_IN, traces, chunks) is left to
+// the text rows -- it is noise in the picture.
+function renderDeltaGraph(canvas, delta) {
+  const PROV_LABELS = new Set(["RoutingTrace", "Chunk", "SourceNode", "Span", "Session", "TraceOutcome"]);
+  const DROP_EDGES = new Set(["FOUND_IN", "EXTRACTED_FROM", "PART_OF"]);
+  const data = deltaVisualData(delta);
+  const story = data.nodes.filter(n => n.mark);
+  const context = data.nodes.filter(n => !n.mark && !PROV_LABELS.has(n.label));
+  const edges = data.edges.filter(e => !DROP_EDGES.has(e.type));
+  const nodes = [...story, ...context];
+  if (!story.length || !canvas.getContext) return;
+  const W = canvas.clientWidth || 600, H = canvas.clientHeight || 210;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+
+  const byId = new Map(nodes.map(n => [n.id, n]));
+  const colOf = n => n.label === "Claim" ? 0 : n.label === "Argument" ? 1 : 2;
+  const colX = [W * 0.17, W * 0.5, W * 0.83];
+  const cols = [[], [], []];
+  for (const n of nodes) cols[colOf(n)].push(n);
+  const pos = new Map();
+  for (let c = 0; c < 3; c++) {
+    const col = cols[c];
+    col.sort((a, b) => (b.mark ? 1 : 0) - (a.mark ? 1 : 0));
+    const gap = Math.min(66, (H - 46) / Math.max(col.length, 1));
+    const y0 = H / 2 - gap * (col.length - 1) / 2;
+    col.forEach((n, i) => pos.set(n.id, { x: colX[c], y: y0 + i * gap }));
+  }
+  const MARK_COLORS = { "+": "#4ade80", "⚔": "#f87171", "Δ": "#ffc247", "✓": "#5eead4" };
+  const edgeLabel = { ATTACKS: "attacks", CONCLUDES: "concludes", USES_PREMISE: "on premise", SUPERSEDES: "supersedes", SUPERSEDED_BY: "superseded by" };
+  const arrow = (from, to, color, targetNode) => {
+    const a = Math.atan2(to.y - from.y, to.x - from.x);
+    const r = targetNode && targetNode.mark ? 12 : 6;
+    const tx = to.x - r * Math.cos(a), ty = to.y - r * Math.sin(a);
+    ctx.strokeStyle = color; ctx.fillStyle = color;
+    ctx.beginPath(); ctx.moveTo(tx, ty);
+    ctx.lineTo(tx - 7 * Math.cos(a - 0.42), ty - 7 * Math.sin(a - 0.42));
+    ctx.lineTo(tx - 7 * Math.cos(a + 0.42), ty - 7 * Math.sin(a + 0.42));
+    ctx.closePath(); ctx.fill();
+  };
+  for (const e of edges) {
+    const s = pos.get(e.source), t = pos.get(e.target);
+    if (!s || !t) continue;
+    const color = MARK_COLORS[e.mark] || "#8b98b8";
+    const sameCol = Math.abs(s.x - t.x) < 1;
+    ctx.strokeStyle = color; ctx.globalAlpha = e.mark ? 0.9 : 0.4; ctx.lineWidth = e.mark ? 1.8 : 1;
+    ctx.beginPath();
+    if (sameCol) {
+      const mx = s.x + 46, my = (s.y + t.y) / 2;
+      ctx.moveTo(s.x, s.y); ctx.quadraticCurveTo(mx, my, t.x, t.y);
+      ctx.stroke();
+      const a = Math.atan2(t.y - my, t.x - mx);
+      ctx.fillStyle = color;
+      ctx.beginPath(); ctx.moveTo(t.x, t.y);
+      ctx.lineTo(t.x - 7 * Math.cos(a - 0.42), t.y - 7 * Math.sin(a - 0.42));
+      ctx.lineTo(t.x - 7 * Math.cos(a + 0.42), t.y - 7 * Math.sin(a + 0.42));
+      ctx.closePath(); ctx.fill();
+    } else {
+      ctx.moveTo(s.x, s.y); ctx.lineTo(t.x, t.y); ctx.stroke();
+      arrow(s, t, color, byId.get(e.target));
+    }
+    if (e.mark && edgeLabel[e.type]) {
+      const mx = sameCol ? s.x + 40 : (s.x + t.x) / 2, my = (s.y + t.y) / 2 - 5;
+      ctx.globalAlpha = 1; ctx.fillStyle = color;
+      ctx.font = "8.5px ui-monospace, monospace"; ctx.textAlign = "center";
+      ctx.fillText(edgeLabel[e.type], mx, my);
+    }
+    ctx.globalAlpha = 1;
+  }
+  const roleOf = n => {
+    if (n.label !== "Argument") return null;
+    if (edges.some(e => e.type === "ATTACKS" && e.source === n.id)) return "the challenge";
+    if (n.mark === "⚔") return "challenged";
+    if (n.mark === "Δ") return "superseded";
+    return "new argument";
+  };
+  const labelLines = n => {
+    const role = roleOf(n);
+    const text = role || String(n.title || n.id);
+    const words = text.split(/\s+/).filter(Boolean);
+    const lines = [];
+    let cur = "";
+    for (const w of words) {
+      if (cur && (cur + " " + w).length > 22) { lines.push(cur); cur = w; if (lines.length === 2) break; }
+      else cur = cur ? cur + " " + w : w;
+    }
+    if (cur && lines.length < 2) lines.push(cur);
+    else if (cur) lines[1] = lines[1].slice(0, 21) + "…";
+    return lines;
+  };
+  for (const n of nodes) {
+    const p = pos.get(n.id);
+    if (!p) continue;
+    if (n.mark) {
+      ctx.beginPath(); ctx.arc(p.x, p.y, 11, 0, 2 * Math.PI);
+      ctx.fillStyle = MARK_COLORS[n.mark] || labelColor(n.label);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,.8)"; ctx.lineWidth = 1.4; ctx.stroke();
+      ctx.fillStyle = "#0b0f14"; ctx.font = "bold 10px ui-monospace, monospace"; ctx.textAlign = "center";
+      ctx.fillText(n.mark, p.x, p.y + 3.5);
+      ctx.fillStyle = "rgba(203,213,235,.92)"; ctx.font = "9px ui-monospace, monospace";
+      labelLines(n).forEach((line, i) => ctx.fillText(line, p.x, p.y + 22 + i * 11));
+    } else {
+      ctx.beginPath(); ctx.arc(p.x, p.y, 4.5, 0, 2 * Math.PI);
+      ctx.fillStyle = "#414d66"; ctx.fill();
+      if (n.label !== "Claim" && n.label !== "Argument") {
+        const t = String(n.title || n.id);
+        ctx.fillStyle = "rgba(139,152,184,.8)"; ctx.font = "8.5px ui-monospace, monospace"; ctx.textAlign = "center";
+        ctx.fillText(t.length > 20 ? t.slice(0, 19) + "…" : t, p.x, p.y + 16);
+      }
+    }
+  }
+  canvas.addEventListener("click", ev => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = ev.clientX - rect.left, my = ev.clientY - rect.top;
+    let best = null, bd = 14;
+    for (const n of nodes) {
+      const p = pos.get(n.id);
+      if (!p || !n.element_id) continue;
+      const d = Math.hypot(p.x - mx, p.y - my);
+      if (d < bd) { bd = d; best = n; }
+    }
+    if (best) location.hash = `#n=${best.element_id}`;
+  });
+}
+
+// The depth-1 map of the entities the agent surfaced through search this turn.
+async function renderRelatedCard(a, entities) {
+  const card = document.createElement("div");
+  card.className = "mini-graph";
+  card.innerHTML = `<div class="mini-head">on the graph · ${entities.length} ${entities.length === 1 ? "entity" : "entities"} touched · depth 1</div>`;
+  const canvas = document.createElement("canvas");
+  card.appendChild(canvas);
+  a.appendChild(card);
+  try {
+    const data = await api("/api/graph/related", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids: entities.map(e => e.id), per_node: 3 }),
+    });
+    renderMiniGraph(canvas, data, { focusKeys: data.centers || [] });
+  } catch {
+    card.remove();
+  }
+}
+
+function renderAskMeta(res) {
+  const tools = res.tools || [];
+  const chips = tools.length
+    ? `<div class="msg-tools">${tools.map(t => `<span class="tchip">${esc(t.name || t)}</span>`).join("")}</div>`
+    : "";
+  const writes = (res.writes || []).map(w =>
+    w.claim_id || w.argument_id || w.relationship || w.updated || w.name).filter(Boolean);
+  const receipts = writes.length ? `<div class="msg-writes">wrote ${esc(writes.join(" · "))}</div>` : "";
+  return chips + receipts + renderDeltaCard(res.delta);
+}
+
+function renderDeltaCard(delta) {
+  if (!delta || !(delta.explanation || []).length) return "";
+  const rows = delta.explanation.map(x =>
+    `<div class="delta-row"><span class="mark m-${esc(x.mark)}">${esc(x.mark)}</span>` +
+    `<span><b>${esc(x.text)}</b>` +
+    (x.why ? `<span class="why">${esc(x.why)}</span>` : "") +
+    `</span></div>`).join("");
+  const created = (delta.nodes || []).filter(n => n.mark === "+").length;
+  const attacked = (delta.nodes || []).filter(n => n.mark === "⚔").length;
+  const superseded = (delta.nodes || []).filter(n => n.mark === "Δ").length;
+  const legend = [
+    created ? `<span style="color:#4ade80">●</span> ${created} added` : "",
+    attacked ? `<span style="color:#f87171">●</span> ${attacked} challenged` : "",
+    superseded ? `<span style="color:#ffc247">●</span> ${superseded} superseded` : "",
+  ].filter(Boolean).join(" · ");
+  return `<div class="delta-card">` +
+    `<div class="delta-head">graph changes · ${legend} · nothing deleted</div>` +
+    `<div class="delta-visual"></div>` +
+    rows + `</div>`;
+}
+
+async function showTrace(btn, traceId, qa, searchEvents = []) {
+  const existing = qa.querySelector(".msg-trace");
+  if (existing) { existing.remove(); return; }
+  btn.disabled = true;
+  try {
+    const data = await api(`/api/trace/${encodeURIComponent(traceId)}`);
+    const div = document.createElement("div");
+    div.className = "msg-trace";
+    const searchHtml = searchEvents.length
+      ? `<div class="msg-toolsearch">${searchEvents.map(e =>
+          `🔎 Meta tool search · ${esc(JSON.stringify(e.searched || {}))} → loaded ${esc((e.loaded || []).join(", ") || "none")}`).join("<br>")}</div>`
+      : "";
+    div.innerHTML = searchHtml + ((data.spans || []).map(s =>
+      `<div class="trace-span"><b>${esc(s.name)}</b> · ${s.duration_ms ?? "?"}ms` +
+      (s.status === "error" ? ` · <span class="err">${esc(String(s.error || "").slice(0, 90))}</span>` : "") +
+      (s.raw_input ? `<span class="trace-io">${esc(JSON.stringify(s.raw_input).slice(0, 140))}</span>` : "") +
+      `</div>`).join("")
+      || `<div class="trace-span">no spans recorded for this turn</div>`);
+    btn.parentNode.appendChild(div);
+    qa.scrollIntoView({ behavior: "smooth", block: "end" });
+  } catch (e) {
+    btn.textContent = `trace failed: ${String(e.message || e).slice(0, 40)}`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* Minimal, safe markdown: escape HTML first, then structure. No raw HTML passthrough. */
+function renderMarkdown(src) {
+  const codeBlocks = [];
+  let text = String(src ?? "").replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+    codeBlocks.push(`<pre><code class="lang-${esc(lang)}">${esc(code.replace(/\n$/, ""))}</code></pre>`);
+    return `${codeBlocks.length - 1}`;
+  });
+  text = esc(text);
+  text = text.replace(/`([^`\n]+)`/g, (_, code) => `<code>${code}</code>`);
+  text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, `<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>`);
+  text = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  text = text.replace(/(^|\s)\*([^*\n]+)\*/g, "$1<em>$2</em>");
+
+  const lines = text.split("\n");
+  const out = [];
+  let list = null, table = null;
+  const closeList = () => { if (list) { out.push(`</${list}>`); list = null; } };
+  const closeTable = () => { if (table) { out.push("</table>"); table = null; } };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    const block = trimmed.match(/^(\d+)$/);
+    if (block && codeBlocks[+block[1]] !== undefined) { closeList(); closeTable(); out.push(codeBlocks[+block[1]]); continue; }
+    if (!trimmed) { closeList(); closeTable(); continue; }
+    const h = trimmed.match(/^(#{1,3})\s+(.*)$/);
+    if (h) { closeList(); closeTable(); out.push(`<h${h[1].length}>${h[2]}</h${h[1].length}>`); continue; }
+    if (trimmed.startsWith("|") && trimmed.endsWith("|")) {
+      closeList();
+      const cells = trimmed.slice(1, -1).split("|").map(c => c.trim());
+      if (cells.every(c => /^:?-{3,}:?$/.test(c))) continue; // separator row
+      if (!table) { table = true; out.push("<table>"); out.push(`<tr>${cells.map(c => `<th>${c}</th>`).join("")}</tr>`); }
+      else out.push(`<tr>${cells.map(c => `<td>${c}</td>`).join("")}</tr>`);
+      continue;
+    }
+    closeTable();
+    const ul = trimmed.match(/^[-*•]\s+(.*)$/);
+    if (ul) { if (list !== "ul") { closeList(); out.push("<ul>"); list = "ul"; } out.push(`<li>${ul[1]}</li>`); continue; }
+    const ol = trimmed.match(/^\d+[.)]\s+(.*)$/);
+    if (ol) { if (list !== "ol") { closeList(); out.push("<ol>"); list = "ol"; } out.push(`<li>${ol[1]}</li>`); continue; }
+    if (trimmed.startsWith("&gt;")) { closeList(); out.push(`<blockquote>${trimmed.slice(4).trim()}</blockquote>`); continue; }
+    closeList();
+    out.push(`<p>${trimmed}</p>`);
+  }
+  closeList(); closeTable();
+  return out.join("\n");
+}
+
+/* ============================== boot ============================== */
+
+renderSidebar();
+setView(state.view);
+
+// Deep link: #n=<elementId> opens that node; #view=<graph|dashboard|ask>
+// opens a tab (the landing page's feature cards point here).
+if (location.hash.startsWith("#n=")) {
+  const eid = decodeURIComponent(location.hash.slice(3));
+  if (eid) openNode(eid);
+} else if (location.hash.startsWith("#view=")) {
+  const view = decodeURIComponent(location.hash.slice(6));
+  if (["graph", "dashboard", "ask"].includes(view)) setView(view);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1645 @@
+{
+ "corpus": "meta-model-api-docs",
+ "base": "https://dev.meta.ai",
+ "fetched_at": "2026-11-03T02:13:16.962935+00:00",
+ "totals": {
+  "pages": 204,
+  "chunks": 3194,
+  "characters": 2453227,
+  "failed": 0
+ },
+ "pages": [
+  {
+   "title": "Agent frameworks",
+   "url": "https://dev.meta.ai/docs/agent-frameworks",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-agent-frameworks",
+   "chunks": 27,
+   "characters": 19506
+  },
+  {
+   "title": "API reference",
+   "url": "https://dev.meta.ai/docs/api-reference",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference",
+   "chunks": 4,
+   "characters": 2284
+  },
+  {
+   "title": "Chat completions",
+   "url": "https://dev.meta.ai/docs/api-reference/chat-completions",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-chat-completions",
+   "chunks": 1,
+   "characters": 690
+  },
+  {
+   "title": "Create a chat completion",
+   "url": "https://dev.meta.ai/docs/api-reference/chat-completions/create-chat-completion",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-chat-completions-create-chat-completion",
+   "chunks": 3,
+   "characters": 2246
+  },
+  {
+   "title": "Chat completions schemas",
+   "url": "https://dev.meta.ai/docs/api-reference/chat-completions/schemas",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-chat-completions-schemas",
+   "chunks": 44,
+   "characters": 42076
+  },
+  {
+   "title": "Files",
+   "url": "https://dev.meta.ai/docs/api-reference/files",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-files",
+   "chunks": 1,
+   "characters": 728
+  },
+  {
+   "title": "Delete a file",
+   "url": "https://dev.meta.ai/docs/api-reference/files/delete-file",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-files-delete-file",
+   "chunks": 2,
+   "characters": 1362
+  },
+  {
+   "title": "List files",
+   "url": "https://dev.meta.ai/docs/api-reference/files/list-files",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-files-list-files",
+   "chunks": 4,
+   "characters": 2586
+  },
+  {
+   "title": "Retrieve file content",
+   "url": "https://dev.meta.ai/docs/api-reference/files/retrieve-file-content",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-files-retrieve-file-content",
+   "chunks": 1,
+   "characters": 767
+  },
+  {
+   "title": "Retrieve a file",
+   "url": "https://dev.meta.ai/docs/api-reference/files/retrieve-file",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-files-retrieve-file",
+   "chunks": 2,
+   "characters": 1365
+  },
+  {
+   "title": "Files schemas",
+   "url": "https://dev.meta.ai/docs/api-reference/files/schemas",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-files-schemas",
+   "chunks": 7,
+   "characters": 6185
+  },
+  {
+   "title": "Upload a file",
+   "url": "https://dev.meta.ai/docs/api-reference/files/upload-file",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-files-upload-file",
+   "chunks": 2,
+   "characters": 1532
+  },
+  {
+   "title": "Images",
+   "url": "https://dev.meta.ai/docs/api-reference/images",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-images",
+   "chunks": 1,
+   "characters": 487
+  },
+  {
+   "title": "Generate an image",
+   "url": "https://dev.meta.ai/docs/api-reference/images/create-image",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-images-create-image",
+   "chunks": 3,
+   "characters": 1994
+  },
+  {
+   "title": "Edit an image",
+   "url": "https://dev.meta.ai/docs/api-reference/images/edit-image",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-images-edit-image",
+   "chunks": 3,
+   "characters": 2313
+  },
+  {
+   "title": "Images schemas",
+   "url": "https://dev.meta.ai/docs/api-reference/images/schemas",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-images-schemas",
+   "chunks": 19,
+   "characters": 17990
+  },
+  {
+   "title": "Messages (Anthropic-compatible)",
+   "url": "https://dev.meta.ai/docs/api-reference/messages",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-messages",
+   "chunks": 2,
+   "characters": 901
+  },
+  {
+   "title": "Count tokens",
+   "url": "https://dev.meta.ai/docs/api-reference/messages/count-tokens",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-messages-count-tokens",
+   "chunks": 4,
+   "characters": 2631
+  },
+  {
+   "title": "Create a message",
+   "url": "https://dev.meta.ai/docs/api-reference/messages/create-message",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-messages-create-message",
+   "chunks": 5,
+   "characters": 2974
+  },
+  {
+   "title": "Messages schemas",
+   "url": "https://dev.meta.ai/docs/api-reference/messages/schemas",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-messages-schemas",
+   "chunks": 54,
+   "characters": 44556
+  },
+  {
+   "title": "Models",
+   "url": "https://dev.meta.ai/docs/api-reference/models",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-models",
+   "chunks": 1,
+   "characters": 478
+  },
+  {
+   "title": "List models",
+   "url": "https://dev.meta.ai/docs/api-reference/models/list-models",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-models-list-models",
+   "chunks": 2,
+   "characters": 1339
+  },
+  {
+   "title": "Retrieve a model",
+   "url": "https://dev.meta.ai/docs/api-reference/models/retrieve-model",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-models-retrieve-model",
+   "chunks": 2,
+   "characters": 1332
+  },
+  {
+   "title": "Models schemas",
+   "url": "https://dev.meta.ai/docs/api-reference/models/schemas",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-models-schemas",
+   "chunks": 3,
+   "characters": 2198
+  },
+  {
+   "title": "Responses",
+   "url": "https://dev.meta.ai/docs/api-reference/responses",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-responses",
+   "chunks": 2,
+   "characters": 1027
+  },
+  {
+   "title": "Cancel a response",
+   "url": "https://dev.meta.ai/docs/api-reference/responses/cancel-response",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-responses-cancel-response",
+   "chunks": 2,
+   "characters": 1496
+  },
+  {
+   "title": "Count input tokens",
+   "url": "https://dev.meta.ai/docs/api-reference/responses/count-input-tokens",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-responses-count-input-tokens",
+   "chunks": 2,
+   "characters": 1633
+  },
+  {
+   "title": "Create a response",
+   "url": "https://dev.meta.ai/docs/api-reference/responses/create-response",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-responses-create-response",
+   "chunks": 3,
+   "characters": 1932
+  },
+  {
+   "title": "Delete a response",
+   "url": "https://dev.meta.ai/docs/api-reference/responses/delete-response",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-responses-delete-response",
+   "chunks": 2,
+   "characters": 1447
+  },
+  {
+   "title": "Retrieve a response",
+   "url": "https://dev.meta.ai/docs/api-reference/responses/retrieve-response",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-responses-retrieve-response",
+   "chunks": 4,
+   "characters": 2569
+  },
+  {
+   "title": "Responses schemas",
+   "url": "https://dev.meta.ai/docs/api-reference/responses/schemas",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-responses-schemas",
+   "chunks": 169,
+   "characters": 143763
+  },
+  {
+   "title": "Status",
+   "url": "https://dev.meta.ai/docs/api-reference/status",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-status",
+   "chunks": 1,
+   "characters": 789
+  },
+  {
+   "title": "Voice",
+   "url": "https://dev.meta.ai/docs/api-reference/voice",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-voice",
+   "chunks": 1,
+   "characters": 562
+  },
+  {
+   "title": "Transcribe in realtime",
+   "url": "https://dev.meta.ai/docs/api-reference/voice/realtime",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-voice-realtime",
+   "chunks": 8,
+   "characters": 5963
+  },
+  {
+   "title": "Voice schemas",
+   "url": "https://dev.meta.ai/docs/api-reference/voice/schemas",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-voice-schemas",
+   "chunks": 24,
+   "characters": 17347
+  },
+  {
+   "title": "Transcribe a recording",
+   "url": "https://dev.meta.ai/docs/api-reference/voice/transcribe",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-api-reference-voice-transcribe",
+   "chunks": 5,
+   "characters": 3904
+  },
+  {
+   "title": "Authentication",
+   "url": "https://dev.meta.ai/docs/authentication",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-authentication",
+   "chunks": 4,
+   "characters": 2685
+  },
+  {
+   "title": "Use Model API with coding agents",
+   "url": "https://dev.meta.ai/docs/coding-agents",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-coding-agents",
+   "chunks": 35,
+   "characters": 26620
+  },
+  {
+   "title": "Build a computer-use agent",
+   "url": "https://dev.meta.ai/docs/computer-use",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-computer-use",
+   "chunks": 22,
+   "characters": 16255
+  },
+  {
+   "title": "Cookbook",
+   "url": "https://dev.meta.ai/docs/cookbook",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook",
+   "chunks": 13,
+   "characters": 10519
+  },
+  {
+   "title": "Agent patterns",
+   "url": "https://dev.meta.ai/docs/cookbook/agent-patterns",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-agent-patterns",
+   "chunks": 2,
+   "characters": 936
+  },
+  {
+   "title": "Alert fatigue copilot",
+   "url": "https://dev.meta.ai/docs/cookbook/alert-fatigue-copilot",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-alert-fatigue-copilot",
+   "chunks": 20,
+   "characters": 14613
+  },
+  {
+   "title": "Keep an image series consistent",
+   "url": "https://dev.meta.ai/docs/cookbook/anchored-image-series",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-anchored-image-series",
+   "chunks": 29,
+   "characters": 20502
+  },
+  {
+   "title": "API fundamentals",
+   "url": "https://dev.meta.ai/docs/cookbook/api-fundamentals",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-api-fundamentals",
+   "chunks": 2,
+   "characters": 1581
+  },
+  {
+   "title": "Audit and resume agent sessions",
+   "url": "https://dev.meta.ai/docs/cookbook/audit-agent-sessions",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-audit-agent-sessions",
+   "chunks": 30,
+   "characters": 23808
+  },
+  {
+   "title": "Basic agent loop",
+   "url": "https://dev.meta.ai/docs/cookbook/basic-agent-loop",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-basic-agent-loop",
+   "chunks": 15,
+   "characters": 10775
+  },
+  {
+   "title": "Browser-verified web design",
+   "url": "https://dev.meta.ai/docs/cookbook/browser-verified-web-design",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-browser-verified-web-design",
+   "chunks": 20,
+   "characters": 14563
+  },
+  {
+   "title": "Bundled skills",
+   "url": "https://dev.meta.ai/docs/cookbook/bundled-skills",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-bundled-skills",
+   "chunks": 19,
+   "characters": 13994
+  },
+  {
+   "title": "Computer use on macOS with Muse Spark",
+   "url": "https://dev.meta.ai/docs/cookbook/computer-use-macos",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-computer-use-macos",
+   "chunks": 14,
+   "characters": 9776
+  },
+  {
+   "title": "Building a computer-use agent with Muse Spark",
+   "url": "https://dev.meta.ai/docs/cookbook/computer-use",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-computer-use",
+   "chunks": 17,
+   "characters": 11950
+  },
+  {
+   "title": "Contained execution",
+   "url": "https://dev.meta.ai/docs/cookbook/contained-execution",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-contained-execution",
+   "chunks": 11,
+   "characters": 9453
+  },
+  {
+   "title": "Deterministic replay in CI",
+   "url": "https://dev.meta.ai/docs/cookbook/deterministic-replay",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-deterministic-replay",
+   "chunks": 17,
+   "characters": 13491
+  },
+  {
+   "title": "Error handling & retry patterns",
+   "url": "https://dev.meta.ai/docs/cookbook/error-handling-retry",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-error-handling-retry",
+   "chunks": 16,
+   "characters": 11701
+  },
+  {
+   "title": "Generating slides",
+   "url": "https://dev.meta.ai/docs/cookbook/generating-slides",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-generating-slides",
+   "chunks": 4,
+   "characters": 2944
+  },
+  {
+   "title": "GitHub agent",
+   "url": "https://dev.meta.ai/docs/cookbook/github-agent",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-github-agent",
+   "chunks": 64,
+   "characters": 44618
+  },
+  {
+   "title": "Build a local agent that asks before calling Muse Spark",
+   "url": "https://dev.meta.ai/docs/cookbook/glimmer-api-agent",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-glimmer-api-agent",
+   "chunks": 34,
+   "characters": 25766
+  },
+  {
+   "title": "Goal tracking",
+   "url": "https://dev.meta.ai/docs/cookbook/goal-tracking",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-goal-tracking",
+   "chunks": 9,
+   "characters": 6730
+  },
+  {
+   "title": "Build multi-speaker headlocked captions",
+   "url": "https://dev.meta.ai/docs/cookbook/headlocked-speech-bubble-captions",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-headlocked-speech-bubble-captions",
+   "chunks": 8,
+   "characters": 6526
+  },
+  {
+   "title": "Edit image details across turns",
+   "url": "https://dev.meta.ai/docs/cookbook/image-editing-with-reasoning",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-image-editing-with-reasoning",
+   "chunks": 20,
+   "characters": 13352
+  },
+  {
+   "title": "Generate, edit, and compose images",
+   "url": "https://dev.meta.ai/docs/cookbook/image-generation-basics",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-image-generation-basics",
+   "chunks": 20,
+   "characters": 13061
+  },
+  {
+   "title": "Immutable guardrails",
+   "url": "https://dev.meta.ai/docs/cookbook/immutable-guardrails",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-immutable-guardrails",
+   "chunks": 13,
+   "characters": 11106
+  },
+  {
+   "title": "Interleaved reasoning and tool use",
+   "url": "https://dev.meta.ai/docs/cookbook/interleaved-reasoning-tool-use",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-interleaved-reasoning-tool-use",
+   "chunks": 19,
+   "characters": 13447
+  },
+  {
+   "title": "Iterative game dev",
+   "url": "https://dev.meta.ai/docs/cookbook/iterative-game-dev",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-iterative-game-dev",
+   "chunks": 29,
+   "characters": 20083
+  },
+  {
+   "title": "Long context (1M)",
+   "url": "https://dev.meta.ai/docs/cookbook/long-context",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-long-context",
+   "chunks": 11,
+   "characters": 8414
+  },
+  {
+   "title": "Loop and cron",
+   "url": "https://dev.meta.ai/docs/cookbook/loop-and-cron",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-loop-and-cron",
+   "chunks": 9,
+   "characters": 6499
+  },
+  {
+   "title": "Multi-agent orchestration",
+   "url": "https://dev.meta.ai/docs/cookbook/multi-agent-orchestration",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-multi-agent-orchestration",
+   "chunks": 30,
+   "characters": 22373
+  },
+  {
+   "title": "Multi-turn context management",
+   "url": "https://dev.meta.ai/docs/cookbook/multi-turn-context-management",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-multi-turn-context-management",
+   "chunks": 22,
+   "characters": 15657
+  },
+  {
+   "title": "Building with Muse Code",
+   "url": "https://dev.meta.ai/docs/cookbook/muse-code",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-muse-code",
+   "chunks": 2,
+   "characters": 2003
+  },
+  {
+   "title": "Muse Image",
+   "url": "https://dev.meta.ai/docs/cookbook/muse-image",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-muse-image",
+   "chunks": 2,
+   "characters": 1132
+  },
+  {
+   "title": "Muse Spark Open on Mac",
+   "url": "https://dev.meta.ai/docs/cookbook/muse-spark-open-mac",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-muse-spark-open-mac",
+   "chunks": 7,
+   "characters": 5363
+  },
+  {
+   "title": "Train Muse Spark Open with reinforcement learning in TorchTitan",
+   "url": "https://dev.meta.ai/docs/cookbook/muse-spark-open-torchtitan-rl",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-muse-spark-open-torchtitan-rl",
+   "chunks": 14,
+   "characters": 11648
+  },
+  {
+   "title": "Fine-tune Muse Spark Open with TorchTitan",
+   "url": "https://dev.meta.ai/docs/cookbook/muse-spark-open-torchtitan-sft",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-muse-spark-open-torchtitan-sft",
+   "chunks": 18,
+   "characters": 14391
+  },
+  {
+   "title": "Muse Voice Transcribe",
+   "url": "https://dev.meta.ai/docs/cookbook/muse-voice-transcribe",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-muse-voice-transcribe",
+   "chunks": 1,
+   "characters": 855
+  },
+  {
+   "title": "One-shot game dev",
+   "url": "https://dev.meta.ai/docs/cookbook/one-shot-game-dev",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-one-shot-game-dev",
+   "chunks": 18,
+   "characters": 12117
+  },
+  {
+   "title": "Chart analysis",
+   "url": "https://dev.meta.ai/docs/cookbook/perception-chart-analysis",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-perception-chart-analysis",
+   "chunks": 28,
+   "characters": 19795
+  },
+  {
+   "title": "Error screenshot fix",
+   "url": "https://dev.meta.ai/docs/cookbook/perception-error-screenshot-fix",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-perception-error-screenshot-fix",
+   "chunks": 31,
+   "characters": 23224
+  },
+  {
+   "title": "Perception grounding",
+   "url": "https://dev.meta.ai/docs/cookbook/perception-grounding",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-perception-grounding",
+   "chunks": 8,
+   "characters": 5291
+  },
+  {
+   "title": "Post-training",
+   "url": "https://dev.meta.ai/docs/cookbook/post-training",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-post-training",
+   "chunks": 1,
+   "characters": 485
+  },
+  {
+   "title": "Prompt caching",
+   "url": "https://dev.meta.ai/docs/cookbook/prompt-caching",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-prompt-caching",
+   "chunks": 13,
+   "characters": 9688
+  },
+  {
+   "title": "Chat completions: your first Muse Spark call",
+   "url": "https://dev.meta.ai/docs/cookbook/quickstart-chat-completions",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-quickstart-chat-completions",
+   "chunks": 18,
+   "characters": 13729
+  },
+  {
+   "title": "Smart glasses with OpenClaw",
+   "url": "https://dev.meta.ai/docs/cookbook/rayban-openclaw",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-rayban-openclaw",
+   "chunks": 10,
+   "characters": 7267
+  },
+  {
+   "title": "Reasoning / thinking tokens",
+   "url": "https://dev.meta.ai/docs/cookbook/reasoning-thinking-tokens",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-reasoning-thinking-tokens",
+   "chunks": 13,
+   "characters": 9659
+  },
+  {
+   "title": "Run locally",
+   "url": "https://dev.meta.ai/docs/cookbook/run-locally",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-run-locally",
+   "chunks": 1,
+   "characters": 293
+  },
+  {
+   "title": "Segment Anything Model API basics in Python and TypeScript",
+   "url": "https://dev.meta.ai/docs/cookbook/sam-api-basics",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-sam-api-basics",
+   "chunks": 9,
+   "characters": 7056
+  },
+  {
+   "title": "Segment Anything Model",
+   "url": "https://dev.meta.ai/docs/cookbook/sam",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-sam",
+   "chunks": 2,
+   "characters": 958
+  },
+  {
+   "title": "Sandboxed execution",
+   "url": "https://dev.meta.ai/docs/cookbook/sandboxed-execution",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-sandboxed-execution",
+   "chunks": 11,
+   "characters": 7965
+  },
+  {
+   "title": "Search-and-replace edits",
+   "url": "https://dev.meta.ai/docs/cookbook/search-and-replace-edits",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-search-and-replace-edits",
+   "chunks": 24,
+   "characters": 17995
+  },
+  {
+   "title": "Ground image generation with web search",
+   "url": "https://dev.meta.ai/docs/cookbook/search-grounded-image-generation",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-search-grounded-image-generation",
+   "chunks": 20,
+   "characters": 13218
+  },
+  {
+   "title": "Search grounding",
+   "url": "https://dev.meta.ai/docs/cookbook/search-grounding",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-search-grounding",
+   "chunks": 16,
+   "characters": 12415
+  },
+  {
+   "title": "Side chats",
+   "url": "https://dev.meta.ai/docs/cookbook/side-chats",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-side-chats",
+   "chunks": 13,
+   "characters": 9550
+  },
+  {
+   "title": "Staged approvals",
+   "url": "https://dev.meta.ai/docs/cookbook/staged-approvals",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-staged-approvals",
+   "chunks": 17,
+   "characters": 13148
+  },
+  {
+   "title": "Streaming responses",
+   "url": "https://dev.meta.ai/docs/cookbook/streaming-responses",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-streaming-responses",
+   "chunks": 11,
+   "characters": 8615
+  },
+  {
+   "title": "Structured output (JSON mode)",
+   "url": "https://dev.meta.ai/docs/cookbook/structured-output",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-structured-output",
+   "chunks": 10,
+   "characters": 7922
+  },
+  {
+   "title": "Subagent fanout",
+   "url": "https://dev.meta.ai/docs/cookbook/subagent-fanout",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-subagent-fanout",
+   "chunks": 19,
+   "characters": 14958
+  },
+  {
+   "title": "Tool / function calling",
+   "url": "https://dev.meta.ai/docs/cookbook/tool-function-calling",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-tool-function-calling",
+   "chunks": 12,
+   "characters": 9178
+  },
+  {
+   "title": "Use cases",
+   "url": "https://dev.meta.ai/docs/cookbook/use-cases",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-use-cases",
+   "chunks": 2,
+   "characters": 1960
+  },
+  {
+   "title": "Turn a pet video into an animated sticker pack",
+   "url": "https://dev.meta.ai/docs/cookbook/video-to-sticker-pack",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-video-to-sticker-pack",
+   "chunks": 8,
+   "characters": 6417
+  },
+  {
+   "title": "Vision input",
+   "url": "https://dev.meta.ai/docs/cookbook/vision-input",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-vision-input",
+   "chunks": 15,
+   "characters": 11515
+  },
+  {
+   "title": "Speech to text",
+   "url": "https://dev.meta.ai/docs/cookbook/voice-api-fundamentals",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-voice-api-fundamentals",
+   "chunks": 12,
+   "characters": 8048
+  },
+  {
+   "title": "Control Apple Chess with Voice",
+   "url": "https://dev.meta.ai/docs/cookbook/voice-chess-cua",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-cookbook-voice-chess-cua",
+   "chunks": 7,
+   "characters": 5054
+  },
+  {
+   "title": "Error handling",
+   "url": "https://dev.meta.ai/docs/error-handling",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-error-handling",
+   "chunks": 37,
+   "characters": 27940
+  },
+  {
+   "title": "File handling",
+   "url": "https://dev.meta.ai/docs/file-handling",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-file-handling",
+   "chunks": 32,
+   "characters": 25370
+  },
+  {
+   "title": "Image generation with Muse Image",
+   "url": "https://dev.meta.ai/docs/image-generation",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-image-generation",
+   "chunks": 32,
+   "characters": 24387
+  },
+  {
+   "title": "Image understanding",
+   "url": "https://dev.meta.ai/docs/image-understanding",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-image-understanding",
+   "chunks": 34,
+   "characters": 25463
+  },
+  {
+   "title": "Media segmentation",
+   "url": "https://dev.meta.ai/docs/media-segmentation",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-media-segmentation",
+   "chunks": 9,
+   "characters": 6465
+  },
+  {
+   "title": "Models",
+   "url": "https://dev.meta.ai/docs/models",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-models",
+   "chunks": 24,
+   "characters": 17975
+  },
+  {
+   "title": "Muse Code",
+   "url": "https://dev.meta.ai/docs/muse-code",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-code",
+   "chunks": 8,
+   "characters": 5059
+  },
+  {
+   "title": "Authentication and billing",
+   "url": "https://dev.meta.ai/docs/muse-code/auth",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-code-auth",
+   "chunks": 6,
+   "characters": 4821
+  },
+  {
+   "title": "Changelog",
+   "url": "https://dev.meta.ai/docs/muse-code/changelog",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-code-changelog",
+   "chunks": 95,
+   "characters": 83956
+  },
+  {
+   "title": "Configuration and context",
+   "url": "https://dev.meta.ai/docs/muse-code/configuration",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-code-configuration",
+   "chunks": 12,
+   "characters": 8881
+  },
+  {
+   "title": "Extending and automating",
+   "url": "https://dev.meta.ai/docs/muse-code/extending",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-code-extending",
+   "chunks": 20,
+   "characters": 14259
+  },
+  {
+   "title": "Working with the agent",
+   "url": "https://dev.meta.ai/docs/muse-code/interactive",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-code-interactive",
+   "chunks": 19,
+   "characters": 14046
+  },
+  {
+   "title": "Permissions and safety",
+   "url": "https://dev.meta.ai/docs/muse-code/permissions",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-code-permissions",
+   "chunks": 14,
+   "characters": 9592
+  },
+  {
+   "title": "Rewind a conversation",
+   "url": "https://dev.meta.ai/docs/muse-code/rewind",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-code-rewind",
+   "chunks": 6,
+   "characters": 4583
+  },
+  {
+   "title": "Coordinate sessions with messages",
+   "url": "https://dev.meta.ai/docs/muse-code/session-messaging",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-code-session-messaging",
+   "chunks": 10,
+   "characters": 7875
+  },
+  {
+   "title": "Subscriptions",
+   "url": "https://dev.meta.ai/docs/muse-code/subscriptions",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-code-subscriptions",
+   "chunks": 12,
+   "characters": 8986
+  },
+  {
+   "title": "Run multi-agent workflows",
+   "url": "https://dev.meta.ai/docs/muse-code/workflows",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-code-workflows",
+   "chunks": 14,
+   "characters": 9698
+  },
+  {
+   "title": "Muse Glimmer",
+   "url": "https://dev.meta.ai/docs/muse-glimmer",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-glimmer",
+   "chunks": 4,
+   "characters": 2644
+  },
+  {
+   "title": "Run inference",
+   "url": "https://dev.meta.ai/docs/muse-glimmer/deploy",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-glimmer-deploy",
+   "chunks": 92,
+   "characters": 73210
+  },
+  {
+   "title": "Get the model",
+   "url": "https://dev.meta.ai/docs/muse-glimmer/get-the-model",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-glimmer-get-the-model",
+   "chunks": 6,
+   "characters": 5301
+  },
+  {
+   "title": "Hardware platforms",
+   "url": "https://dev.meta.ai/docs/muse-glimmer/hardware-platforms",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-glimmer-hardware-platforms",
+   "chunks": 17,
+   "characters": 11697
+  },
+  {
+   "title": "Post-training",
+   "url": "https://dev.meta.ai/docs/muse-glimmer/post-training",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-glimmer-post-training",
+   "chunks": 61,
+   "characters": 45385
+  },
+  {
+   "title": "Prompting guide",
+   "url": "https://dev.meta.ai/docs/muse-glimmer/prompting",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-glimmer-prompting",
+   "chunks": 13,
+   "characters": 10043
+  },
+  {
+   "title": "Quantization",
+   "url": "https://dev.meta.ai/docs/muse-glimmer/quantization",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-glimmer-quantization",
+   "chunks": 7,
+   "characters": 5118
+  },
+  {
+   "title": "Speculative decoding",
+   "url": "https://dev.meta.ai/docs/muse-glimmer/spec-decode",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-glimmer-spec-decode",
+   "chunks": 5,
+   "characters": 3332
+  },
+  {
+   "title": "Muse Spark Open",
+   "url": "https://dev.meta.ai/docs/muse-spark-open",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-spark-open",
+   "chunks": 5,
+   "characters": 3723
+  },
+  {
+   "title": "Run inference",
+   "url": "https://dev.meta.ai/docs/muse-spark-open/deploy",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-spark-open-deploy",
+   "chunks": 99,
+   "characters": 74461
+  },
+  {
+   "title": "Get the model",
+   "url": "https://dev.meta.ai/docs/muse-spark-open/get-the-model",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-spark-open-get-the-model",
+   "chunks": 7,
+   "characters": 4528
+  },
+  {
+   "title": "Hardware platforms",
+   "url": "https://dev.meta.ai/docs/muse-spark-open/hardware-platforms",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-spark-open-hardware-platforms",
+   "chunks": 15,
+   "characters": 11018
+  },
+  {
+   "title": "Post-training",
+   "url": "https://dev.meta.ai/docs/muse-spark-open/post-training",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-spark-open-post-training",
+   "chunks": 38,
+   "characters": 29483
+  },
+  {
+   "title": "Prompting guide",
+   "url": "https://dev.meta.ai/docs/muse-spark-open/prompting",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-spark-open-prompting",
+   "chunks": 14,
+   "characters": 10421
+  },
+  {
+   "title": "Recommended settings",
+   "url": "https://dev.meta.ai/docs/muse-spark-open/settings",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-muse-spark-open-settings",
+   "chunks": 7,
+   "characters": 5422
+  },
+  {
+   "title": "Open-weight models",
+   "url": "https://dev.meta.ai/docs/open-weight-models",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-open-weight-models",
+   "chunks": 3,
+   "characters": 2303
+  },
+  {
+   "title": "Build with Meta Model API and Muse Code",
+   "url": "https://dev.meta.ai/docs/overview",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-overview",
+   "chunks": 26,
+   "characters": 21510
+  },
+  {
+   "title": "Pricing and rate limits",
+   "url": "https://dev.meta.ai/docs/pricing-rate-limits",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-pricing-rate-limits",
+   "chunks": 15,
+   "characters": 11163
+  },
+  {
+   "title": "Prompt caching",
+   "url": "https://dev.meta.ai/docs/prompt-caching",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-prompt-caching",
+   "chunks": 16,
+   "characters": 10905
+  },
+  {
+   "title": "Choosing an API",
+   "url": "https://dev.meta.ai/docs/protocols",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-protocols",
+   "chunks": 6,
+   "characters": 3702
+  },
+  {
+   "title": "Chat completion",
+   "url": "https://dev.meta.ai/docs/protocols/chat-completions",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-protocols-chat-completions",
+   "chunks": 24,
+   "characters": 19881
+  },
+  {
+   "title": "Messages API",
+   "url": "https://dev.meta.ai/docs/protocols/messages",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-protocols-messages",
+   "chunks": 15,
+   "characters": 11485
+  },
+  {
+   "title": "Responses API",
+   "url": "https://dev.meta.ai/docs/protocols/responses",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-protocols-responses",
+   "chunks": 43,
+   "characters": 32699
+  },
+  {
+   "title": "Quickstart",
+   "url": "https://dev.meta.ai/docs/quickstart",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-quickstart",
+   "chunks": 14,
+   "characters": 10242
+  },
+  {
+   "title": "Reasoning",
+   "url": "https://dev.meta.ai/docs/reasoning",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-reasoning",
+   "chunks": 22,
+   "characters": 16509
+  },
+  {
+   "title": "Segment Anything Model client libraries",
+   "url": "https://dev.meta.ai/docs/sam/client-libraries",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-sam-client-libraries",
+   "chunks": 31,
+   "characters": 23919
+  },
+  {
+   "title": "Segmentation with Segment Anything Model",
+   "url": "https://dev.meta.ai/docs/sam/overview",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-sam-overview",
+   "chunks": 8,
+   "characters": 5824
+  },
+  {
+   "title": "Read Segment Anything Model segmentation output",
+   "url": "https://dev.meta.ai/docs/sam/reading-segmentation",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-sam-reading-segmentation",
+   "chunks": 16,
+   "characters": 11449
+  },
+  {
+   "title": "Segmenting with prompts",
+   "url": "https://dev.meta.ai/docs/sam/segmenting",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-sam-segmenting",
+   "chunks": 44,
+   "characters": 32675
+  },
+  {
+   "title": "SDKs and libraries",
+   "url": "https://dev.meta.ai/docs/sdks",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-sdks",
+   "chunks": 7,
+   "characters": 5413
+  },
+  {
+   "title": "Search grounding",
+   "url": "https://dev.meta.ai/docs/search-grounding",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-search-grounding",
+   "chunks": 24,
+   "characters": 18919
+  },
+  {
+   "title": "Speech to text",
+   "url": "https://dev.meta.ai/docs/speech-to-text",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-speech-to-text",
+   "chunks": 33,
+   "characters": 26426
+  },
+  {
+   "title": "Structured output",
+   "url": "https://dev.meta.ai/docs/structured-output",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-structured-output",
+   "chunks": 19,
+   "characters": 14011
+  },
+  {
+   "title": "Token counting",
+   "url": "https://dev.meta.ai/docs/token-counting",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-token-counting",
+   "chunks": 8,
+   "characters": 6479
+  },
+  {
+   "title": "Tool calling",
+   "url": "https://dev.meta.ai/docs/tool-calling",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-tool-calling",
+   "chunks": 28,
+   "characters": 21438
+  },
+  {
+   "title": "Tool search",
+   "url": "https://dev.meta.ai/docs/tool-search",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-tool-search",
+   "chunks": 21,
+   "characters": 17036
+  },
+  {
+   "title": "Video and audio understanding",
+   "url": "https://dev.meta.ai/docs/video-understanding",
+   "kind": "markdown",
+   "source_id": "metadocs-src-docs-video-understanding",
+   "chunks": 21,
+   "characters": 15903
+  },
+  {
+   "title": "Guides, Docs & Videos | Llama Resources",
+   "url": "https://dev.meta.ai/llama/docs/community-support-and-resources",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-community-support-and-resources",
+   "chunks": 4,
+   "characters": 3208
+  },
+  {
+   "title": "Docs & Resources | Llama AI",
+   "url": "https://dev.meta.ai/llama/docs/deployment",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-deployment",
+   "chunks": 7,
+   "characters": 4937
+  },
+  {
+   "title": "Accelerator management | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/accelerator-management",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-deployment-accelerator-management",
+   "chunks": 23,
+   "characters": 17488
+  },
+  {
+   "title": "Autoscaling self-hosted Llama models | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/autoscaling",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-deployment-autoscaling",
+   "chunks": 17,
+   "characters": 13371
+  },
+  {
+   "title": "Cost comparison and basic deployment patterns | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/cost-comparison",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-deployment-cost-comparison",
+   "chunks": 10,
+   "characters": 7706
+  },
+  {
+   "title": "Cost projection | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/cost-projection",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-deployment-cost-projection",
+   "chunks": 29,
+   "characters": 23536
+  },
+  {
+   "title": "Infrastructure migration | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/infrastructure-migration",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-deployment-infrastructure-migration",
+   "chunks": 17,
+   "characters": 12900
+  },
+  {
+   "title": "Private cloud deployment for Llama models | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/private-cloud-deployment",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-deployment-private-cloud-deployment",
+   "chunks": 34,
+   "characters": 26274
+  },
+  {
+   "title": "Production pipelines for Llama deployments | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/production-deployment-pipelines",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-deployment-production-deployment-pipelines",
+   "chunks": 33,
+   "characters": 26653
+  },
+  {
+   "title": "Self-hosted Llama deployments for regulated industries | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/regulated-industry-self-hosting",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-deployment-regulated-industry-self-hosting",
+   "chunks": 14,
+   "characters": 11520
+  },
+  {
+   "title": "Security in production | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/security-in-production",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-deployment-security-in-production",
+   "chunks": 28,
+   "characters": 23273
+  },
+  {
+   "title": "Versioning, updates and migration | Deployment guides",
+   "url": "https://dev.meta.ai/llama/docs/deployment/versioning",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-deployment-versioning",
+   "chunks": 19,
+   "characters": 15212
+  },
+  {
+   "title": "Getting the models",
+   "url": "https://dev.meta.ai/llama/docs/getting-the-models",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-getting-the-models",
+   "chunks": 2,
+   "characters": 956
+  },
+  {
+   "title": "Edge partners | Getting the models",
+   "url": "https://dev.meta.ai/llama/docs/getting-the-models/1b3b-partners",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-getting-the-models-1b3b-partners",
+   "chunks": 4,
+   "characters": 2993
+  },
+  {
+   "title": "Cloud partners | Getting the models",
+   "url": "https://dev.meta.ai/llama/docs/getting-the-models/405b-partners",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-getting-the-models-405b-partners",
+   "chunks": 11,
+   "characters": 8882
+  },
+  {
+   "title": "Hugging Face | Getting the models",
+   "url": "https://dev.meta.ai/llama/docs/getting-the-models/hugging-face",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-getting-the-models-hugging-face",
+   "chunks": 2,
+   "characters": 963
+  },
+  {
+   "title": "Kaggle | Getting the models",
+   "url": "https://dev.meta.ai/llama/docs/getting-the-models/kaggle",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-getting-the-models-kaggle",
+   "chunks": 2,
+   "characters": 1192
+  },
+  {
+   "title": "Getting the models",
+   "url": "https://dev.meta.ai/llama/docs/getting-the-models/meta",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-getting-the-models-meta",
+   "chunks": 2,
+   "characters": 1449
+  },
+  {
+   "title": "Docs & Resources | Llama AI",
+   "url": "https://dev.meta.ai/llama/docs/how-to-guides",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-how-to-guides",
+   "chunks": 4,
+   "characters": 3071
+  },
+  {
+   "title": "Distillation | How-to guides",
+   "url": "https://dev.meta.ai/llama/docs/how-to-guides/distillation",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-how-to-guides-distillation",
+   "chunks": 10,
+   "characters": 8118
+  },
+  {
+   "title": "Fine-tuning | How-to guides",
+   "url": "https://dev.meta.ai/llama/docs/how-to-guides/fine-tuning",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-how-to-guides-fine-tuning",
+   "chunks": 21,
+   "characters": 17159
+  },
+  {
+   "title": "Prompt engineering | How-to Guides",
+   "url": "https://dev.meta.ai/llama/docs/how-to-guides/prompting",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-how-to-guides-prompting",
+   "chunks": 17,
+   "characters": 13625
+  },
+  {
+   "title": "Quantization and performance optimization | How-to guides",
+   "url": "https://dev.meta.ai/llama/docs/how-to-guides/quantization",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-how-to-guides-quantization",
+   "chunks": 21,
+   "characters": 17221
+  },
+  {
+   "title": "Developer use guide resources | How-to guides",
+   "url": "https://dev.meta.ai/llama/docs/how-to-guides/responsible-use-guide-resources",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-how-to-guides-responsible-use-guide-resources",
+   "chunks": 9,
+   "characters": 6697
+  },
+  {
+   "title": "Validation | How-to guides",
+   "url": "https://dev.meta.ai/llama/docs/how-to-guides/validation",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-how-to-guides-validation",
+   "chunks": 7,
+   "characters": 5688
+  },
+  {
+   "title": "Vision Capabilities | How-to guides",
+   "url": "https://dev.meta.ai/llama/docs/how-to-guides/vision-capabilities",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-how-to-guides-vision-capabilities",
+   "chunks": 20,
+   "characters": 16506
+  },
+  {
+   "title": "Integration guides",
+   "url": "https://dev.meta.ai/llama/docs/integration-guides",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-integration-guides",
+   "chunks": 1,
+   "characters": 458
+  },
+  {
+   "title": "LangChain | Integration guides",
+   "url": "https://dev.meta.ai/llama/docs/integration-guides/langchain",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-integration-guides-langchain",
+   "chunks": 4,
+   "characters": 2912
+  },
+  {
+   "title": "LlamaIndex | Integration guides",
+   "url": "https://dev.meta.ai/llama/docs/integration-guides/llamaindex",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-integration-guides-llamaindex",
+   "chunks": 3,
+   "characters": 1909
+  },
+  {
+   "title": "Llama Everywhere",
+   "url": "https://dev.meta.ai/llama/docs/llama-everywhere",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-llama-everywhere",
+   "chunks": 2,
+   "characters": 1372
+  },
+  {
+   "title": "Meta Llama in the Cloud | Llama Everywhere",
+   "url": "https://dev.meta.ai/llama/docs/llama-everywhere/running-meta-llama-in-the-cloud",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-llama-everywhere-running-meta-llama-in-the-cloud",
+   "chunks": 16,
+   "characters": 12906
+  },
+  {
+   "title": "Running Llama on Linux | Llama Everywhere",
+   "url": "https://dev.meta.ai/llama/docs/llama-everywhere/running-meta-llama-on-linux",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-llama-everywhere-running-meta-llama-on-linux",
+   "chunks": 9,
+   "characters": 6842
+  },
+  {
+   "title": "Running Llama on Mac | Llama Everywhere",
+   "url": "https://dev.meta.ai/llama/docs/llama-everywhere/running-meta-llama-on-mac",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-llama-everywhere-running-meta-llama-on-mac",
+   "chunks": 8,
+   "characters": 6577
+  },
+  {
+   "title": "Running Llama on Windows | Llama Everywhere",
+   "url": "https://dev.meta.ai/llama/docs/llama-everywhere/running-meta-llama-on-windows",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-llama-everywhere-running-meta-llama-on-windows",
+   "chunks": 10,
+   "characters": 7544
+  },
+  {
+   "title": "Llama Models",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-model-cards-and-prompt-formats",
+   "chunks": 3,
+   "characters": 1984
+  },
+  {
+   "title": "Llama Guard 3 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/llama-guard-3",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-model-cards-and-prompt-formats-llama-guard-3",
+   "chunks": 14,
+   "characters": 10882
+  },
+  {
+   "title": "Llama Guard 4 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/llama-guard-4",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-model-cards-and-prompt-formats-llama-guard-4",
+   "chunks": 15,
+   "characters": 12798
+  },
+  {
+   "title": "Llama 3.1 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/llama3_1",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-model-cards-and-prompt-formats-llama3-1",
+   "chunks": 29,
+   "characters": 21815
+  },
+  {
+   "title": "Llama 3.2 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/llama3_2",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-model-cards-and-prompt-formats-llama3-2",
+   "chunks": 24,
+   "characters": 18279
+  },
+  {
+   "title": "Llama 3.3 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/llama3_3",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-model-cards-and-prompt-formats-llama3-3",
+   "chunks": 7,
+   "characters": 5293
+  },
+  {
+   "title": "Llama 4 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/llama4",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-model-cards-and-prompt-formats-llama4",
+   "chunks": 24,
+   "characters": 18183
+  },
+  {
+   "title": "Meta Code Llama | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/meta-code-llama",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-model-cards-and-prompt-formats-meta-code-llama",
+   "chunks": 2,
+   "characters": 1635
+  },
+  {
+   "title": "Meta Code Llama 70B | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/meta-code-llama-70b",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-model-cards-and-prompt-formats-meta-code-llama-70b",
+   "chunks": 2,
+   "characters": 1573
+  },
+  {
+   "title": "Meta Llama 2 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/meta-llama-2",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-model-cards-and-prompt-formats-meta-llama-2",
+   "chunks": 2,
+   "characters": 1429
+  },
+  {
+   "title": "Llama 3 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/meta-llama-3",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-model-cards-and-prompt-formats-meta-llama-3",
+   "chunks": 5,
+   "characters": 3701
+  },
+  {
+   "title": "Meta Llama Guard 1 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/meta-llama-guard-1",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-model-cards-and-prompt-formats-meta-llama-guard-1",
+   "chunks": 6,
+   "characters": 4928
+  },
+  {
+   "title": "Llama Guard 2 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/meta-llama-guard-2",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-model-cards-and-prompt-formats-meta-llama-guard-2",
+   "chunks": 6,
+   "characters": 5046
+  },
+  {
+   "title": "Other Models | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/other-models",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-model-cards-and-prompt-formats-other-models",
+   "chunks": 17,
+   "characters": 13131
+  },
+  {
+   "title": "Llama Prompt Guard 2 | Model Cards and Prompt formats",
+   "url": "https://dev.meta.ai/llama/docs/model-cards-and-prompt-formats/prompt-guard",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-model-cards-and-prompt-formats-prompt-guard",
+   "chunks": 5,
+   "characters": 3540
+  },
+  {
+   "title": "Meta and Community Resources",
+   "url": "https://dev.meta.ai/llama/docs/resources",
+   "kind": "html",
+   "source_id": "metadocs-src-llama-docs-resources",
+   "chunks": 4,
+   "characters": 3197
+  }
+ ]
+}

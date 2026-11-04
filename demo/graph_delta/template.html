@@ -1,0 +1,2680 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Noesis · graph delta</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23ff2d6f'/%3E%3Ccircle cx='6.4' cy='6.2' r='2.3' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#0a0e13; --panel:#11161d; --panel-2:#161d26; --line:#232c38;
+    --ink:#dbe4ee; --muted:#8595a7; --faint:#5b6b7d;
+    --accent:#5eead4; --accent-2:#7dd3fc; --danger:#f87171;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Inter,Roboto,sans-serif;
+    /* Domain identities (ontology colors, delta semantics) live in the script;
+       --prov doubles here as the provenance accent of the piece. */
+    --prov:#ff2d6f;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    overflow:hidden;-webkit-font-smoothing:antialiased;
+  }
+  .app{
+    position:relative;z-index:1;height:100%;display:grid;gap:12px;padding:12px;
+    grid-template-columns:242px minmax(0,1fr) 336px;
+    grid-template-rows:66px minmax(0,1fr) 124px;
+    grid-template-areas:"top top top" "legend stage stream" "timeline timeline timeline";
+  }
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;
+    box-shadow:0 12px 32px rgba(0,0,0,.35);
+  }
+  /* ---------- header ---------- */
+  .top{grid-area:top;display:flex;align-items:center;gap:26px;padding:0 20px}
+  .panel.top{padding:0 20px}
+  .brand{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+  .mark{width:16px;height:16px;border-radius:50%;
+    background:radial-gradient(circle at 34% 30%,#e6fffb,#5eead4 45%,#0f766e 90%)}
+  .word{font-weight:700;letter-spacing:.30em;font-size:13px}
+  .kicker{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);
+    padding-left:6px;border-left:1px solid var(--line)}
+  .headline{min-width:0;flex:1}
+  .h-title{font-size:17px;font-weight:600;letter-spacing:-.01em;color:var(--ink);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .h-sub{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis;margin-top:2px}
+  .transport{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+  .btn{
+    appearance:none;border:1px solid var(--line);background:var(--panel-2);
+    color:var(--muted);height:32px;min-width:32px;border-radius:8px;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;gap:7px;
+    font-family:var(--sans);font-size:12px;transition:color .15s,border-color .15s,background .15s
+  }
+  .btn:hover{color:var(--ink);border-color:#33404a}
+  .btn svg{width:13px;height:13px;fill:currentColor}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#052e2b;
+    font-weight:650}
+  .btn.primary:hover{background:#7bf0de;color:#052e2b}
+  .speed{font-family:var(--mono);font-size:11px;color:var(--muted);cursor:pointer;
+    padding:6px 9px;border:1px solid var(--line);border-radius:8px;user-select:none;
+    min-width:44px;text-align:center;background:var(--panel-2)}
+  .speed:hover{color:var(--ink)}
+  .h-meta{font-family:var(--mono);font-size:10px;color:var(--faint);text-align:right;
+    line-height:1.5;white-space:nowrap}
+  /* ---------- legend ---------- */
+  .legend{grid-area:legend;display:flex;flex-direction:column;padding:14px 12px;min-height:0}
+  .panel-head{display:flex;align-items:baseline;justify-content:space-between;
+    font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);
+    padding:0 6px 10px}
+  .panel-head b{color:var(--muted);font-weight:500}
+  .legend-list{overflow:auto;flex:1;padding-right:2px}
+  .ont{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:8px;
+    cursor:pointer;border:1px solid transparent;transition:background .15s,border-color .15s;position:relative}
+  .ont:hover{background:var(--panel-2)}
+  .ont.on{border-color:var(--line);background:var(--panel-2)}
+  .ont.zero{opacity:.34}
+  .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+    background:currentColor}
+  .ont-name{font-size:11.5px;color:var(--ink);flex:1;white-space:normal;line-height:1.22}
+  .ont-count{font-family:var(--mono);font-size:10px;color:var(--faint)}
+  .ont-sig{
+    margin:2px 4px 10px;padding:11px 12px 10px;border-radius:10px;position:relative;
+    background:rgba(255,45,111,.06);
+    border:1px solid rgba(255,45,111,.32);
+  }
+  .ont-sig .sig-top{display:flex;align-items:center;gap:9px}
+  .ont-sig .sig-name{font-size:12.5px;font-weight:600;letter-spacing:.01em;color:#ffdbe6}
+  .ont-sig .sig-tag{margin-left:auto;font-family:var(--mono);font-size:8.5px;
+    letter-spacing:.14em;color:#ff9fbd;border:1px solid rgba(255,45,111,.4);
+    border-radius:999px;padding:2px 7px;background:rgba(255,45,111,.10)}
+  .ont-sig .sig-chain{display:flex;align-items:center;gap:4px;margin-top:7px;
+    font-family:var(--mono);font-size:8px;letter-spacing:.02em;color:#ffb3c8;
+    white-space:nowrap;overflow:hidden}
+  .ont-sig .sig-chain span{border:1px solid rgba(255,45,111,.28);border-radius:5px;
+    padding:2px 5px;background:rgba(255,45,111,.07)}
+  .ont-sig .sig-chain i{font-style:normal;color:rgba(255,140,170,.55)}
+  .ont-sig .sig-what{font-size:9.5px;color:#e5a9bd;margin-top:6px;line-height:1.4}
+  .ont-sig .sig-count{display:block;margin-top:6px;font-family:var(--mono);
+    font-size:9px;letter-spacing:.02em;color:rgba(255,190,210,.65);text-align:right}
+  .ont-sig.epi{
+    margin-top:0;
+    background:rgba(176,107,255,.06);
+    border-color:rgba(176,107,255,.32);
+    cursor:pointer;transition:border-color .15s,background .15s
+  }
+  .ont-sig.epi.on{background:rgba(176,107,255,.12);border-color:rgba(176,107,255,.6)}
+  .ont-sig.epi .sig-name{color:#e9dcff}
+  .ont-sig.epi .sig-tag{color:#c9a8ff;border-color:rgba(176,107,255,.45);
+    background:rgba(176,107,255,.10)}
+  .ont-sig.epi .sig-chain span{border-color:rgba(176,107,255,.32);
+    background:rgba(176,107,255,.07);color:#d9c6ff}
+  .ont-sig.epi .sig-chain i{color:rgba(190,160,255,.55)}
+  .ont-sig.epi .sig-what{color:#c9b3e8}
+  .ont-sig.epi .sig-count{color:rgba(210,185,255,.65)}
+  .legend-foot{border-top:1px solid var(--line);margin-top:8px;padding:10px 6px 2px;
+    display:flex;flex-direction:column;gap:7px}
+  .shape-key{display:flex;gap:10px;font-family:var(--mono);font-size:8.5px;
+    color:var(--faint);padding-bottom:4px}
+  .shape-key span{white-space:nowrap}
+  .layer-key{display:flex;gap:9px;font-family:var(--mono);font-size:8.5px;
+    color:var(--faint);padding:2px 0 4px;flex-wrap:wrap}
+  .layer-key span{display:flex;align-items:center;gap:4px;white-space:nowrap}
+  .layer-key b{color:var(--muted);font-weight:500}
+  .l-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+  .l-dot.canonical{background:#e9edf7}
+  .l-dot.truth{background:#8b93a7}
+  .l-dot.telemetry{background:#4b5262}
+  .legend-foot label{display:flex;align-items:center;gap:8px;font-size:10.5px;
+    color:var(--muted);cursor:pointer;user-select:none}
+  .legend-foot input{appearance:none;width:26px;height:14px;border-radius:999px;
+    background:var(--panel-2);position:relative;cursor:pointer;transition:.18s;
+    border:1px solid var(--line)}
+  .legend-foot input:after{content:"";position:absolute;top:1px;left:1px;width:10px;
+    height:10px;border-radius:50%;background:var(--muted);transition:.18s}
+  .legend-foot input:checked{background:rgba(94,234,212,.30);
+    border-color:rgba(94,234,212,.5)}
+  .legend-foot input:checked:after{left:13px;background:#e6fffb}
+  /* ---------- stage ---------- */
+  .stage{grid-area:stage;position:relative;overflow:hidden;padding:0;background:#0c1118}
+  #canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
+  #canvas.drag{cursor:grabbing}
+  .hud{
+    position:absolute;left:16px;top:14px;max-width:min(560px,70%);
+    display:flex;gap:14px;align-items:flex-start;pointer-events:none;
+    background:rgba(13,18,25,.94);
+    border:1px solid var(--line);border-radius:10px;padding:12px 15px;
+    box-shadow:0 12px 32px rgba(0,0,0,.4)
+  }
+  .hud-seq{font-family:var(--mono);font-size:26px;font-weight:500;line-height:1;
+    color:var(--ink);letter-spacing:-.03em;min-width:64px}
+  .hud-seq small{font-size:10px;color:var(--faint);letter-spacing:0}
+  .hud-row{display:flex;align-items:center;gap:9px;margin-bottom:5px}
+  .chip{font-family:var(--mono);font-size:9px;letter-spacing:.10em;text-transform:uppercase;
+    padding:2px 7px;border-radius:999px;border:1px solid currentColor;
+    background:rgba(255,255,255,.03)}
+  .hud-time{font-family:var(--mono);font-size:9.5px;color:var(--faint)}
+  .hud-title{font-size:13.5px;font-weight:600;color:var(--ink)}
+  .hud-detail{font-size:11px;color:var(--muted);margin-top:2px;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .counters{position:absolute;right:16px;top:16px;display:flex;gap:8px;pointer-events:none}
+  .counter{min-width:74px;padding:8px 11px;border-radius:10px;text-align:right;
+    background:rgba(13,18,25,.94);border:1px solid var(--line)}
+  .counter .v{font-family:var(--mono);font-size:17px;color:var(--ink);line-height:1.1}
+  .counter .k{font-size:8.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint)}
+  .counter.accent .v{color:var(--accent)}
+  .spine-badge{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);
+    font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+    color:#ffb3c8;border:1px solid rgba(255,45,111,.35);border-radius:999px;
+    padding:5px 12px;background:rgba(13,18,25,.92);opacity:0;transition:opacity .2s;
+    pointer-events:none}
+  .spine-badge.show{opacity:1}
+  .spine-badge.chain{bottom:46px;color:#d9c6ff;border-color:rgba(176,107,255,.4)}
+  .tip{position:absolute;pointer-events:none;padding:6px 9px;border-radius:8px;
+    background:rgba(13,18,25,.96);border:1px solid #33404a;
+    font-family:var(--mono);font-size:10px;color:var(--ink);opacity:0;transition:opacity .12s;
+    box-shadow:0 10px 30px rgba(0,0,0,.55);max-width:280px;z-index:5}
+  .tip b{color:#fff;font-weight:500}
+  .detail{position:absolute;left:16px;bottom:16px;width:330px;max-height:46%;
+    overflow:auto;border-radius:10px;padding:14px 15px;display:none;
+    background:rgba(13,18,25,.97);border:1px solid #33404a;
+    box-shadow:0 20px 50px rgba(0,0,0,.6);z-index:6}
+  .detail.show{display:block}
+  .detail h4{margin:0 0 4px;font-size:13px;font-weight:600}
+  .detail .dsub{font-family:var(--mono);font-size:9.5px;color:var(--faint);margin-bottom:10px}
+  .detail .close{position:absolute;right:10px;top:8px;cursor:pointer;color:var(--faint);
+    font-size:15px;line-height:1;padding:4px}
+  .detail .close:hover{color:var(--ink)}
+  .kv{display:grid;grid-template-columns:96px 1fr;gap:4px 10px;font-family:var(--mono);
+    font-size:9.5px;line-height:1.45}
+  .kv .k{color:var(--faint);overflow:hidden;text-overflow:ellipsis}
+  .kv .v{color:var(--ink);word-break:break-word}
+  /* ---------- stream ---------- */
+  .stream{grid-area:stream;display:flex;flex-direction:column;min-height:0;padding:14px 10px 10px}
+  .stream-list{overflow:auto;flex:1;padding:0 4px 4px;scrollbar-width:thin}
+  .bundle-row{display:flex;align-items:center;gap:7px;padding:9px 6px 4px;
+    margin-top:5px;border-top:1px solid var(--line);cursor:pointer;
+    font-family:var(--mono);font-size:8.5px;color:var(--faint)}
+  .bundle-row:first-child{margin-top:0;border-top:0}
+  .bundle-row:hover{color:var(--muted)}
+  .bundle-row.active{color:var(--ink)}
+  .bundle-no{border:1px solid var(--line);border-radius:4px;
+    padding:1px 4px;color:var(--muted)}
+  .bundle-row.active .bundle-no{border-color:rgba(94,234,212,.5);color:var(--accent)}
+  .bundle-title{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    font-family:var(--sans);font-size:10px}
+  .bundle-count{opacity:.65}
+  .ev{display:grid;grid-template-columns:30px 1fr;gap:9px;padding:7px 8px;
+    padding-left:14px;border-radius:8px;
+    cursor:pointer;border:1px solid transparent;transition:background .15s}
+  .ev:hover{background:var(--panel-2)}
+  .ev.active{background:var(--panel-2);border-color:var(--line)}
+  .ev.done{opacity:.52}
+  .ev.future{opacity:.28}
+  .ev-seq{font-family:var(--mono);font-size:9px;color:var(--faint);padding-top:2px}
+  .ev-main{min-width:0}
+  .ev-top{display:flex;align-items:center;gap:6px}
+  .ev-kind{font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;
+    border-radius:4px;padding:1px 4px;border:1px solid currentColor;flex:0 0 auto}
+  .ev-title{font-size:10.5px;color:var(--ink);white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis}
+  .ev-detail{font-family:var(--mono);font-size:9px;color:var(--faint);margin-top:2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* ---------- timeline ---------- */
+  .timeline{grid-area:timeline;padding:12px 16px 9px;display:flex;flex-direction:column;gap:8px}
+  .tl-head{display:flex;justify-content:space-between;align-items:baseline}
+  .tl-left{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.05em}
+  .tl-left b{color:var(--ink);font-weight:500}
+  .tl-right{font-family:var(--mono);font-size:9.5px;color:var(--faint)}
+  .tl-track{position:relative;height:34px;cursor:pointer;flex:0 0 auto}
+  .tl-line{position:absolute;left:0;right:0;top:17px;height:1px;
+    background:var(--line)}
+  .tl-fill{position:absolute;left:0;top:17px;height:1px;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+  .tick{position:absolute;top:11px;width:2px;height:6px;border-radius:2px;
+    transform:translateX(-1px);transition:height .2s, top .2s}
+  .tick.prov{height:14px;top:7px}
+  .tick.past{opacity:1}
+  .tick.future{opacity:.28}
+  .marker{position:absolute;top:2px;width:1px;height:32px;background:#fff;opacity:.9;
+    transform:translateX(-.5px)}
+  .marker:after{content:"";position:absolute;left:-4px;top:-2px;width:9px;height:9px;
+    border-radius:50%;background:#fff}
+  .tl-legend{display:flex;gap:18px;font-family:var(--mono);font-size:9px;color:var(--faint);
+    align-items:center}
+  .tl-legend span b{color:var(--muted);font-weight:500}
+  .k-created{color:#6ee787}.k-changed{color:#ffc247}.k-removed{color:#ff6b6b}
+  /* ---------- scrollbars ---------- */
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:5px;border:2px solid var(--bg)}
+  ::-webkit-scrollbar-thumb:hover{background:var(--faint)}
+  ::-webkit-scrollbar-track{background:transparent}
+  .chip-wrap{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:7}
+  .dchip{position:absolute;transform:translate(-50%,-50%);font-family:var(--mono);
+    font-size:9.5px;padding:4px 8px;border-radius:7px;white-space:nowrap;
+    background:rgba(13,18,25,.95);border:1px solid #33404a;
+    color:var(--ink);box-shadow:0 10px 30px rgba(0,0,0,.6);
+    animation:rise 1.8s ease-out forwards}
+  .dchip b{color:#ffd07a;font-weight:500}
+  @keyframes rise{
+    0%{opacity:0;transform:translate(-50%,-40%) scale(.92)}
+    12%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+    72%{opacity:1}
+    100%{opacity:0;transform:translate(-50%,-135%) scale(.98)}
+  }
+  .m-only{display:none}
+  .view-toggle{display:none;font-family:var(--mono);font-size:9px;letter-spacing:.08em;
+    text-transform:uppercase;color:#d9c6ff;background:rgba(176,107,255,.10);
+    border:1px solid rgba(176,107,255,.38);border-radius:999px;padding:5px 10px;
+    cursor:pointer}
+  .view-toggle:active{background:rgba(176,107,255,.2)}
+  .panel-close{appearance:none;background:none;border:0;color:var(--muted);
+    font-size:20px;line-height:1;cursor:pointer;padding:0 2px}
+  .panel-close:hover{color:var(--ink)}
+  .scrim{position:fixed;inset:0;background:rgba(4,7,11,.66);
+    z-index:35;opacity:0;pointer-events:none;transition:opacity .18s}
+  .scrim.show{opacity:1;pointer-events:auto}
+  /* ---------- chat ---------- */
+  .chat{position:fixed;right:12px;top:78px;bottom:136px;
+    width:min(440px,calc(100vw - 24px));z-index:44;display:flex;flex-direction:column;
+    min-height:0;background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;
+    box-shadow:0 24px 60px rgba(0,0,0,.6);
+    transform:translateX(calc(100% + 24px));opacity:0;pointer-events:none;
+    transition:transform .2s ease,opacity .2s ease}
+  .chat.open{transform:none;opacity:1;pointer-events:auto}
+  .chat-head{display:flex;align-items:center;gap:8px;padding:13px 14px 7px}
+  .chat-head b{font-size:12.5px;font-weight:600;letter-spacing:.01em}
+  .chat-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);
+    flex:0 0 auto}
+  .chat-model{margin-left:auto;font-family:var(--mono);font-size:8.5px;letter-spacing:.09em;
+    color:#c9a7ff;border:1px solid rgba(176,107,255,.35);border-radius:999px;
+    padding:2px 7px;background:rgba(176,107,255,.08)}
+  .chat-sub{padding:0 14px 9px;font-size:10px;line-height:1.45;color:var(--faint);
+    border-bottom:1px solid var(--line)}
+  .chat-log{flex:1;overflow:auto;padding:12px 14px;display:flex;flex-direction:column;
+    gap:10px;min-height:0;scroll-behavior:smooth}
+  .chat-empty{color:var(--muted);font-size:11.5px;line-height:1.55;padding:4px 2px}
+  .chat-empty b{display:block;color:var(--ink);font-size:12.5px;margin-bottom:4px}
+  .chat-empty .egs{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+  .chat-empty .egs button{appearance:none;font-family:var(--sans);font-size:10.5px;
+    text-align:left;color:var(--ink);background:var(--panel-2);
+    border:1px solid var(--line);border-radius:8px;padding:6px 8px;cursor:pointer;
+    transition:border-color .15s,color .15s;line-height:1.35}
+  .chat-empty .egs button:hover{border-color:rgba(94,234,212,.5);color:var(--accent)}
+  .msg{max-width:94%;font-size:12px;line-height:1.55}
+  .msg.user{align-self:flex-end;background:rgba(94,234,212,.10);
+    border:1px solid rgba(94,234,212,.30);border-radius:12px 12px 3px 12px;
+    padding:8px 10px;color:#d2f7ee;white-space:pre-wrap;overflow-wrap:anywhere}
+  .msg.bot{align-self:flex-start;width:100%}
+  .msg-body{background:var(--panel-2);border:1px solid var(--line);
+    border-radius:3px 12px 12px 12px;padding:9px 11px;color:var(--ink);
+    overflow-wrap:anywhere}
+  .msg-body p{margin:0 0 7px}
+  .msg-body p:last-child{margin:0}
+  .msg-body ul,.msg-body ol{margin:4px 0 7px;padding-left:18px}
+  .msg-body li{margin:2px 0}
+  .msg-body h5{margin:8px 0 4px;font-size:12px;color:#fff}
+  .msg-body h5:first-child{margin-top:0}
+  .msg-body code{font-family:var(--mono);font-size:10.5px;
+    background:rgba(255,255,255,.07);padding:1px 4px;border-radius:4px}
+  .msg-body a{color:var(--accent-2);text-decoration:none}
+  .msg-body a:hover{text-decoration:underline}
+  .msg-tools{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+  .tchip{font-family:var(--mono);font-size:8.5px;letter-spacing:.02em;color:#9fb0cc;
+    border:1px solid var(--line);border-radius:999px;padding:2px 7px;
+    background:rgba(255,255,255,.03);white-space:nowrap}
+  .tchip.write{color:#ffd07a;border-color:rgba(255,196,71,.38);
+    background:rgba(255,196,71,.07)}
+  .tchip.err{color:var(--danger);border-color:rgba(248,113,113,.35);
+    background:rgba(248,113,113,.06)}
+  .msg-writes{margin-top:5px;font-family:var(--mono);font-size:9px;color:#ffd07a;
+    line-height:1.5;overflow-wrap:anywhere}
+  .delta-card{margin-top:9px;border:1px solid var(--line);border-radius:10px;
+    background:rgba(13,18,25,.7);padding:9px 11px}
+  .delta-head{font-family:var(--mono);font-size:9px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--faint);margin-bottom:7px}
+  .delta-row{display:flex;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05);
+    font-size:11px;line-height:1.4}
+  .delta-row:last-child{border-bottom:none}
+  .delta-row .mark{flex:0 0 auto;width:14px;text-align:center;font-weight:700}
+  .delta-row .mark.m-\+{color:#6ee787}
+  .delta-row .mark.m-Δ{color:#ffc247}
+  .delta-row .mark.m-⚔{color:#f87171}
+  .delta-row .mark.m-✓{color:#5eead4}
+  .delta-row .why{display:block;color:var(--faint);font-size:10px;margin-top:1px}
+  .delta-map{display:inline-block;margin-top:7px;font-family:var(--mono);
+    font-size:9.5px;color:var(--accent-2);text-decoration:none}
+  .delta-map:hover{text-decoration:underline}
+  .chat-scenario{appearance:none;background:var(--panel-2);border:1px solid var(--line);
+    color:var(--text-dim);border-radius:8px;font-family:var(--sans);font-size:11px;
+    height:34px;padding:0 8px;cursor:pointer;max-width:132px}
+  .chat-scenario:hover{color:var(--text)}
+  .sc-canvas{width:100%;height:300px;display:block;border-radius:9px;background:#0c1118;
+    border:1px solid var(--line);margin-top:8px}
+  .sc-kind{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--faint);
+    text-transform:uppercase}
+  .sc-intro{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.45}
+  .sc-legend{display:flex;gap:12px;margin-top:7px;font-family:var(--mono);font-size:9px;
+    color:var(--faint);align-items:center}
+  .sc-legend .ring{display:inline-block;width:7px;height:7px;border-radius:50%;
+    border:2px solid transparent;margin-right:4px;vertical-align:-1px}
+  .sc-reset{margin-left:auto;background:none;border:none;color:var(--accent-2);
+    font-family:var(--mono);font-size:9px;cursor:pointer;padding:0}
+  .sc-reset:hover{text-decoration:underline}
+  .egs .featured{border-color:rgba(94,234,212,.45) !important;color:var(--accent) !important}
+  .typing{display:inline-flex;gap:4px;align-items:center;padding:4px 2px}
+  .typing i{width:5px;height:5px;border-radius:50%;background:var(--accent);
+    animation:blink 1s infinite}
+  .typing i:nth-child(2){animation-delay:.16s}
+  .typing i:nth-child(3){animation-delay:.32s}
+  @keyframes blink{0%,70%,100%{opacity:.25}35%{opacity:1}}
+  .chat-form{display:flex;gap:7px;padding:10px 12px 8px;border-top:1px solid var(--line);
+    align-items:flex-end}
+  .chat-form textarea{flex:1;resize:none;max-height:110px;min-height:34px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:8px;
+    color:var(--ink);font-family:var(--sans);font-size:12px;line-height:1.4;
+    padding:8px 9px;outline:none;transition:border-color .15s}
+  .chat-form textarea:focus{border-color:rgba(94,234,212,.5)}
+  .chat-form .btn{height:34px;padding:0 12px}
+  .chat-form .btn:disabled{opacity:.45;cursor:default}
+  .chat-foot{padding:0 14px 9px;font-family:var(--mono);font-size:8.5px;
+    color:var(--faint);display:flex;justify-content:space-between;gap:10px}
+  .chat-foot span:last-child{text-align:right;white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis}
+  .chat-quick{display:flex;align-items:center;gap:6px;padding:6px 14px 9px;
+    border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .chat-quick span{font-family:var(--mono);font-size:9px;color:var(--faint)}
+  .chat-quick button{appearance:none;font-family:var(--sans);font-size:10.5px;
+    color:var(--accent);background:rgba(94,234,212,.08);border:1px solid rgba(94,234,212,.35);
+    border-radius:999px;padding:3px 10px;cursor:pointer}
+  .chat-quick button:hover{background:rgba(94,234,212,.16)}
+  .msg-toolsearch{margin-top:7px;font-family:var(--mono);font-size:9.5px;
+    color:var(--accent-2);border:1px solid rgba(125,211,252,.35);
+    background:rgba(125,211,252,.07);border-radius:8px;padding:5px 9px;line-height:1.5}
+  .msg-tracebtn{margin-top:7px;appearance:none;background:none;border:none;
+    color:var(--faint);font-family:var(--mono);font-size:9px;cursor:pointer;
+    padding:0}
+  .msg-tracebtn:hover{color:var(--accent)}
+  .msg-trace{margin-top:6px;border-left:2px solid var(--border);padding-left:9px}
+  .trace-span{font-family:var(--mono);font-size:9px;color:var(--muted);
+    padding:3px 0;line-height:1.5}
+  .trace-span b{color:var(--accent)}
+  .trace-span .err{color:var(--danger)}
+  .trace-io{display:block;color:var(--faint);overflow-wrap:anywhere}
+  .chat-fab{position:fixed;right:14px;bottom:104px;z-index:30;display:none;
+    appearance:none;align-items:center;gap:7px;height:38px;padding:0 14px;
+    border-radius:999px;cursor:pointer;font-family:var(--sans);font-size:12px;
+    font-weight:650;color:#052e2b;background:var(--accent);
+    border:1px solid var(--accent);
+    box-shadow:0 10px 28px rgba(0,0,0,.5)}
+  .chat-fab svg{width:14px;height:14px;fill:currentColor}
+  .chat-launch{color:var(--accent)}
+  .chat-launch:hover{border-color:rgba(94,234,212,.5)}
+  @media (max-width:1180px){
+    .app{grid-template-columns:212px minmax(0,1fr) 288px}
+  }
+  @media (max-width:980px){
+    .app{grid-template-columns:minmax(0,1fr) 288px;grid-template-areas:"top top" "stage stream" "timeline timeline"}
+    .legend{display:none}
+  }
+  @media (max-width:760px){
+    .app{grid-template-columns:minmax(0,1fr);
+      grid-template-rows:52px minmax(0,1fr) 88px;
+      grid-template-areas:"top" "stage" "timeline";
+      gap:8px;padding:8px}
+    .top{padding:0 8px;gap:8px}
+    .headline{display:none}
+    .brand{gap:7px}
+    .word{font-size:11px;letter-spacing:.22em}
+    .kicker{display:none}
+    .transport{gap:5px;margin-left:auto}
+    .btn{height:30px;min-width:30px;font-size:11px;padding:0 8px}
+    #restart,.h-meta{display:none}
+    #playLabel{display:none}
+    .speed{min-width:34px;padding:5px 6px;font-size:10px}
+    .m-only{display:inline-flex}
+    /* drawers */
+    .legend,.stream{position:fixed;inset:0;z-index:40;display:none;
+      border-radius:0;border:0;padding:16px 14px;background:var(--bg)}
+    .legend.open,.stream.open{display:flex}
+    .legend .panel-head,.stream .panel-head{position:sticky;top:0;
+      background:var(--bg);padding-top:2px;z-index:2}
+    .legend-list,.stream-list{max-height:none}
+    .panel-head{font-size:11px}
+    .panel-close{display:inline-flex;margin-left:8px}
+    /* stage overlays */
+    .counters{left:8px;right:8px;top:6px;display:grid;
+      grid-template-columns:repeat(4,1fr);gap:4px}
+    .counter{min-width:0;padding:4px 6px;border-radius:8px;text-align:center}
+    .counter .v{font-size:13px}
+    .counter .k{font-size:7px;letter-spacing:.09em}
+    .hud{left:8px;right:8px;top:42px;max-width:none;padding:6px 9px;gap:8px;
+      border-radius:10px}
+    .hud-seq{font-size:16px;min-width:34px}
+    .hud-seq small{font-size:6.5px}
+    .hud-row{margin-bottom:2px;gap:6px}
+    .hud-time{display:none}
+    .chip{font-size:7px;padding:1px 5px}
+    .hud-title{font-size:11.5px}
+    .hud-detail{font-size:9.5px;-webkit-line-clamp:1}
+    .spine-badge{display:none}
+    .shape-key,.layer-key{font-size:8px}
+    .legend-foot{padding-bottom:10px}
+    /* detail sheet */
+    .detail{left:8px;right:8px;bottom:8px;width:auto;max-height:52%;
+      padding:12px 12px 14px;border-radius:12px}
+    .kv{grid-template-columns:84px 1fr;font-size:9px}
+    /* timeline */
+    .timeline{padding:8px 10px 6px;gap:5px}
+    .tl-head{font-size:9px}
+    .tl-left{font-size:9px}
+    .tl-right{display:none}
+    .view-toggle{display:inline-flex;margin-left:auto}
+    .tl-track{height:26px}
+    .tl-line{top:13px}
+    .tl-fill{top:13px}
+    .tick{top:8px}
+    .tick.prov{top:5px;height:12px}
+    .marker{top:0;height:26px}
+    .tl-legend{display:none}
+    .stream .ev{padding:8px 6px}
+    .stream .ev-title{font-size:11px}
+    .stream .ev-detail{font-size:9px}
+    /* chat */
+    .chat-launch{display:none}
+    .chat{inset:0;width:auto;border-radius:0;border:0;z-index:50;
+      background:var(--bg)}
+    .chat-head{padding:16px 14px 8px}
+    .chat-fab{display:inline-flex;bottom:102px}
+    .chat-foot{font-size:8px}
+  }
+
+  /* ---------- full corpus view ---------- */
+  .corpus-info{
+    display:none;position:absolute;left:16px;bottom:16px;width:392px;max-height:46%;
+    overflow:auto;border-radius:10px;padding:12px 14px;z-index:8;
+    background:rgba(13,18,25,.97);border:1px solid #33404a;
+    box-shadow:0 20px 50px rgba(0,0,0,.6)
+  }
+  .app.corpus-mode .corpus-info{display:block}
+  .ci-title{font-size:12px;font-weight:600;color:var(--ink)}
+  .ci-stats{font-family:var(--mono);font-size:9.5px;color:var(--muted);margin:4px 0 10px}
+  .ci-sections{display:flex;flex-wrap:wrap;gap:5px}
+  .ci-sec{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);
+    font-size:8.5px;color:var(--ink);background:var(--panel-2);
+    border:1px solid var(--line);border-radius:999px;padding:4px 7px;
+    cursor:pointer;transition:border-color .15s,background .15s}
+  .ci-sec i{width:6px;height:6px;border-radius:50%;background:var(--c)}
+  .ci-sec b{font-weight:500;color:var(--faint)}
+  .ci-sec:hover{border-color:#33404a}
+  .ci-sec.on{border-color:var(--c);background:#1a222c}
+  .app.corpus-mode{
+    grid-template-columns:minmax(0,1fr);
+    grid-template-rows:66px minmax(0,1fr);
+    grid-template-areas:"top" "stage"
+  }
+  .app.corpus-mode .legend,.app.corpus-mode .stream,.app.corpus-mode .timeline,
+  .app.corpus-mode .hud,.app.corpus-mode .counters,.app.corpus-mode .spine-badge{
+    display:none
+  }
+  .app.corpus-mode .stage{grid-area:stage}
+  .app.corpus-mode .detail{left:auto;right:16px;bottom:16px;width:392px;
+    max-height:58%;z-index:12}
+  .app.corpus-mode #play,.app.corpus-mode #restart,.app.corpus-mode .speed,
+  .app.corpus-mode .h-meta{display:none}
+  @media (max-width:760px){
+    .app.corpus-mode{grid-template-rows:52px minmax(0,1fr)}
+    .corpus-info{left:8px;right:8px;bottom:8px;width:auto;max-height:42%;
+      padding:10px 11px}
+    .ci-title{font-size:11px}
+    .ci-stats{font-size:8.5px}
+    .ci-sec{font-size:8px;padding:3px 6px}
+    .app.corpus-mode .detail{left:8px;right:8px;bottom:8px;width:auto;
+      max-height:52%;z-index:12}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="panel top">
+    <div class="brand">
+      <span class="mark"></span><span class="word">NOESIS</span><span class="kicker">graph delta</span>
+    </div>
+    <div class="headline">
+      <div class="h-title" id="title">One question, one graph delta</div>
+      <div class="h-sub" id="question"></div>
+    </div>
+    <div class="transport">
+      <button class="btn chat-launch" id="chatBtn" title="ask the graph (or add to it)">
+        <svg viewBox="0 0 16 16"><path d="M2 2.5h12v8.2H7.3L3.4 13.7v-3H2z"/></svg>
+        <span>Ask</span>
+      </button>
+      <button class="btn primary" id="play" title="play / pause (space)">
+        <svg id="playIcon" viewBox="0 0 16 16"><path d="M4 2.5v11l9-5.5z"/></svg>
+        <span id="playLabel">Play</span>
+      </button>
+      <button class="btn" id="restart" title="restart (R)">
+        <svg viewBox="0 0 16 16"><path d="M8 2a6 6 0 1 0 5.2 3H16V1h-1.6l-2.5 2.6A6 6 0 0 0 8 2zm0 10.4A4.4 4.4 0 1 1 12.4 8 4.4 4.4 0 0 1 8 12.4z" transform="scale(.95)"/></svg>
+        <span>Replay</span>
+      </button>
+      <div class="speed" id="speed" title="playback speed">1×</div>
+      <button class="btn" id="modeBtn" title="toggle the full documentation corpus">Corpus</button>
+      <button class="btn m-only" id="layersBtn" title="layers and ontologies">Layers</button>
+      <button class="btn m-only" id="eventsBtn" title="event stream">Events</button>
+      <div class="h-meta" id="meta"></div>
+    </div>
+  </header>
+
+  <aside class="panel legend">
+    <div class="panel-head"><b>Ontologies</b><span id="ontCount"></span>
+      <button class="panel-close m-only" id="legendClose">×</button></div>
+    <div class="ont-sig" id="provCard">
+      <div class="sig-top"><span class="dot" id="provDot"></span>
+        <span class="sig-name">Provenance</span>
+        <span class="sig-tag">SIGNATURE</span></div>
+      <div class="sig-chain"><span>chunk · trace</span><i>→</i><span>claim</span></div>
+      <div class="sig-what">Every claim is FOUND_IN a chunk or the traced turn.</div>
+      <div class="sig-count" id="provCount"></div>
+    </div>
+    <div class="ont-sig epi" id="epiCard">
+      <div class="sig-top"><span class="dot" id="epiDot"></span>
+        <span class="sig-name">Epistemology</span>
+        <span class="sig-tag">JUSTIFICATION</span></div>
+      <div class="sig-chain epi"><span>⬢ claim</span><i>→</i><span>◆ argument</span><i>→</i><span>● entity</span></div>
+      <div class="sig-what">Every premise is a claim; every entity is concluded by an argument.</div>
+      <div class="sig-count" id="epiCount"></div>
+    </div>
+    <div class="legend-list" id="legend"></div>
+    <div class="legend-foot">
+      <div class="shape-key"><span>◆ argument</span><span>⬢ claim</span><span>● entity</span></div>
+      <div class="layer-key">
+        <span><i class="l-dot canonical"></i>canonical <b id="lCanon">0</b></span>
+        <span><i class="l-dot truth"></i>truth <b id="lTruth">0</b></span>
+        <span><i class="l-dot telemetry"></i>telemetry <b id="lTele">0</b></span>
+      </div>
+      <label><input type="checkbox" id="canonical"> canonical only</label>
+      <label><input type="checkbox" id="spine"> provenance spine only</label>
+      <label><input type="checkbox" id="chain"> epistemology layer</label>
+      <label><input type="checkbox" id="labels" checked> node labels</label>
+    </div>
+  </aside>
+
+  <main class="panel stage">
+    <canvas id="canvas"></canvas>
+    <div class="hud">
+      <div class="hud-seq"><small>bundle</small><br><span id="hudSeq">000</span></div>
+      <div class="hud-body">
+        <div class="hud-row"><span class="chip" id="hudOnt">—</span>
+          <span class="hud-time" id="hudTime"></span></div>
+        <div class="hud-title" id="hudTitle">Ready</div>
+        <div class="hud-detail" id="hudDetail">Press play to replay the recorded deltas.</div>
+      </div>
+    </div>
+    <div class="counters">
+      <div class="counter accent"><div class="v" id="cJust">0/0</div><div class="k">justified</div></div>
+      <div class="counter"><div class="v" id="cNodes">0</div><div class="k">nodes</div></div>
+      <div class="counter"><div class="v" id="cEdges">0</div><div class="k">edges</div></div>
+      <div class="counter"><div class="v" id="cDeltas">0</div><div class="k">deltas</div></div>
+    </div>
+    <div class="spine-badge" id="spineBadge">provenance spine · FOUND_IN</div>
+    <div class="spine-badge chain" id="chainBadge">justification chain · evidence → claim → argument → entity</div>
+    <div class="tip" id="tip"></div>
+    <div class="detail" id="detail">
+      <span class="close" id="detailClose">×</span>
+      <h4 id="dTitle"></h4>
+      <div class="dsub" id="dSub"></div>
+      <div class="kv" id="dKv"></div>
+    </div>
+    <div class="chip-wrap" id="chips"></div>
+    <div class="corpus-info" id="corpusInfo">
+      <div class="ci-title">Meta Model API documentation</div>
+      <div class="ci-stats" id="ciStats"></div>
+      <div class="ci-stats" id="ciExtract"></div>
+      <div class="ci-stats" id="ciCode"></div>
+      <div class="ci-sections" id="ciSections"></div>
+    </div>
+  </main>
+
+  <aside class="panel stream">
+    <div class="panel-head"><b>Event stream</b><span id="streamCount"></span>
+      <button class="panel-close m-only" id="streamClose">×</button></div>
+    <div class="stream-list" id="stream"></div>
+  </aside>
+
+  <footer class="panel timeline">
+    <div class="tl-head">
+      <div class="tl-left"><b id="tlPos">0</b> / <span id="tlTotal">0</span> bundles</div>
+      <div class="tl-right" id="tlSpan"></div>
+      <button class="view-toggle m-only" id="viewToggle">Truth</button>
+    </div>
+    <div class="tl-track" id="track">
+      <div class="tl-line"></div>
+      <div class="tl-fill" id="fill" style="width:0%"></div>
+      <div id="ticks"></div>
+      <div class="marker" id="marker" style="left:0%"></div>
+    </div>
+    <div class="tl-legend">
+      <span><b class="k-created">+</b> created</span>
+      <span><b class="k-changed">→</b> changed</span>
+      <span><b class="k-removed">−</b> removed</span>
+      <span style="margin-left:auto" id="tlNote"></span>
+    </div>
+  </footer>
+  <div class="scrim" id="scrim"></div>
+</div>
+
+<aside class="chat" id="chat" aria-label="Ask the graph">
+  <div class="chat-head">
+    <span class="chat-dot"></span><b>Ask the graph</b>
+    <span class="chat-model">MUSE-WONDER-1.0</span>
+    <button class="panel-close" id="chatClose" title="close">×</button>
+  </div>
+  <div class="chat-sub">Reads use corpus + entity search. Writes add claims, arguments,
+    relationships and properties — grounded, never speculative. Corrections are
+    epistemic: challenge an argument, repoint a reference, and the change becomes a
+    new argument with its own provenance — never a deletion, never a re-ingestion.</div>
+  <div class="chat-quick" id="chatQuick">
+    <span>try:</span>
+    <button data-prompt="What is tool search and how does it save tokens?">What is tool search?</button>
+    <button data-prompt="The graph says tool search is not available on Chat Completions, grounded in the tool-search docs page. That is stale: tool search launched on Chat Completions this week. Look up the Tool search capability with get_entity, find that exact claim's id, and challenge the argument behind it with challenge_argument(claim_id=...). Then add the updated fact and conclude the Tool search capability with it.">Test a correction</button>
+  </div>
+  <div class="chat-log" id="chatLog">
+    <div class="chat-empty" id="chatEmpty">
+      <b>One question, or one change.</b>
+      Every answer comes from the graph: 204 docs pages, 3,194 chunks, 16k claims,
+      canonical entities, metrics and code. Ask for evidence, ask to add knowledge,
+      or ask to correct it — and watch the epistemology and provenance layers do
+      the work a re-ingestion would otherwise do.
+      <div class="egs">
+        <button class="featured" data-scenario="tool-search-stale">▶ Stale docs: tool search lands on Chat Completions (watch the graph correct itself)</button>
+        <button data-prompt="What does the docs say about native tool calling?">What does the docs say about native tool calling?</button>
+        <button data-prompt="Which metrics cover token usage?">Which metrics cover token usage?</button>
+        <button data-prompt="Add a claim: Muse Wonder supports native tool calling. Attach it to the Component Muse Wonder with an argument.">Add a claim and attach it to Muse Wonder</button>
+        <button data-prompt="The 'ToolSearch' capability is just an SDK class name posing as an entity — the real entity is 'Client-executed tool search'. Repoint the Messages schemas chunk (metadocs-chunk-docs-api-reference-messages-schemas-10)'s reference from ToolSearch (extent-dd194c867a) to Client-executed tool search (extent-a80d8e3c54).">Dedup it: repoint the reference (no re-ingestion)</button>
+      </div>
+    </div>
+  </div>
+  <form class="chat-form" id="chatForm">
+    <textarea id="chatInput" rows="1" placeholder="Ask the graph, or say what to add…"></textarea>
+    <select class="chat-scenario" id="scenarioSelect" title="Run a scripted correction and watch the graph change">
+      <option value="">scenarios ▾</option>
+      <option value="tool-search-stale">Stale docs: tool search lands on Chat Completions</option>
+    </select>
+    <button class="btn primary" id="chatSend" type="submit">Send</button>
+  </form>
+  <div class="chat-foot"><span>grounded in chunks and traces</span><span id="chatStatus">ready</span></div>
+</aside>
+<button class="chat-fab" id="chatFab" title="ask the graph">
+  <svg viewBox="0 0 16 16"><path d="M2 2.5h12v8.2H7.3L3.4 13.7v-3H2z"/></svg>
+  Ask the graph
+</button>
+
+<script>const DATA = __DATA__;</script>
+<script>const CORPUS = __CORPUS__;</script>
+<script>
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const COLORS = {
+    provenance:"#ff2d6f", orchestration:"#4d8dff", epistemology:"#b06bff",
+    tools:"#16e0c0", semantic_layer:"#ffc247", business_dictionary:"#6ee787",
+    strategy:"#ff8a3d", architecture:"#22c9e0", project_management:"#e3e35f",
+    methodology:"#ff6ad5", development:"#8b95a5"
+  };
+  const ORDER = ["provenance","orchestration","epistemology","tools","semantic_layer",
+    "business_dictionary","strategy","architecture","project_management",
+    "methodology","development"];
+  const KIND = {
+    "node.create":{g:"+", cls:"k-created", verb:"created"},
+    "edge.create":{g:"+", cls:"k-created", verb:"created"},
+    "node.update":{g:"→", cls:"k-changed", verb:"changed"},
+    "edge.update":{g:"→", cls:"k-changed", verb:"changed"},
+    "node.delete":{g:"−", cls:"k-removed", verb:"removed"},
+    "edge.delete":{g:"−", cls:"k-removed", verb:"removed"}
+  };
+  const color = (k) => COLORS[k] || "#8b95a5";
+  const CHAIN = new Set(["FOUND_IN", "USES_PREMISE", "CONCLUDES"]);
+  const EXEMPT = new Set(["SourceNode", "Chunk", "RoutingTrace", "Session", "Span",
+    "Tool", "TraceOutcome", "Claim", "Argument"]);
+  const hexA = (hex, a) => {
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+  };
+
+  const ONTS = (DATA.ontologies || []).slice().sort(
+    (a,b) => ORDER.indexOf(a.key) - ORDER.indexOf(b.key));
+  const ONT_NAME = Object.fromEntries(ONTS.map(o => [o.key, o.name || o.key]));
+  const EVENTS = DATA.events || [];
+  const BATCHES = DATA.batches || [];
+  function hashRef(text) {
+    let h = 0;
+    for (let i = 0; i < text.length; i++) h = (h * 31 + text.charCodeAt(i)) | 0;
+    return Math.abs(h);
+  }
+  function groupOf(n) {
+    if (n.layer === "canonical") return "canon-" + n.ref;
+    const slots = isMobile ? 2 : 4;
+    if (n.label === "Claim") return "claims-" + (hashRef(n.ref) % slots);
+    if (n.label === "Argument") return "arguments-" + (hashRef(n.ref) % slots);
+    if (n.layer === "telemetry") return "telemetry";
+    return "evidence";
+  }
+
+  // ------------------------------------------------------------------ graph
+  const nodes = new Map();      // ref -> live node
+  const edges = new Map();      // key -> live edge
+  const byRef = new Map((DATA.nodes||[]).map(n => [n.ref, n]));
+  const byKey = new Map((DATA.edges||[]).map(e => [e.key, e]));
+
+  function resetGraph() {
+    nodes.clear(); edges.clear();
+    for (const n of DATA.nodes || []) {
+      // Properties are a function of time: seed only the pre-existing context
+      // nodes, and let creation/update events build every other node's props.
+      // Seeding final props would leak the correction into earlier frames.
+      nodes.set(n.ref, {...n, props: n.pre ? {...n.props} : {},
+        x:0, y:0, vx:0, vy:0, active:false,
+        appear:0, flash:0, die:0, fade:1});
+    }
+    for (const e of DATA.edges || []) {
+      edges.set(e.key, {...e, props: {}, active:false, appear:0, flash:0});
+    }
+    for (const n of nodes.values()) {
+      if (n.pre) { n.active = true; spawn(n); }
+    }
+    simulate(performance.now());
+  }
+
+  let W = 800, H = 600, DPR = 1, cx = 0, cy = 0;
+  let isMobile = false;
+  const MONO = getComputedStyle(document.body).getPropertyValue("--mono").trim()
+    || "ui-monospace, monospace";
+  const canvas = $("canvas"), ctx = canvas.getContext("2d");
+  const view = {x:0, y:0, k:1};           // pan / zoom
+  const anchors = new Map();
+
+  function layoutAnchors() {
+    // Two graphs, two bands. Canonical on top; the truth layer below it in
+    // read order: arguments, then claims, then the evidence they cite.
+    const canon = (DATA.nodes || []).filter(n => n.layer === "canonical");
+    if (isMobile) {
+      // Clean canonical view gets a two-column grid that fills the phone;
+      // the truth view uses the banded layout instead.
+      const cols = canonicalOnly ? 2 : 3;
+      const top = canonicalOnly ? 0.235 : 0.26;
+      const rows = Math.ceil(canon.length / cols);
+      const step = canonicalOnly
+        ? Math.min(0.078, 0.48 / Math.max(1, rows - 1)) : 0.055;
+      canon.forEach((n, i) => {
+        anchors.set("canon-" + n.ref, {
+          x: W * (canonicalOnly ? 0.30 + 0.40 * (i % cols)
+                               : 0.17 + 0.33 * (i % cols)),
+          y: H * (top + step * Math.floor(i / cols)),
+        });
+      });
+      for (let i = 0; i < 2; i++) {
+        anchors.set("claims-" + i, { x: W * (0.30 + 0.40 * i), y: H * 0.71 });
+        anchors.set("arguments-" + i, { x: W * (0.30 + 0.40 * i), y: H * 0.57 });
+      }
+      anchors.set("evidence", { x: W * 0.5, y: H * 0.87 });
+      anchors.set("telemetry", { x: W * 0.82, y: H * 0.91 });
+      return;
+    }
+    // Fifteen canonical entities in one row collide; use two rows on desktop.
+    const perRow = Math.ceil(canon.length / 2);
+    [canon.slice(0, perRow), canon.slice(perRow)].forEach((rowNodes, r) => {
+      rowNodes.forEach((n, i) => {
+        anchors.set("canon-" + n.ref, {
+          x: rowNodes.length === 1 ? W / 2
+            : W * (0.10 + 0.80 * (i / (rowNodes.length - 1))),
+          y: H * (r === 0 ? 0.185 : 0.285),
+        });
+      });
+    });
+    for (let i = 0; i < 4; i++) {
+      anchors.set("claims-" + i, { x: W * (0.14 + 0.24 * i), y: H * 0.615 });
+      anchors.set("arguments-" + i, { x: W * (0.14 + 0.24 * i), y: H * 0.435 });
+    }
+    anchors.set("evidence", { x: W * 0.5, y: H * 0.85 });
+    anchors.set("telemetry", { x: W * 0.89, y: H * 0.88 });
+  }
+
+  function resize() {
+    const r = canvas.getBoundingClientRect();
+    DPR = Math.min(2, window.devicePixelRatio || 1);
+    W = Math.max(320, r.width); H = Math.max(280, r.height);
+    isMobile = W < 700;
+    canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    const prevCx = cx, prevCy = cy;
+    cx = W/2; cy = H/2;
+    if (corpusMode) {
+      view.x = 0; view.y = 0; view.k = 1;
+    } else if (prevCx) {
+      view.x += cx - prevCx; view.y += cy - prevCy;
+    }
+    layoutAnchors();
+    if (corpusMode) buildCorpusLayout();
+  }
+  new ResizeObserver(resize).observe(canvas);
+
+  function spawn(node) {
+    const a = anchors.get(groupOf(node)) || {x:cx, y:cy};
+    const spread = groupOf(node) === "provenance" ? 46 : 30;
+    node.x = a.x + (Math.random()-.5) * spread;
+    node.y = a.y + (Math.random()-.5) * spread;
+    node.vx = (Math.random()-.5) * 2; node.vy = (Math.random()-.5) * 2;
+  }
+
+  // ------------------------------------------------------------------ forces
+  function simulate(now) {
+    if (canonicalOnly) {
+      for (const n of nodes.values()) {
+        if (!n.active || n.die) continue;
+        const a = anchors.get(groupOf(n));
+        if (a) {
+          n.x += (a.x - n.x) * 0.22;
+          n.y += (a.y - n.y) * 0.22;
+        }
+      }
+      return;
+    }
+    const live = [...nodes.values()].filter(n => n.active && !n.die);
+    for (const n of live) {
+      const a = anchors.get(groupOf(n));
+      const pull = isMobile ? 0.0052 : 0.0024;
+      if (a) { n.vx += (a.x - n.x) * pull; n.vy += (a.y - n.y) * pull; }
+      n.vx += (cx - n.x) * 0.00035; n.vy += (cy - n.y) * 0.00035;
+    }
+    for (let i=0;i<live.length;i++) {
+      const a = live[i];
+      for (let j=i+1;j<live.length;j++) {
+        const b = live[j];
+        let dx = b.x-a.x, dy = b.y-a.y, d2 = dx*dx+dy*dy;
+        if (d2 < 1) { d2 = 1; dx = Math.random()-.5; dy = Math.random()-.5; }
+        const d = Math.sqrt(d2);
+        const f = Math.min(isMobile ? 45 : 95, (isMobile ? 620 : 1600) / d2);
+        const fx = dx/d*f, fy = dy/d*f;
+        a.vx -= fx; a.vy -= fy; b.vx += fx; b.vy += fy;
+      }
+    }
+    for (const e of edges.values()) {
+      if (!e.active) continue;
+      const a = nodes.get(e.from), b = nodes.get(e.to);
+      if (!a || !b || !a.active || !b.active) continue;
+      const dx = b.x-a.x, dy = b.y-a.y, d = Math.hypot(dx,dy) || 1;
+      const rest = isMobile ? (e.type === "FOUND_IN" ? 82 : 66)
+        : (e.type === "FOUND_IN" ? 132 : 104);
+      const f = (d - rest) * 0.0035;
+      const fx = dx/d*f, fy = dy/d*f;
+      a.vx += fx; a.vy += fy; b.vx -= fx; b.vy -= fy;
+    }
+    for (const n of live) {
+      n.vx *= 0.86; n.vy *= 0.86;
+      const sp = Math.hypot(n.vx, n.vy);
+      if (sp > 5) { n.vx = n.vx/sp*5; n.vy = n.vy/sp*5; }
+      n.x += n.vx; n.y += n.vy;
+    }
+  }
+
+  // ------------------------------------------------------------------ draw
+  function worldToScreen(x, y) {
+    return { x: x*view.k + view.x, y: y*view.k + view.y };
+  }
+  function screenToWorld(x, y) {
+    return { x: (x-view.x)/view.k, y: (y-view.y)/view.k };
+  }
+
+  function displayName(n) {
+    if (n.label === "Claim" || n.label === "Argument") return "";
+    const p = n.props || {};
+    const names = {
+      Metric: p.name, BusinessTerm: p.name, AlternateBusinessTerm: p.name,
+      Component: p.name, Interface: p.name, Capability: p.name, Specification: p.name,
+      Table: p.name, Column: p.name, Value: p.name,
+      Goal: p.target, Decision: p.description, Component: p.name,
+      Epic: p.name, UserStory: p.name, Task: p.name,
+      SourceNode: p.name, Chunk: `chunk ${(p.index ?? 0) + 1}`,
+      RoutingTrace: "user turn", Session: "session", Span: "span",
+      Tool: p.name || "tool"
+    };
+    let text = String(names[n.label] ?? n.label).replace(/\s+/g, " ").trim();
+    return text.length > 26 ? text.slice(0, 24) + "…" : text;
+  }
+
+  function nodeRadius(n) {
+    let deg = 0;
+    for (const e of edges.values()) {
+      if (e.active && (e.from === n.ref || e.to === n.ref)) deg++;
+    }
+    const base = n.label === "RoutingTrace" ? 10
+      : n.label === "Argument" ? 7
+      : n.label === "Claim" ? 5.5 : 6.5;
+    return base + Math.min(8, deg*1.1);
+  }
+
+  function drawEdge(e, now) {
+    const a = nodes.get(e.from), b = nodes.get(e.to);
+    if (!a || !b || !a.active || !b.active) return;
+    if (a.die || b.die) return;
+    const superseded = e.props && e.props.status === "superseded";
+    if (canonicalOnly && (e.layer !== "canonical" || superseded)) return;
+    if (superseded) {
+      const p = worldToScreen(a.x, a.y), q = worldToScreen(b.x, b.y);
+      ctx.save();
+      ctx.strokeStyle = "rgba(255,107,107,.34)";
+      ctx.setLineDash([3, 4]);
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
+      ctx.restore();
+      return;
+    }
+    const reborn = e.props && e.props.supersedes;
+    const p = worldToScreen(a.x, a.y), q = worldToScreen(b.x, b.y);
+    const prog = e.appear ? Math.min(1, (now - e.appear) / 520) : 1;
+    const ex = p.x + (q.x-p.x)*prog, ey = p.y + (q.y-p.y)*prog;
+    const isProv = e.type === "FOUND_IN";
+    const focus = focusOnt;
+    const spine = spineOnly;
+    let alpha = isProv ? 0.92 : 0.34;
+    if (spine && !isProv) alpha = 0.05;
+    if (chainOnly && !CHAIN.has(e.type)) alpha *= 0.05;
+    if (focus && e.ontology !== focus) alpha *= 0.14;
+    if (alpha <= 0.02) return;
+    const col = color(e.ontology);
+    ctx.save();
+    ctx.lineCap = "round";
+    if (isProv) {
+      ctx.strokeStyle = hexA(col, alpha);
+      ctx.lineWidth = 2.1;
+      ctx.shadowColor = col; ctx.shadowBlur = 14;
+      const t = ((now/1600) % 1);
+      const mx = p.x + (q.x-p.x)*t, my = p.y + (q.y-p.y)*t;
+      ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(ex,ey); ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "#fff";
+      ctx.beginPath(); ctx.arc(mx, my, 2.1, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = hexA(col, .85);
+      ctx.beginPath(); ctx.arc(mx, my, 4.6, 0, Math.PI*2); ctx.fill();
+      if (alpha > .35 && (!isMobile || view.k > 1.35)) {
+        LABELS.push({ x:(p.x+q.x)/2, y:(p.y+q.y)/2 + 3, text:"FOUND_IN",
+          color:hexA(col,.96), alpha, pri:3, size:8, chip:true });
+      }
+    } else {
+      const flashing = e.flash && now - e.flash < 1200;
+      const justification = e.type === "USES_PREMISE" || e.type === "CONCLUDES";
+      ctx.strokeStyle = hexA(col,
+        justification ? Math.min(1, alpha*1.65) : (reborn ? Math.min(1, alpha*1.8) : alpha));
+      ctx.lineWidth = flashing ? 2
+        : e.type === "CONCLUDES" ? 1.7
+        : e.type === "USES_PREMISE" ? 1.25 : 1.1;
+      if (justification || reborn) {
+        ctx.shadowColor = col; ctx.shadowBlur = reborn ? 14 : 8;
+        if (e.type === "USES_PREMISE") {
+          ctx.setLineDash([4, 3]);
+          ctx.lineDashOffset = -(now / 55) % 7;
+        }
+      }
+      if (flashing) { ctx.shadowColor = col; ctx.shadowBlur = 12; }
+      ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(ex,ey); ctx.stroke();
+      ctx.setLineDash([]); ctx.lineDashOffset = 0;
+      // arrow head
+      const ang = Math.atan2(ey-p.y, ex-p.x);
+      const ah = 4.2;
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = hexA(col, Math.min(1, alpha+0.12));
+      ctx.beginPath();
+      ctx.moveTo(ex, ey);
+      ctx.lineTo(ex - Math.cos(ang-0.42)*ah*1.6, ey - Math.sin(ang-0.42)*ah*1.6);
+      ctx.lineTo(ex - Math.cos(ang+0.42)*ah*1.6, ey - Math.sin(ang+0.42)*ah*1.6);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.arcTo(x+w, y, x+w, y+h, r);
+    ctx.arcTo(x+w, y+h, x, y+h, r);
+    ctx.arcTo(x, y+h, x, y, r);
+    ctx.arcTo(x, y, x+w, y, r);
+    ctx.closePath();
+  }
+
+  function nodePath(x, y, r, label) {
+    ctx.beginPath();
+    if (label === "Argument") {
+      const q = r * 1.16;
+      ctx.moveTo(x, y - q); ctx.lineTo(x + q, y);
+      ctx.lineTo(x, y + q); ctx.lineTo(x - q, y);
+      ctx.closePath();
+    } else if (label === "Claim") {
+      const q = r * 1.10;
+      for (let i = 0; i < 6; i++) {
+        const a = -Math.PI / 2 + i * Math.PI / 3;
+        const px = x + Math.cos(a) * q, py = y + Math.sin(a) * q;
+        i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+      }
+      ctx.closePath();
+    } else {
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+    }
+  }
+
+  function drawNode(n, now) {
+    if (!n.active) return;
+    if (canonicalOnly && n.layer !== "canonical") return;
+    const p = worldToScreen(n.x, n.y);
+    let r = nodeRadius(n) * view.k * (isMobile ? 0.84 : 1);
+    let alpha = 1;
+    if (n.die) {
+      const k = Math.min(1, (now - n.die) / 520);
+      r *= (1 - k); alpha = 1 - k;
+      if (k >= 1) { n.active = false; return; }
+    }
+    if (spineOnly && n.ontology !== "provenance") {
+      const linked = [...edges.values()].some(e => e.active && e.type === "FOUND_IN" &&
+        (e.from === n.ref || e.to === n.ref));
+      if (!linked) alpha *= 0.10;
+    }
+    if (chainOnly) {
+      const inChain = [...edges.values()].some(e => e.active && CHAIN.has(e.type) &&
+        (e.from === n.ref || e.to === n.ref));
+      if (!inChain) alpha *= 0.10;
+    }
+    if (focusOnt && n.ontology !== focusOnt) alpha *= 0.13;
+    if (n.pre) alpha *= 0.45;
+    const col = color(n.ontology);
+    const grow = n.appear ? Math.min(1, (now - n.appear) / 380) : 1;
+    const scale = grow < 1 ? .6 + .55*(1-Math.pow(1-grow,3)) : 1;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    if (n.appear && grow < 1) {
+      const ring = (1-grow) * 26 + 4;
+      ctx.strokeStyle = hexA(col, .55*(1-grow));
+      ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.arc(p.x, p.y, r*scale + ring, 0, Math.PI*2); ctx.stroke();
+    }
+    if (n.flash && now - n.flash < 1400) {
+      const k = (now - n.flash)/1400;
+      ctx.strokeStyle = hexA("#ffd07a", .8*(1-k));
+      ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.arc(p.x, p.y, r*scale + 5 + k*16, 0, Math.PI*2); ctx.stroke();
+    }
+    const halo = n.ontology === "provenance" || n.flash
+      || n.label === "Claim" || n.label === "Argument";
+    if (halo) { ctx.shadowColor = col; ctx.shadowBlur = n.flash ? 22 : 16; }
+    const grad = ctx.createRadialGradient(p.x - r*.35, p.y - r*.35, r*.15, p.x, p.y, r);
+    grad.addColorStop(0, "#ffffff");
+    grad.addColorStop(.28, col);
+    grad.addColorStop(1, hexA(col, .55));
+    ctx.fillStyle = grad;
+    nodePath(p.x, p.y, r*scale, n.label); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = hexA("#ffffff", .55);
+    ctx.lineWidth = .8;
+    nodePath(p.x, p.y, r*scale, n.label); ctx.stroke();
+
+    let label = displayName(n);
+    if (isMobile) {
+      label = label.replace(/^Muse /, "").replace(/ API$/, "");
+      if (label.length > 18) label = label.slice(0, 16) + "…";
+    }
+    if (showLabels && label && alpha > .18) {
+      LABELS.push({ x:p.x, y:p.y + r*scale + (isMobile ? 10 : 12), text:label,
+        color:"rgba(233,237,247,.88)", alpha: alpha*(n.pre?.7:1),
+        pri: n.ontology === "provenance" ? 3 : 2, size: isMobile ? 8.2 : 9.6 });
+    }
+    ctx.restore();
+  }
+
+  function drawLabels() {
+    const placed = [];
+    LABELS.sort((a,b) => (b.pri - a.pri) || (b.size - a.size));
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    for (const l of LABELS) {
+      const size = Math.max(isMobile ? 7.4 : 8,
+        Math.min(isMobile ? 9.2 : 11, l.size * Math.min(1.25, view.k)));
+      ctx.font = `${l.chip ? 8 : size}px ${MONO}`;
+      const w = ctx.measureText(l.text).width + (l.chip ? 12 : 4);
+      const h = l.chip ? 15 : 12;
+      const box = { x: l.x - w/2, y: l.y - h/2, w, h };
+      if (box.x < 2 || box.y < 2 || box.x + w > W - 2 || box.y + h > H - 2) continue;
+      const hit = placed.some(p =>
+        box.x < p.x + p.w + 2 && box.x + box.w + 2 > p.x &&
+        box.y < p.y + p.h + 2 && box.y + box.h + 2 > p.y);
+      if (hit) continue;
+      placed.push(box);
+      ctx.globalAlpha = Math.min(1, l.alpha);
+      if (l.chip) {
+        ctx.fillStyle = "rgba(6,8,14,.80)";
+        roundRect(box.x, box.y, w, h, 7); ctx.fill();
+        ctx.strokeStyle = l.color; ctx.lineWidth = .7; ctx.stroke();
+      } else {
+        ctx.strokeStyle = "rgba(4,6,11,.75)"; ctx.lineWidth = 2.4;
+        ctx.strokeText(l.text, l.x, l.y);
+      }
+      ctx.fillStyle = l.color;
+      ctx.fillText(l.text, l.x, l.y);
+      if (placed.length > 46) break;
+    }
+    ctx.restore();
+  }
+
+  // ------------------------------------------------------------ full corpus
+  const SECTION_COLORS = {
+    "Guides": "#5b8cff", "Protocols": "#22c9e0", "Capabilities": "#ffc247",
+    "API reference": "#16e0c0", "Cookbook": "#6ee787", "Muse Code": "#ff8a3d",
+    "Muse Spark Open": "#b06bff", "Muse Glimmer": "#ff6ad5",
+    "Llama docs": "#8b95a5", "Other": "#e9edf7",
+  };
+  let corpusMode = false;
+  let corpusLayout = null;
+  let corpusFocus = null;
+  let corpusHover = null;
+  let corpusSelected = null;
+
+  function sectionColor(key) { return SECTION_COLORS[key] || "#8b95a5"; }
+
+  function buildCorpusLayout() {
+    const pages = (CORPUS && CORPUS.pages) || [];
+    const sections = (CORPUS && CORPUS.sections) || [];
+    if (!pages.length) { corpusLayout = null; return; }
+    if (isMobile) {
+      const order = new Map(sections.map((s, i) => [s.key, i]));
+      const sorted = pages.slice().sort((a, b) =>
+        (order.get(a.section) ?? 99) - (order.get(b.section) ?? 99)
+        || b.chunks - a.chunks);
+      const n = sorted.length;
+      const R = Math.min(W, H) * 0.44;
+      corpusLayout = {
+        sections: sections.map(s => ({...s, color: sectionColor(s.key)})),
+        pages: sorted.map((page, i) => {
+          const a = i * 2.399963;
+          const r = R * Math.sqrt((i + 0.5) / n);
+          return {
+            page, x: W / 2 + Math.cos(a) * r, y: H / 2 + Math.sin(a) * r,
+            r: Math.max(2, Math.min(6.5, 2 + Math.sqrt(page.chunks) * 0.42)),
+            dots: [],
+          };
+        }),
+      };
+      return;
+    }
+    const pad = 14, gap = 10, headerH = 34;
+    const totalChunks = pages.reduce((sum, p) => sum + p.chunks, 0) || 1;
+    const usable = W - pad * 2 - gap * Math.max(0, sections.length - 1);
+    let raw = sections.map(s => usable * (s.chunks / totalChunks));
+    const minWidth = 58;
+    let deficit = raw.reduce((sum, w) => sum + Math.max(0, minWidth - w), 0);
+    const donors = raw.map((w, i) => Math.max(0, w - minWidth));
+    const donorTotal = donors.reduce((a, b) => a + b, 0) || 1;
+    raw = raw.map((w, i) => Math.max(minWidth, w - deficit * (donors[i] / donorTotal)));
+    const out = { sections: [], pages: [] };
+    let x = pad;
+    const top = headerH;
+    const availH = H - top - pad;
+    sections.forEach((section, si) => {
+      const w = raw[si];
+      const inSection = pages.filter(p => p.section === section.key);
+      const cols = Math.max(1, Math.floor((w - 8) / 36));
+      const rows = Math.max(1, Math.ceil(inSection.length / cols));
+      const cellW = (w - 8) / cols;
+      const cellH = availH / rows;
+      out.sections.push({...section, x, w, color: sectionColor(section.key)});
+      inSection.forEach((page, i) => {
+        const cx = x + 4 + cellW * ((i % cols) + 0.5);
+        const cy = top + cellH * (Math.floor(i / cols) + 0.5);
+        const pr = Math.max(2.2, Math.min(10, 2 + Math.sqrt(page.chunks) * 0.55));
+        const dots = [];
+        const count = Math.min(page.chunks, 90);
+        for (let d = 0; d < count; d++) {
+          const a = d * 2.399963 + i;
+          const rr = pr + 2 + (d % 5) * 1.5;
+          dots.push({ x: Math.cos(a) * rr, y: Math.sin(a) * rr });
+        }
+        out.pages.push({ page, x: cx, y: cy, r: pr, dots });
+      });
+      x += w + gap;
+    });
+    corpusLayout = out;
+  }
+
+  function buildCorpusInfo() {
+    if (!CORPUS || !CORPUS.meta) return;
+    const m = CORPUS.meta;
+    $("ciStats").textContent =
+      `${m.pages} pages · ${m.chunks.toLocaleString()} chunks · ` +
+      `${(m.characters / 1e6).toFixed(2)}M characters`;
+    $("ciExtract").textContent = m.claims
+      ? `${m.claims.toLocaleString()} claims · ${m.entities.toLocaleString()} entities extracted`
+      : "";
+    const code = m.codebase;
+    $("ciCode").textContent = code && code.repo
+      ? `${code.repo} codebase · ${code.files} files · ` +
+        `${code.functions.toLocaleString()} functions · ${code.classes} classes · ` +
+        `${code.calls.toLocaleString()} calls`
+      : "";
+    $("ciSections").innerHTML = (CORPUS.sections || []).map(s =>
+      `<button class="ci-sec" data-sec="${escapeHtml(s.key)}" ` +
+      `style="--c:${sectionColor(s.key)}"><i></i>${escapeHtml(s.key)} ` +
+      `<b>${s.chunks}</b></button>`).join("");
+    document.querySelectorAll(".ci-sec").forEach(button => {
+      button.onclick = () => {
+        const key = button.dataset.sec;
+        corpusFocus = corpusFocus === key ? null : key;
+        document.querySelectorAll(".ci-sec").forEach(b =>
+          b.classList.toggle("on", b.dataset.sec === corpusFocus));
+      };
+    });
+  }
+
+  function drawCorpus(now) {
+    if (!corpusLayout) return;
+    ctx.save();
+    ctx.translate(view.x, view.y);
+    ctx.scale(view.k, view.k);
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+
+    for (const section of corpusLayout.sections) {
+      if (isMobile) continue;
+      const dim = corpusFocus && corpusFocus !== section.key;
+      ctx.fillStyle = hexA(section.color, dim ? 0.012 : 0.035);
+      ctx.strokeStyle = hexA(section.color, dim ? 0.05 : 0.14);
+      ctx.lineWidth = 1;
+      ctx.fillRect(section.x, 4, section.w, H - 12);
+      ctx.strokeRect(section.x + .5, 4.5, section.w - 1, H - 13);
+      ctx.font = `8.5px ${MONO}`;
+      ctx.fillStyle = hexA(section.color, dim ? 0.18 : 0.85);
+      ctx.fillText(section.key.toUpperCase(), section.x + 6, 22, section.w - 12);
+      ctx.fillStyle = "rgba(150,160,180,.65)";
+      ctx.fillText(`${section.pages}p · ${section.chunks}c`, section.x + 6, 33, section.w - 12);
+    }
+
+    for (const item of corpusLayout.pages) {
+      const dim = corpusFocus && corpusFocus !== item.page.section;
+      const color = sectionColor(item.page.section);
+      if (!dim && item.dots.length) {
+        ctx.fillStyle = hexA(color, 0.42);
+        ctx.beginPath();
+        for (const dot of item.dots) {
+          ctx.moveTo(item.x + dot.x + 1.1, item.y + dot.y);
+          ctx.arc(item.x + dot.x, item.y + dot.y, 1.05, 0, Math.PI * 2);
+        }
+        ctx.fill();
+      }
+      ctx.globalAlpha = dim ? 0.12 : 1;
+      if (item === corpusHover || item === corpusSelected) {
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 16;
+      }
+      ctx.fillStyle = hexA(color, 0.92);
+      ctx.beginPath();
+      ctx.arc(item.x, item.y, item.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = "rgba(255,255,255,.55)";
+      ctx.lineWidth = 0.7;
+      ctx.stroke();
+      if (item === corpusHover || item === corpusSelected) {
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.arc(item.x, item.y, item.r + 4, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+    ctx.restore();
+  }
+
+  function pickCorpus(ev) {
+    if (!corpusLayout) return null;
+    const r = canvas.getBoundingClientRect();
+    const p = screenToWorld(ev.clientX - r.left, ev.clientY - r.top);
+    let best = null, bestDistance = 1e9;
+    for (const item of corpusLayout.pages) {
+      const d = Math.hypot(item.x - p.x, item.y - p.y);
+      if (d < item.r + (isMobile ? 10 : 6) / view.k && d < bestDistance) {
+        best = item;
+        bestDistance = d;
+      }
+    }
+    return best;
+  }
+
+  function showCorpusDetail(page) {
+    const card = $("detail");
+    card.classList.add("show");
+    $("dTitle").textContent = page.title;
+    $("dSub").textContent =
+      `${page.section} · ${page.chunks} chunks · ${page.characters.toLocaleString()} chars`;
+    const rows = [
+      ["url", page.url],
+      ["section", page.section],
+      ["chunks", page.chunks],
+      ["claims", page.claims || 0],
+      ["entities", page.entities || 0],
+      ["characters", page.characters.toLocaleString()],
+      ["snippet", page.snippet || "—"],
+    ];
+    $("dKv").innerHTML = rows.map(([k, v]) =>
+      `<span class="k">${escapeHtml(k)}</span><span class="v">${escapeHtml(String(v))}</span>`).join("");
+  }
+
+  function setMode(mode) {
+    corpusMode = mode === "corpus";
+    playing = false;
+    syncPlay();
+    document.querySelector(".app").classList.toggle("corpus-mode", corpusMode);
+    $("modeBtn").textContent = corpusMode ? "Scene" : "Corpus";
+    $("question").textContent = corpusMode
+      ? `${CORPUS.meta.pages} pages · ${CORPUS.meta.chunks.toLocaleString()} chunks · ` +
+        `${(CORPUS.meta.characters / 1e6).toFixed(2)}M characters`
+      : (DATA.meta.question || "");
+    $("detail").classList.remove("show");
+    corpusHover = null;
+    corpusSelected = null;
+    view.x = 0; view.y = 0; view.k = 1;
+    if (corpusMode) {
+      buildCorpusLayout();
+      buildCorpusInfo();
+    }
+  }
+
+  // ------------------------------------------------------------------ play
+  let cursor = 0, playing = false, speed = 1, lastBeat = 0;
+  const BEAT = 720;
+  let focusOnt = null, spineOnly = false, chainOnly = false, canonicalOnly = false;
+  let showLabels = true;
+
+  function apply(seq, animate, now, quiet) {
+    const e = EVENTS[seq]; if (!e) return;
+    const t = now || performance.now();
+    if (e.kind === "node.create") {
+      const n = nodes.get(e.ref); if (!n) return;
+      if (!n.active) {
+        n.active = true;
+        n.appear = animate ? t : t - 1000;
+        spawn(n);
+      }
+      n.props = {...(e.props || {})};
+      n.created_at = n.created_at || e.t;
+      if (animate) burst(n, color(e.ontology));
+    } else if (e.kind === "node.update") {
+      const n = nodes.get(e.ref); if (!n) return;
+      n.props = {...n.props, ...(e.props||{})};
+      n.flash = t;
+      if (animate && !quiet) deltaChip(n, e);
+    } else if (e.kind === "node.delete") {
+      const n = nodes.get(e.ref); if (!n) return;
+      n.die = t; n.fade = 0;
+    } else if (e.kind === "edge.create") {
+      const ed = edges.get(e.key) || edges.get(e.ref);
+      if (!ed) return;
+      ed.active = true;
+      ed.props = {...(e.props || {})};
+      if (animate) ed.appear = t; else ed.appear = t-600;
+      if (animate) ed.flash = t;
+    } else if (e.kind === "edge.update") {
+      const ed = edges.get(e.key) || edges.get(e.ref); if (!ed) return;
+      ed.props = {...ed.props, ...(e.props||{})};
+      ed.flash = t;
+    } else if (e.kind === "edge.delete") {
+      const ed = edges.get(e.key) || edges.get(e.ref); if (!ed) return;
+      ed.active = false;
+    }
+    if (animate && !quiet && e.kind === "node.create") {
+      spawnChip(...chipPos(e.ref), `#${String(e.seq).padStart(3,"0")}  ${e.title}`,
+                color(e.ontology));
+    }
+  }
+
+  function chipPos(ref) {
+    const n = nodes.get(ref); if (!n) return [0,0];
+    const p = worldToScreen(n.x, n.y); return [p.x, p.y];
+  }
+  function deltaChip(n, e) {
+    const p = worldToScreen(n.x, n.y);
+    let changed = Object.entries(e.changed || {})
+      .filter(([k]) => !k.startsWith("_"));
+    const meaningful = changed.filter(([k]) => k !== "weight");
+    if (meaningful.length) changed = meaningful;
+    const shown = changed.slice(0, 2)
+      .map(([k,v]) => `${k} ${fmt(v[0])} → ${fmt(v[1])}`);
+    if (changed.length > shown.length) shown.push(`+${changed.length - shown.length}`);
+    const text = shown.length ? shown.join("  ") : e.detail;
+    spawnChip(p.x, p.y, text, "#ffc247");
+  }
+  function spawnChip(x, y, text, col) {
+    const el = document.createElement("div");
+    el.className = "dchip";
+    const stack = $("chips").children.length % 3;
+    x = Math.max(150, Math.min(W - 150, x));
+    y = Math.max(132 + stack * 22, Math.min(H - 40, y + stack * 18));
+    el.style.left = x + "px"; el.style.top = y + "px";
+    el.style.borderColor = hexA(col, .45);
+    el.textContent = text.length > 74 ? text.slice(0,71)+"…" : text;
+    $("chips").appendChild(el);
+    setTimeout(() => el.remove(), 1900);
+  }
+  function burst(n) {
+    const now = performance.now();
+    for (let i=0;i<9;i++) particles.push({
+      x:n.x, y:n.y, vx:(Math.random()-.5)*4.2, vy:(Math.random()-.5)*4.2,
+      born: now, col: color(n.ontology)
+    });
+  }
+  const particles = [];
+  let LABELS = [];
+
+  function seek(target, animate) {
+    target = Math.max(0, Math.min(EVENTS.length, target));
+    resetGraph();
+    particles.length = 0;
+    $("detail").classList.remove("show");
+    const now = performance.now();
+    for (let i=0;i<target;i++) apply(i, false, now);
+    cursor = target;
+    markStream();
+    if (cursor > 0) {
+      const bi = bundleIndexFor(cursor);
+      const info = BATCHES[bi];
+      hudBatch(info.first_seq - 1, cursor - 1);
+      const pct = BATCHES.length > 1 ? (bi / (BATCHES.length - 1)) * 100 : 0;
+      $("fill").style.width = pct + "%";
+      $("marker").style.left = pct + "%";
+      $("tlPos").textContent = String(bi + 1);
+    } else {
+      resetHud();
+      $("fill").style.width = "0%";
+      $("marker").style.left = "0%";
+      $("tlPos").textContent = "0";
+    }
+    counters();
+  }
+
+  function bundleIndexFor(cursorAfter) {
+    let index = 0;
+    for (let i = 0; i < BATCHES.length; i++) {
+      if (BATCHES[i].first_seq <= cursorAfter) index = i;
+    }
+    return index;
+  }
+
+  function advance() {
+    if (cursor >= EVENTS.length) { playing = false; syncPlay(); return; }
+    const batch = EVENTS[cursor].batch;
+    const start = cursor;
+    const now = performance.now();
+    const info = BATCHES.find(b => b.id === batch);
+    const quietGroup = info && info.count > 3;
+    let firstNode = null;
+    while (cursor < EVENTS.length && EVENTS[cursor].batch === batch) {
+      if (!firstNode && EVENTS[cursor].kind === "node.create") {
+        firstNode = EVENTS[cursor].ref;
+      }
+      apply(cursor, true, now, quietGroup);
+      cursor++;
+    }
+    if (firstNode && quietGroup) {
+      const [x, y] = chipPos(firstNode);
+      spawnChip(x, y,
+        `#${String(EVENTS[start].seq).padStart(3, "0")}  ${info ? info.title : "bundle"}` +
+        `  ·  ${cursor - start} deltas`, "#b06bff");
+    }
+    markStream();
+    hudBatch(start, cursor - 1);
+    const bi = bundleIndexFor(cursor);
+    const pct = BATCHES.length > 1 ? (bi / (BATCHES.length - 1)) * 100 : 0;
+    $("fill").style.width = pct + "%";
+    $("marker").style.left = pct + "%";
+    $("tlPos").textContent = String(bi + 1);
+    counters();
+    if (cursor >= EVENTS.length) { playing = false; syncPlay(); }
+  }
+
+  function markStream() {
+    const rows = document.querySelectorAll(".ev");
+    rows.forEach((r, i) => {
+      r.classList.toggle("done", i < cursor - 1);
+      r.classList.toggle("active", i === cursor - 1);
+      r.classList.toggle("future", i >= cursor);
+    });
+    document.querySelectorAll(".bundle-row").forEach(row => {
+      const start = Number(row.dataset.start), end = Number(row.dataset.end);
+      row.classList.toggle("active", cursor >= start && cursor <= end + 1);
+    });
+    const active = document.querySelector(".ev.active") ||
+      document.querySelector(".bundle-row.active");
+    if (active) active.scrollIntoView({block:"nearest", behavior:"smooth"});
+  }
+
+  function hudBatch(start, end) {
+    const seq = EVENTS[start].seq;
+    const info = BATCHES.find(b => seq >= b.first_seq && seq <= b.last_seq);
+    if (!info) return;
+    const group = EVENTS.slice(start, end + 1);
+    const created = {}, updated = {};
+    for (const e of group) {
+      if (e.kind === "node.create") {
+        created[e.label] = (created[e.label] || 0) + 1;
+      } else if (e.kind === "node.update") {
+        updated[e.label] = (updated[e.label] || 0) + 1;
+      }
+    }
+    const nodeParts = [
+      ...Object.entries(created).map(([label, n]) => n > 1 ? `${n}× ${label}` : label),
+      ...Object.entries(updated).map(([label, n]) =>
+        n > 1 ? `${n}× ${label} updated` : `${label} updated`)
+    ];
+    const createdLinks = group.filter(e => e.kind === "edge.create").length;
+    const changedLinks = group.filter(e => e.kind === "edge.update").length;
+    const detailParts = [...nodeParts];
+    if (createdLinks) {
+      detailParts.push(`${createdLinks} link${createdLinks > 1 ? "s" : ""}`);
+    }
+    if (changedLinks) {
+      detailParts.push(`${changedLinks} edge change${changedLinks > 1 ? "s" : ""}`);
+    }
+    detailParts.push(`${group.length} deltas`);
+    $("hudSeq").textContent = String(info.id).padStart(2, "0");
+    $("hudTime").textContent =
+      `bundle ${info.id}/${BATCHES.length} · events ${start + 1}–${end + 1} · ` +
+      `${hhmmss(EVENTS[start].t)} UTC`;
+    const chip = $("hudOnt");
+    const subject = group.find(e => e.kind === "node.create" &&
+      !["Claim", "Argument", "SourceNode", "Chunk", "RoutingTrace", "Session",
+        "Span", "Tool", "TraceOutcome"].includes(e.label));
+    const ont = subject ? subject.ontology : group[0].ontology;
+    chip.textContent = ONT_NAME[ont] || ont;
+    chip.style.color = color(ont);
+    chip.style.borderColor = hexA(color(ont), .55);
+    $("hudTitle").textContent = info.title;
+    $("hudDetail").textContent = detailParts.join("  ·  ");
+  }
+
+  // ------------------------------------------------------------------ ui
+  function fmt(v) {
+    if (v === null || v === undefined) return "null";
+    if (typeof v === "string") {
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(v)) return v.slice(11,23);
+      return v;
+    }
+    if (typeof v === "object") return JSON.stringify(v);
+    return String(v);
+  }
+  function ts(v) {
+    if (!v) return "—";
+    const m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?/);
+    if (!m) return String(v);
+    return `${m[1]}-${m[2]}-${m[3]} ${m[4]}:${m[5]}:${m[6]}.${(m[7]||"000").slice(0,3)} UTC`;
+  }
+
+  function hhmmss(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return d.toISOString().slice(11,23);
+  }
+  function counters() {
+    const ns = [...nodes.values()].filter(n => n.active && !n.pre && !n.die).length;
+    const es = [...edges.values()].filter(e => e.active).length;
+    $("cNodes").textContent = ns;
+    $("cEdges").textContent = es;
+    $("cDeltas").textContent = cursor;
+    const knowledge = [...nodes.values()].filter(n =>
+      n.active && !n.pre && !n.die && !EXEMPT.has(n.label));
+    const justified = knowledge.filter(n => [...edges.values()].some(e =>
+      e.active && e.type === "CONCLUDES" && e.to === n.ref)).length;
+    const just = $("cJust");
+    just.textContent = `${justified}/${knowledge.length}`;
+    just.style.color = knowledge.length && justified === knowledge.length
+      ? "#7ee787" : "#ffc247";
+  }
+  function hud(e) {
+    $("hudSeq").textContent = String(e.seq).padStart(3,"0");
+    const chip = $("hudOnt");
+    chip.textContent = ONT_NAME[e.ontology] || e.ontology;
+    chip.style.color = color(e.ontology);
+    chip.style.borderColor = hexA(color(e.ontology), .55);
+    $("hudTime").textContent =
+      `${hhmmss(e.t)} UTC  ·  ${e.source === "graph" ? "graph created_at" : "observed"}`;
+    $("hudTitle").textContent = e.title;
+    let detail = e.detail;
+    if (e.kind.startsWith("edge.")) {
+      const ed = edges.get(e.ref) || edges.get(e.key);
+      const a = ed && nodes.get(ed.from), b = ed && nodes.get(ed.to);
+      if (a && b) detail = `${a.name}  →  ${b.name}`;
+    }
+    $("hudDetail").textContent = detail;
+  }
+  function resetHud() {
+    $("hudSeq").textContent = "000";
+    $("hudOnt").textContent = "—";
+    $("hudOnt").style.color = "var(--muted)";
+    $("hudOnt").style.borderColor = "var(--line)";
+    $("hudTime").textContent = "";
+    $("hudTitle").textContent = "Ready";
+    $("hudDetail").textContent = "Press play to replay the recorded deltas.";
+  }
+
+  function buildLegend() {
+    const counts = new Map();
+    for (const n of DATA.nodes || []) {
+      if (n.pre) continue;
+      counts.set(n.ontology, (counts.get(n.ontology)||0)+1);
+    }
+    for (const e of DATA.edges || []) {
+      counts.set(e.ontology, (counts.get(e.ontology)||0)+1);
+    }
+    $("provDot").style.color = COLORS.provenance;
+    $("provCard").onclick = () => {
+      focusOnt = focusOnt === "provenance" ? null : "provenance";
+      applySpine();
+      if (isMobile) closeDrawers();
+    };
+    $("provCount").textContent = (counts.get("provenance")||0) + " deltas";
+    const layerCounts = { canonical: 0, truth: 0, telemetry: 0 };
+    for (const n of DATA.nodes || []) {
+      if (!n.pre) layerCounts[n.layer] = (layerCounts[n.layer] || 0) + 1;
+    }
+    $("lCanon").textContent = layerCounts.canonical;
+    $("lTruth").textContent = layerCounts.truth;
+    $("lTele").textContent = layerCounts.telemetry;
+    const claimRefs = new Set((DATA.nodes || [])
+      .filter(n => n.label === "Claim").map(n => n.ref));
+    const claimNodes = (DATA.nodes || []).filter(n => n.label === "Claim").length;
+    const argumentNodes = (DATA.nodes || []).filter(n => n.label === "Argument").length;
+    const premiseLinks = (DATA.edges || []).filter(e => e.type === "USES_PREMISE").length;
+    $("epiDot").style.color = COLORS.epistemology;
+    $("epiCount").textContent =
+      `${claimNodes} claims · ${argumentNodes} arguments · ${premiseLinks} premises`;
+    $("epiCard").onclick = () => {
+      $("chain").click();
+      if (isMobile) closeDrawers();
+    };
+    const list = $("legend");
+    list.innerHTML = "";
+    let total = 0;
+    for (const o of ONTS) {
+      if (o.key === "provenance" || o.key === "epistemology") continue;
+      const c = counts.get(o.key) || 0; total += c;
+      const row = document.createElement("div");
+      row.className = "ont" + (c ? "" : " zero");
+      row.dataset.ont = o.key;
+      row.innerHTML = `<span class="dot" style="color:${color(o.key)}"></span>
+        <span class="ont-name">${o.name || o.key}</span>
+        <span class="ont-count">${c || ""}</span>`;
+      row.title = `${o.key} · ${c} deltas`;
+      row.onclick = () => {
+        focusOnt = focusOnt === o.key ? null : o.key;
+        document.querySelectorAll(".ont").forEach(r =>
+          r.classList.toggle("on", r.dataset.ont === focusOnt));
+        applySpine();
+        if (isMobile) closeDrawers();
+      };
+      list.appendChild(row);
+    }
+    $("ontCount").textContent = String(
+      [...counts.values()].reduce((sum, n) => sum + n, 0));
+  }
+
+  function buildStream() {
+    const list = $("stream");
+    list.innerHTML = "";
+    let lastBatch = null;
+    EVENTS.forEach((e, i) => {
+      if (e.batch !== lastBatch) {
+        const info = BATCHES.find(b => b.id === e.batch);
+        const head = document.createElement("div");
+        head.className = "bundle-row";
+        head.dataset.start = info.first_seq;
+        head.dataset.end = info.last_seq;
+        head.innerHTML = `<span class="bundle-no">B${String(info.id).padStart(2,"0")}</span>
+          <span class="bundle-title">${escapeHtml(info.title)}</span>
+          <span class="bundle-count">${info.count}</span>`;
+        head.onclick = () => {
+          playing = false; syncPlay(); seek(info.last_seq, true);
+          if (isMobile) closeDrawers();
+        };
+        list.appendChild(head);
+        lastBatch = e.batch;
+      }
+      const meta = KIND[e.kind] || {g:"·", cls:""};
+      const row = document.createElement("div");
+      row.className = "ev future";
+      row.innerHTML = `<div class="ev-seq">${String(e.seq).padStart(3,"0")}</div>
+        <div class="ev-main">
+          <div class="ev-top">
+            <span class="ev-kind" style="color:${color(e.ontology)}">${meta.g}</span>
+            <span class="ev-title">${escapeHtml(e.title)}</span>
+          </div>
+          <div class="ev-detail">${escapeHtml(e.detail)}</div>
+        </div>`;
+      row.title = `${e.t} · ${ONT_NAME[e.ontology]||e.ontology}`;
+      row.onclick = () => {
+        playing = false; syncPlay();
+        // Never stop halfway through a bundle: the entity and its argument are
+        // one write, so an event click lands at the end of that write.
+        const info = BATCHES.find(b => e.seq >= b.first_seq && e.seq <= b.last_seq);
+        seek(info ? info.last_seq : i + 1, true);
+        if (isMobile) closeDrawers();
+        if (e.kind.endsWith(".delete")) { $("detail").classList.remove("show"); return; }
+        if (e.kind.startsWith("edge.")) {
+          const ed = edges.get(e.ref) || edges.get(e.key);
+          if (ed) showEdgeDetail(ed);
+        } else {
+          const n = nodes.get(e.ref);
+          if (n) showDetail(n);
+        }
+      };
+      list.appendChild(row);
+    });
+    $("streamCount").textContent =
+      `${BATCHES.length} bundles · ${EVENTS.length} deltas`;
+  }
+
+  function bundleOntology(info) {
+    const group = EVENTS.slice(info.first_seq - 1, info.last_seq);
+    const subject = group.find(e => e.kind === "node.create" &&
+      !["Claim", "Argument", "SourceNode", "Chunk", "RoutingTrace", "Session",
+        "Span", "Tool", "TraceOutcome"].includes(e.label));
+    return subject ? subject.ontology : group[0].ontology;
+  }
+
+  function buildTicks() {
+    const ticks = $("ticks");
+    ticks.innerHTML = "";
+    BATCHES.forEach((info, i) => {
+      const t = document.createElement("div");
+      const pct = BATCHES.length > 1 ? i/(BATCHES.length-1)*100 : 0;
+      const ont = bundleOntology(info);
+      t.className = "tick" + (ont === "provenance" ? " prov" : "");
+      t.style.left = pct + "%";
+      t.style.background = color(ont);
+      t.style.color = color(ont);
+      t.title = `B${info.id} · ${info.title} · ${info.count} deltas`;
+      ticks.appendChild(t);
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function syncPlay() {
+    $("playLabel").textContent = playing ? "Pause" : (cursor >= EVENTS.length ? "Replay" : "Play");
+    $("playIcon").innerHTML = playing
+      ? '<path d="M3.5 2h3.2v12H3.5zM9.3 2h3.2v12H9.3z"/>'
+      : '<path d="M4 2.5v11l9-5.5z"/>';
+  }
+
+  function applySpine() {
+    $("spineBadge").classList.toggle("show", spineOnly);
+    document.querySelectorAll(".ont").forEach(r =>
+      r.classList.toggle("on", r.dataset.ont === focusOnt));
+  }
+
+  // ------------------------------------------------------------------ loop
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(40, now - last); last = now;
+    if (corpusMode) {
+      ctx.clearRect(0, 0, W, H);
+      drawCorpus(now);
+      requestAnimationFrame(frame);
+      return;
+    }
+    simulate(now);
+    // particles
+    for (let i=particles.length-1;i>=0;i--) {
+      const p = particles[i];
+      if (now - p.born > 700) { particles.splice(i,1); continue; }
+      p.x += p.vx; p.y += p.vy; p.vx *= .94; p.vy *= .94;
+    }
+    ctx.clearRect(0,0,W,H);
+    LABELS = [];
+    ctx.save();
+    ctx.font = `${isMobile ? 8 : 9}px ${MONO}`;
+    ctx.textAlign = "left";
+    ctx.fillStyle = "rgba(233,237,247,.28)";
+    const mobileCanon = isMobile && canonicalOnly;
+    if (mobileCanon) {
+      ctx.fillText("CANONICAL", 8, H * 0.765);
+    } else if (!isMobile) {
+      ctx.fillText("CANONICAL", 16, H * 0.345);
+      ctx.fillText("JUSTIFICATION", 16, H * 0.515);
+      ctx.fillText("TRUTH", 16, H * 0.755);
+      ctx.strokeStyle = "rgba(255,255,255,.045)";
+      ctx.setLineDash([2, 7]);
+      for (const y of [H * 0.365, H * 0.74]) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+    }
+    ctx.restore();
+    const pa = anchors.get("provenance");
+    if (pa) {
+      const g = ctx.createRadialGradient(pa.x, pa.y, 10, pa.x, pa.y, 260);
+      g.addColorStop(0, "rgba(255,45,111,.075)");
+      g.addColorStop(.55, "rgba(255,45,111,.022)");
+      g.addColorStop(1, "rgba(255,45,111,0)");
+      ctx.fillStyle = g;
+      ctx.fillRect(pa.x-280, pa.y-280, 560, 560);
+    }
+    const ca = anchors.get("claims"), aa = anchors.get("arguments");
+    if (ca && aa) {
+      const qx = (ca.x + aa.x) / 2, qy = (ca.y + aa.y) / 2;
+      const g = ctx.createRadialGradient(qx, qy, 20, qx, qy, 250);
+      g.addColorStop(0, "rgba(176,107,255,.085)");
+      g.addColorStop(.6, "rgba(176,107,255,.022)");
+      g.addColorStop(1, "rgba(176,107,255,0)");
+      ctx.fillStyle = g;
+      ctx.fillRect(qx-270, qy-270, 540, 540);
+    }
+    ctx.save();
+    for (const e of edges.values()) if (e.active && e.ontology !== "provenance") drawEdge(e, now);
+    for (const e of edges.values()) if (e.active && e.ontology === "provenance") drawEdge(e, now);
+    for (const n of nodes.values()) if (n.active) drawNode(n, now);
+    drawLabels();
+    // particles
+    for (const p of particles) {
+      const s = worldToScreen(p.x, p.y);
+      const life = 1 - (now - p.born) / 700;
+      if (life <= 0) continue;
+      ctx.globalAlpha = Math.max(0, life);
+      ctx.fillStyle = p.col;
+      ctx.beginPath(); ctx.arc(s.x, s.y, 2.2*life+.4, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    ctx.restore();
+
+    if (playing && now - lastBeat > BEAT / speed) { lastBeat = now; advance(); }
+    requestAnimationFrame(frame);
+  }
+
+  // ------------------------------------------------------------------ input
+  const pointers = new Map();
+  let pan = null, pinch = null, tap = null;
+
+  canvas.addEventListener("pointerdown", (ev) => {
+    ev.preventDefault();
+    canvas.setPointerCapture(ev.pointerId);
+    pointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+    $("tip").style.opacity = 0;
+    if (pointers.size === 1) {
+      pan = { x: ev.clientX, y: ev.clientY, vx: view.x, vy: view.y, moved: false };
+      tap = { x: ev.clientX, y: ev.clientY, t: performance.now() };
+      canvas.classList.add("drag");
+    } else if (pointers.size === 2) {
+      const [a, b] = [...pointers.values()];
+      const r = canvas.getBoundingClientRect();
+      pinch = {
+        d: Math.hypot(a.x - b.x, a.y - b.y) || 1,
+        k: view.k,
+        mx: (a.x + b.x) / 2 - r.left,
+        my: (a.y + b.y) / 2 - r.top,
+      };
+      pan = null;
+      tap = null;
+    }
+  });
+
+  canvas.addEventListener("pointermove", (ev) => {
+    if (!pointers.has(ev.pointerId)) {
+      if (ev.pointerType === "mouse") hover(ev);
+      return;
+    }
+    pointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+    if (pointers.size === 2 && pinch) {
+      const [a, b] = [...pointers.values()];
+      const r = canvas.getBoundingClientRect();
+      const d = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+      const mx = (a.x + b.x) / 2 - r.left;
+      const my = (a.y + b.y) / 2 - r.top;
+      const w = screenToWorld(mx, my);
+      const k = Math.min(2.8, Math.max(.5, pinch.k * d / pinch.d));
+      view.k = k;
+      view.x = mx - w.x * k;
+      view.y = my - w.y * k;
+    } else if (pointers.size === 1 && pan) {
+      view.x = pan.vx + (ev.clientX - pan.x);
+      view.y = pan.vy + (ev.clientY - pan.y);
+      if (tap && Math.hypot(ev.clientX - pan.x, ev.clientY - pan.y) > 6) {
+        pan.moved = true;
+        tap = null;
+      }
+    }
+  });
+
+  function endPointer(ev) {
+    pointers.delete(ev.pointerId);
+    if (pointers.size === 1) {
+      const [p] = [...pointers.values()];
+      pan = { x: p.x, y: p.y, vx: view.x, vy: view.y, moved: true };
+      pinch = null;
+      return;
+    }
+    if (pointers.size === 0) {
+      const wasTap = tap && pan && !pan.moved
+        && performance.now() - tap.t < 500;
+      pan = null;
+      pinch = null;
+      canvas.classList.remove("drag");
+      if (wasTap) {
+        if (corpusMode) {
+          const item = pickCorpus(ev);
+          corpusSelected = item;
+          if (item) showCorpusDetail(item.page);
+          else $("detail").classList.remove("show");
+        } else {
+          const n = pick(ev);
+          if (n) showDetail(n); else $("detail").classList.remove("show");
+        }
+      }
+      tap = null;
+    }
+  }
+  canvas.addEventListener("pointerup", endPointer);
+  canvas.addEventListener("pointercancel", endPointer);
+  canvas.addEventListener("wheel", (ev) => {
+    ev.preventDefault();
+    const r = canvas.getBoundingClientRect();
+    const mx = ev.clientX - r.left, my = ev.clientY - r.top;
+    const w = screenToWorld(mx, my);
+    const k = Math.min(2.4, Math.max(.55, view.k * (ev.deltaY < 0 ? 1.08 : .925)));
+    view.k = k; view.x = mx - w.x*k; view.y = my - w.y*k;
+  }, {passive:false});
+
+  function pick(ev) {
+    const r = canvas.getBoundingClientRect();
+    const p = screenToWorld(ev.clientX - r.left, ev.clientY - r.top);
+    let best = null, bd = 1e9;
+    for (const n of nodes.values()) {
+      if (!n.active || n.die) continue;
+      const d = Math.hypot(n.x-p.x, n.y-p.y);
+      if (d < bd) { bd = d; best = n; }
+    }
+    return bd < 26/view.k ? best : null;
+  }
+  function hover(ev) {
+    const tip = $("tip"), r = canvas.getBoundingClientRect();
+    const inside = ev.clientX >= r.left && ev.clientX <= r.right
+      && ev.clientY >= r.top && ev.clientY <= r.bottom;
+    if (corpusMode) {
+      const item = inside ? pickCorpus(ev) : null;
+      corpusHover = item;
+      if (!item) { tip.style.opacity = 0; return; }
+      tip.style.opacity = 1;
+      tip.style.left = Math.min(r.width - 290, ev.clientX - r.left + 14) + "px";
+      tip.style.top = Math.max(8, ev.clientY - r.top - 12) + "px";
+      tip.innerHTML = `<b>${escapeHtml(item.page.title)}</b><br>` +
+        `<span style="color:#98a1b5">${escapeHtml(item.page.section)} · ` +
+        `${item.page.chunks} chunks · ${item.page.characters.toLocaleString()} chars</span>`;
+      return;
+    }
+    const n = inside ? pick(ev) : null;
+    if (!n) { tip.style.opacity = 0; return; }
+    tip.style.opacity = 1;
+    tip.style.left = Math.min(r.width-290, ev.clientX-r.left+14) + "px";
+    tip.style.top = Math.max(8, ev.clientY-r.top-12) + "px";
+    tip.innerHTML = `<b>${escapeHtml(n.label)}</b> · ${escapeHtml(ONT_NAME[n.ontology]||n.ontology)}<br>
+      <span style="color:#98a1b5">${escapeHtml(endpointName(n, n.name))}</span>`;
+  }
+  function showDetail(n) {
+    if (!n) return;
+    const card = $("detail");
+    card.classList.add("show");
+    $("dTitle").textContent = n.name;
+    $("dSub").textContent = `${n.label} · ${ONT_NAME[n.ontology]||n.ontology} · ${n.ref}`;
+    const out = (type) => [...edges.values()].filter(e =>
+      e.active && e.type === type && e.from === n.ref)
+      .map(e => nodes.get(e.to)).filter(Boolean);
+    const into = (type) => [...edges.values()].filter(e =>
+      e.active && e.type === type && e.to === n.ref)
+      .map(e => nodes.get(e.from)).filter(Boolean);
+    const relation = (label, names) => names.length
+      ? [[label, names.map(x => displayName(x) || x.name).join(", ").slice(0, 120)]]
+      : [];
+    const extra = n.label === "Argument"
+      ? [...relation("concludes", out("CONCLUDES")),
+         ["premises", out("USES_PREMISE").length + " claims"]]
+      : n.label === "Claim"
+      ? relation("grounded in", out("FOUND_IN"))
+      : [...relation("argued by", into("CONCLUDES"))];
+    const rows = [
+      ["created", n.pre ? "pre-existing context" : ts(n.created_at)],
+      ...extra,
+      ...Object.entries(n.props || {}).filter(([k]) =>
+        !["created_at","weight"].includes(k) && !k.startsWith("_"))
+        .slice(0, 14).map(([k,v]) => [k, fmt(v)])
+    ];
+    $("dKv").innerHTML = rows.map(([k,v]) =>
+      `<span class="k">${escapeHtml(k)}</span><span class="v">${escapeHtml(String(v))}</span>`).join("");
+  }
+
+  function endpointName(n, fallback) {
+    if (!n) return fallback;
+    if (n.label !== "Argument") return n.name;
+    const conc = [...edges.values()].find(e =>
+      e.active && e.type === "CONCLUDES" && e.from === n.ref);
+    const target = conc && nodes.get(conc.to);
+    return target
+      ? `argument → ${displayName(target) || target.name}`
+      : "argument";
+  }
+
+  function showEdgeDetail(e) {
+    const card = $("detail");
+    card.classList.add("show");
+    const a = nodes.get(e.from), b = nodes.get(e.to);
+    $("dTitle").textContent = e.type;
+    $("dSub").textContent = `${a ? a.label : "?"} → ${b ? b.label : "?"} · ${ONT_NAME[e.ontology]||e.ontology}`;
+    const rows = [
+      ["created", ts(e.created_at)],
+      ["from", endpointName(a, e.from)],
+      ["to", endpointName(b, e.to)],
+      ...Object.entries(e.props || {}).filter(([k]) => k !== "created_at")
+        .map(([k,v]) => [k, fmt(v)])
+    ];
+    $("dKv").innerHTML = rows.map(([k,v]) =>
+      `<span class="k">${escapeHtml(k)}</span><span class="v">${escapeHtml(String(v))}</span>`).join("");
+  }
+
+  $("detailClose").onclick = () => $("detail").classList.remove("show");
+
+  $("play").onclick = () => {
+    if (cursor >= EVENTS.length) { seek(0,false); }
+    playing = !playing; lastBeat = performance.now(); syncPlay();
+  };
+  $("restart").onclick = () => { playing = false; syncPlay(); seek(0,false); };
+  $("speed").onclick = () => {
+    speed = speed === 1 ? 2 : speed === 2 ? 0.5 : 1;
+    $("speed").textContent = speed + "×";
+  };
+  $("labels").onchange = (e) => { showLabels = e.target.checked; };
+  const legendPanel = document.querySelector(".legend");
+  const streamPanel = document.querySelector(".stream");
+  const chatPanel = $("chat");
+  const scrim = $("scrim");
+  function closeDrawers() {
+    legendPanel.classList.remove("open");
+    streamPanel.classList.remove("open");
+    chatPanel.classList.remove("open");
+    scrim.classList.remove("show");
+  }
+  function toggleDrawer(panel) {
+    const open = panel.classList.contains("open");
+    closeDrawers();
+    if (!open) {
+      panel.classList.add("open");
+      scrim.classList.add("show");
+    }
+  }
+  $("layersBtn").onclick = () => toggleDrawer(legendPanel);
+  $("eventsBtn").onclick = () => toggleDrawer(streamPanel);
+  $("legendClose").onclick = closeDrawers;
+  $("streamClose").onclick = closeDrawers;
+  scrim.onclick = closeDrawers;
+
+  $("modeBtn").onclick = () => setMode(corpusMode ? "scene" : "corpus");
+  $("canonical").onchange = (e) => {
+    canonicalOnly = e.target.checked;
+    $("viewToggle").textContent = canonicalOnly ? "Truth" : "Canonical";
+    $("modeBtn").textContent = "Corpus";
+    if (!(CORPUS && CORPUS.pages && CORPUS.pages.length)) {
+      $("modeBtn").style.display = "none";
+    }
+  };
+  $("viewToggle").onclick = () => {
+    canonicalOnly = !canonicalOnly;
+    $("canonical").checked = canonicalOnly;
+    $("viewToggle").textContent = canonicalOnly ? "Truth" : "Canonical";
+    $("modeBtn").textContent = "Corpus";
+    if (!(CORPUS && CORPUS.pages && CORPUS.pages.length)) {
+      $("modeBtn").style.display = "none";
+    }
+    layoutAnchors();
+  };
+  $("spine").onchange = (e) => { spineOnly = e.target.checked; applySpine(); };
+  $("chain").onchange = (e) => {
+    chainOnly = e.target.checked;
+    $("chainBadge").classList.toggle("show", chainOnly);
+    $("epiCard").classList.toggle("on", chainOnly);
+  };
+  $("track").onclick = (ev) => {
+    const r = ev.currentTarget.getBoundingClientRect();
+    const pct = (ev.clientX - r.left) / r.width;
+    const bi = Math.max(0, Math.min(BATCHES.length - 1,
+      Math.round(pct * (BATCHES.length - 1))));
+    playing = false; syncPlay();
+    seek(BATCHES[bi].last_seq, true);
+  };
+  window.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape" && chatPanel.classList.contains("open")) {
+      closeDrawers();
+      return;
+    }
+    if (chatPanel.classList.contains("open")) return;
+    const target = ev.target;
+    if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName || "")) return;
+    if (corpusMode) {
+      if (ev.code === "Space") ev.preventDefault();
+      if (ev.key === "Escape") setMode("scene");
+      return;
+    }
+    if (ev.code === "Space") { ev.preventDefault(); $("play").click(); }
+    else if (ev.key === "r" || ev.key === "R") $("restart").click();
+    else if (ev.key === "ArrowRight") {
+      playing=false; syncPlay();
+      const bi = Math.min(BATCHES.length-1, bundleIndexFor(cursor) + (cursor ? 1 : 0));
+      seek(BATCHES[bi].last_seq, true);
+    }
+    else if (ev.key === "ArrowLeft") {
+      playing=false; syncPlay();
+      const bi = Math.max(0, bundleIndexFor(cursor) - 1);
+      seek(bi === 0 ? 0 : BATCHES[bi].last_seq, true);
+    }
+    else if (ev.key === "l" || ev.key === "L") $("labels").click();
+    else if (ev.key === "s" || ev.key === "S") $("spine").click();
+    else if (ev.key === "c" || ev.key === "C") $("chain").click();
+    else if (ev.key === "Escape") {
+      if (corpusMode) setMode("scene"); else closeDrawers();
+    }
+  });
+
+  // ------------------------------------------------------------------ chat
+  const chatLog = $("chatLog");
+  const chatInput = $("chatInput");
+  const chatSend = $("chatSend");
+  const chatStatus = $("chatStatus");
+  const chatSession = "web-" + (
+    globalThis.crypto && crypto.randomUUID
+      ? crypto.randomUUID().slice(0, 12)
+      : String(Date.now())
+  );
+  const chatHistory = [];
+  let chatBusy = false;
+
+  const TOOL_LABELS = {
+    search_corpus: "corpus", search_entities: "entities", get_entity: "entity",
+    add_claim: "claim", add_argument: "argument",
+    relate_entities: "relationship", update_entity: "property"
+  };
+  const WRITE_TOOLS = new Set([
+    "add_claim", "add_argument", "relate_entities", "update_entity"
+  ]);
+
+  function chatScroll() { chatLog.scrollTop = chatLog.scrollHeight; }
+
+  function chatInline(text) {
+    return text
+      .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,
+        '<a href="$2" target="_blank" rel="noopener">$1</a>')
+      .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
+      .replace(/`([^`]+)`/g, "<code>$1</code>");
+  }
+
+  function chatMarkdown(raw) {
+    const lines = escapeHtml(String(raw || "")).split(/\r?\n/);
+    let html = "", list = null;
+    const closeList = () => {
+      if (list) { html += `</${list}>`; list = null; }
+    };
+    for (const line of lines) {
+      const t = line.trim();
+      if (!t) { closeList(); continue; }
+      const heading = t.match(/^#{1,6}\s+(.*)$/);
+      if (heading) {
+        closeList();
+        html += `<h5>${chatInline(heading[1])}</h5>`;
+        continue;
+      }
+      const bullet = t.match(/^[-*]\s+(.*)$/);
+      const numbered = t.match(/^\d+[.)]\s+(.*)$/);
+      if (bullet || numbered) {
+        const kind = bullet ? "ul" : "ol";
+        if (list !== kind) { closeList(); html += `<${kind}>`; list = kind; }
+        html += `<li>${chatInline((bullet || numbered)[1])}</li>`;
+        continue;
+      }
+      closeList();
+      html += `<p>${chatInline(t)}</p>`;
+    }
+    closeList();
+    return html;
+  }
+
+  function toolChip(tool) {
+    const label = TOOL_LABELS[tool.name] || tool.name;
+    const write = WRITE_TOOLS.has(tool.name);
+    let detail = "";
+    if (tool.name === "search_corpus" || tool.name === "search_entities") {
+      if (tool.hits != null) detail = `${tool.hits} hits`;
+    } else if (tool.name === "add_claim") {
+      detail = tool.claim_id || "";
+    } else if (tool.name === "add_argument") {
+      detail = tool.argument_id || "";
+    } else if (tool.name === "relate_entities") {
+      detail = tool.relationship || "";
+    }
+    const error = tool.error ? String(tool.error) : "";
+    const text = error
+      ? `${label} · ${error.slice(0, 44)}`
+      : (detail ? `${label} · ${detail}` : label);
+    return `<span class="tchip ${write ? "write" : ""} ${error ? "err" : ""}" ` +
+      `title="${escapeHtml(error || JSON.stringify(tool))}">${escapeHtml(text)}</span>`;
+  }
+
+  function deltaCard(delta) {
+    if (!delta || !(delta.explanation || []).length) return "";
+    const rows = delta.explanation.map(x =>
+      `<div class="delta-row"><span class="mark m-${escapeHtml(x.mark)}">${escapeHtml(x.mark)}</span>` +
+      `<span><b>${escapeHtml(x.text)}</b>` +
+      (x.why ? `<span class="why">${escapeHtml(x.why)}</span>` : "") +
+      `</span></div>`).join("");
+    const firstNode = (delta.nodes || [])[0];
+    const mapLink = firstNode
+      ? `<a class="delta-map" href="http://${location.hostname}:8000/#n=${encodeURIComponent(firstNode.element_id)}" target="_blank" rel="noopener">view in the corpus map ↗</a>`
+      : "";
+    return `<div class="delta-card">` +
+      `<div class="delta-head">graph changes · ${(delta.nodes || []).length} new nodes · ${(delta.edges || []).length} new edges</div>` +
+      rows + mapLink + `</div>`;
+  }
+
+  function chatAdd(role, text, tools, writes, delta, searchEvents, traceId) {
+    const empty = $("chatEmpty");
+    if (empty) empty.remove();
+    const el = document.createElement("div");
+    el.className = `msg ${role === "user" ? "user" : "bot"}`;
+    if (role === "user") {
+      el.textContent = text;
+    } else {
+      const receipts = (writes || []).map(w =>
+        w.claim_id || w.argument_id || w.relationship || w.updated || w.name
+      ).filter(Boolean);
+      const searchBanner = (searchEvents || []).length
+        ? `<div class="msg-toolsearch">${searchEvents.map(e =>
+            `🔎 Meta tool search · ${escapeHtml(JSON.stringify(e.searched || {}))} → loaded ${escapeHtml((e.loaded || []).join(", ") || "none")}`
+          ).join("<br>")}</div>`
+        : "";
+      el.innerHTML =
+        `<div class="msg-body">${chatMarkdown(text)}</div>` +
+        searchBanner +
+        ((tools || []).length
+          ? `<div class="msg-tools">${tools.map(toolChip).join("")}</div>` : "") +
+        (receipts.length
+          ? `<div class="msg-writes">wrote ${escapeHtml(receipts.join(" · "))}</div>` : "") +
+        deltaCard(delta) +
+        (traceId && (tools || []).length
+          ? `<button class="msg-tracebtn" data-trace="${escapeHtml(traceId)}">🔍 trace · ${tools.length} tool call${tools.length === 1 ? "" : "s"}</button>`
+          : "");
+    }
+    chatLog.appendChild(el);
+    chatHistory.push({role, content: text});
+    chatScroll();
+    return el;
+  }
+
+  async function showTrace(btn) {
+    const existing = btn.parentElement.querySelector(".msg-trace");
+    if (existing) { existing.remove(); return; }
+    btn.disabled = true;
+    try {
+      const data = await (await fetch(`/api/trace/${encodeURIComponent(btn.dataset.trace)}`)).json();
+      const div = document.createElement("div");
+      div.className = "msg-trace";
+      div.innerHTML = (data.spans || []).map(s =>
+        `<div class="trace-span"><b>${escapeHtml(s.name)}</b> · ${s.duration_ms ?? "?"}ms` +
+        (s.status === "error" ? ` · <span class="err">${escapeHtml(String(s.error || "").slice(0, 90))}</span>` : "") +
+        (s.raw_input ? `<span class="trace-io">${escapeHtml(JSON.stringify(s.raw_input).slice(0, 140))}</span>` : "") +
+        `</div>`).join("")
+        || `<div class="trace-span">no spans recorded for this turn</div>`;
+      btn.parentElement.appendChild(div);
+      chatScroll();
+    } catch (e) {
+      btn.textContent = `trace failed: ${String(e.message || e).slice(0, 40)}`;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function chatPending() {
+    const el = document.createElement("div");
+    el.className = "msg bot";
+    el.innerHTML = '<div class="msg-body"><span class="typing"><i></i><i></i><i></i></span></div>';
+    chatLog.appendChild(el);
+    chatScroll();
+    return el;
+  }
+
+  // -------------------------------------------------- scenarios in the chat
+  // A scenario is a chat option: pick it and the log itself becomes the
+  // narrative -- user question, BEFORE graph card, the agent's answer with its
+  // delta card, then the AFTER graph card with the change highlighted. The
+  // pictures come from /api/showcase/subgraph (read-only, live), the diff is
+  // computed in the browser between the two snapshots.
+
+  const SC_COLORS = {
+    Capability: "#5eead4", Argument: "#b06bff", Claim: "#7dd3fc",
+    Chunk: "#8b95a5", RoutingTrace: "#ffc247", SourceNode: "#98a1b5",
+  };
+  const SC_LAYER = label =>
+    (label === "Claim" || label === "Argument") ? "justification"
+    : (label === "Chunk" || label === "RoutingTrace" || label === "SourceNode") ? "evidence"
+    : "canonical";
+
+  const SCENARIOS = {
+    "tool-search-stale": {
+      question: "The graph says tool search is not available on Chat Completions, grounded in the tool-search docs page. That is stale: tool search launched on Chat Completions this week. Look up the Tool search capability with get_entity, find that exact claim's id, and challenge the argument behind it with challenge_argument(claim_id=...). Then add the updated fact and conclude the Tool search capability with it.",
+      intro: "The docs page says “Tool search is not available on Chat Completions.” It launched there this week — the agent corrects the canonical layer without re-ingesting the chunk.",
+    },
+  };
+
+  function scWrap(text, width) {
+    const words = String(text).split(" ");
+    const lines = [];
+    let line = "";
+    for (const word of words) {
+      if ((line + " " + word).trim().length > width && line) { lines.push(line.trim()); line = word; }
+      else line += " " + word;
+      if (lines.length === 2) break;
+    }
+    if (line.trim()) lines.push(line.trim());
+    return lines.slice(0, 2);
+  }
+
+  function scLayout(data) {
+    const byLayer = {canonical: [], justification: [], evidence: []};
+    for (const n of data.nodes) byLayer[SC_LAYER(n.labels[0] || "")].push(n);
+    const center = byLayer.canonical[0];
+    if (center) { center._x = 0; center.y = 0; }
+    for (const [nodes, r] of [[byLayer.justification, 100], [byLayer.evidence, 190]]) {
+      nodes.forEach((n, i) => {
+        const a = -Math.PI / 2 + (i / Math.max(1, nodes.length)) * Math.PI * 2 + (r === 190 ? 0.3 : 0);
+        n._x = Math.cos(a) * r;
+        n.y = Math.sin(a) * r;
+      });
+    }
+  }
+
+  function scRing(ctx, x, y, r, color) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  function scDraw(canvas, data, diff) {
+    const ctx = canvas.getContext("2d");
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    const cx = w / 2, cy = h / 2;
+    const newIds = new Set(diff ? diff.newNodes.map(n => n.element_id) : []);
+    const attackedIds = new Set(diff ? diff.attackedIds : []);
+    const newEdgeIds = new Set(diff ? diff.newEdges.map(e => e.element_id) : []);
+    for (const e of data.edges) {
+      const s = data.nodeById.get(e.source), t = data.nodeById.get(e.target);
+      if (!s || !t) continue;
+      const isNew = newEdgeIds.has(e.element_id);
+      ctx.strokeStyle = isNew ? "rgba(110,231,135,.9)" : "rgba(133,149,167,.45)";
+      ctx.lineWidth = isNew ? 2 : 1;
+      ctx.beginPath();
+      ctx.moveTo(cx + s._x, cy + s.y);
+      ctx.lineTo(cx + t._x, cy + t.y);
+      ctx.stroke();
+      const a = Math.atan2(t.y - s.y, t._x - s._x);
+      const tx = cx + t._x - Math.cos(a) * 12, ty = cy + t.y - Math.sin(a) * 12;
+      ctx.fillStyle = ctx.strokeStyle;
+      ctx.beginPath();
+      ctx.moveTo(tx, ty);
+      ctx.lineTo(tx - Math.cos(a - 0.4) * 6, ty - Math.sin(a - 0.4) * 6);
+      ctx.lineTo(tx - Math.cos(a + 0.4) * 6, ty - Math.sin(a + 0.4) * 6);
+      ctx.fill();
+      const mx = (cx + s._x + cx + t._x) / 2, my = (cy + s.y + cy + t.y) / 2;
+      ctx.fillStyle = isNew ? "rgba(110,231,135,.95)" : "rgba(133,149,167,.8)";
+      ctx.font = "9px ui-monospace, monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(e.type, mx, my - 4);
+    }
+    for (const n of data.nodes) {
+      const x = cx + n._x, y = cy + n.y;
+      const color = SC_COLORS[n.labels[0]] || "#8b95a5";
+      const r = SC_LAYER(n.labels[0]) === "canonical" ? 11 : 9;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+      if (attackedIds.has(n.element_id)) scRing(ctx, x, y, r + 7, "#f87171");
+      if (newIds.has(n.element_id)) scRing(ctx, x, y, r + 4, "#6ee787");
+      ctx.fillStyle = newIds.has(n.element_id) ? "#eafff0" : "rgba(219,228,238,.9)";
+      ctx.font = (SC_LAYER(n.labels[0]) === "canonical" ? "600 11px" : "10px") + " ui-monospace, monospace";
+      ctx.textAlign = "center";
+      const title = n.title.length > 44 ? n.title.slice(0, 41) + "…" : n.title;
+      scWrap(title, 26).forEach((line, i) => ctx.fillText(line, x, y + r + 12 + i * 11));
+      if (n.status) {
+        ctx.fillStyle = "rgba(133,149,167,.75)";
+        ctx.font = "8px ui-monospace, monospace";
+        ctx.fillText(n.status, x, y - r - 5);
+      }
+    }
+  }
+
+  function scDiff(before, after) {
+    const newNodes = after.nodes.filter(n => !before.nodeById.has(n.element_id));
+    const changedNodes = after.nodes.filter(n => {
+      const b = before.nodeById.get(n.element_id);
+      return b && b.status !== n.status;
+    });
+    const beforeEdgeIds = new Set(before.edges.map(e => e.element_id));
+    const newEdges = after.edges.filter(e => !beforeEdgeIds.has(e.element_id));
+    const attackedIds = newEdges.filter(e => e.type === "ATTACKS").map(e => e.target);
+    return {newNodes, changedNodes, newEdges, attackedIds};
+  }
+
+  function scGraphCard(kind, data, diff, intro) {
+    const el = document.createElement("div");
+    el.className = "msg bot";
+    const body = document.createElement("div");
+    body.className = "msg-body";
+    body.innerHTML = `<div class="sc-kind">${escapeHtml(kind)}</div>` +
+      (intro ? `<div class="sc-intro">${escapeHtml(intro)}</div>` : "");
+    const canvas = document.createElement("canvas");
+    canvas.className = "sc-canvas";
+    body.appendChild(canvas);
+    if (diff) {
+      const legend = document.createElement("div");
+      legend.className = "sc-legend";
+      legend.innerHTML =
+        `<span><i class="ring" style="border-color:#6ee787"></i>created</span>` +
+        `<span><i class="ring" style="border-color:#f87171"></i>attacked</span>` +
+        `<button class="sc-reset" type="button">reset scenario state</button>`;
+      legend.querySelector(".sc-reset").addEventListener("click", resetShowcase);
+      body.appendChild(legend);
+    }
+    el.appendChild(body);
+    chatLog.appendChild(el);
+    data.nodeById = new Map(data.nodes.map(n => [n.element_id, n]));
+    scLayout(data);
+    scDraw(canvas, data, diff);
+    chatScroll();
+    return el;
+  }
+
+  async function resetShowcase() {
+    chatStatus.textContent = "resetting scenario state…";
+    try {
+      const r = await (await fetch("/api/showcase/reset", {method: "POST"})).json();
+      chatStatus.textContent = `reset — removed ${r.deleted_nodes} nodes; run it again anytime`;
+    } catch (e) {
+      chatStatus.textContent = `reset failed: ${e.message}`;
+    }
+  }
+
+  const scenarioSelect = $("scenarioSelect");
+  scenarioSelect.addEventListener("change", () => runShowcase(scenarioSelect.value));
+
+  async function runShowcase(key) {
+    const scenario = SCENARIOS[key];
+    if (!scenario || chatBusy) return;
+    openChat();
+    chatBusy = true;
+    chatSend.disabled = true;
+    try {
+      chatStatus.textContent = "reading the current truth…";
+      const before = await (await fetch("/api/showcase/subgraph")).json();
+      chatAdd("user", scenario.question);
+      scGraphCard("before · the canonical truth", before, null, scenario.intro);
+      const pending = chatPending();
+      chatStatus.textContent = "the agent is making its argument…";
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          session_id: "scenario-" + Date.now(),
+          messages: [{role: "user", content: scenario.question}],
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      pending.remove();
+      if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+      chatAdd("assistant", data.answer || "(no answer)",
+        data.tools || [], data.writes || [], data.delta, data.tool_search, data.trace_id);
+      chatStatus.textContent = "reading the graph back…";
+      const after = await (await fetch("/api/showcase/subgraph")).json();
+      const diff = scDiff(before, after);
+      scGraphCard("after · the delta", after, diff);
+      chatStatus.textContent =
+        `${diff.newNodes.length} new nodes · ${diff.newEdges.length} new edges · run again from scenarios ▾`;
+    } catch (err) {
+      chatStatus.textContent = `scenario failed: ${err.message}`;
+    } finally {
+      chatBusy = false;
+      chatSend.disabled = false;
+      scenarioSelect.value = "";
+    }
+  }
+
+  function openChat() {
+    closeDrawers();
+    chatPanel.classList.add("open");
+    scrim.classList.add("show");
+    setTimeout(() => chatInput.focus(), 140);
+  }
+
+  async function sendChat(text) {
+    text = String(text || "").trim();
+    if (!text || chatBusy) return;
+    if (location.protocol === "file:") {
+      chatAdd("user", text);
+      chatAdd("assistant", "The chat needs the live graph server. Run " +
+        "`python3 demo/graph_delta/server.py` and open " +
+        "http://127.0.0.1:8766/ — the recording itself still works offline.");
+      chatStatus.textContent = "server required";
+      return;
+    }
+    chatBusy = true;
+    chatSend.disabled = true;
+    chatInput.value = "";
+    chatInput.style.height = "auto";
+    chatAdd("user", text);
+    const pending = chatPending();
+    chatStatus.textContent = "thinking · tool loop";
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({session_id: chatSession, messages: chatHistory})
+      });
+      const data = await response.json().catch(() => ({}));
+      pending.remove();
+      if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+      chatAdd("assistant", data.answer || "(no answer)",
+        data.tools || [], data.writes || [], data.delta, data.tool_search, data.trace_id);
+      const writes = data.writes || [];
+      const trace = String(data.trace_id || "").slice(5, 13);
+      chatStatus.textContent = writes.length
+        ? `${writes.length} write${writes.length === 1 ? "" : "s"} · ${trace}`
+        : `trace ${trace}`;
+    } catch (err) {
+      pending.remove();
+      chatAdd("assistant", `Chat failed: ${err && err.message ? err.message : err}`);
+      chatStatus.textContent = "error";
+    } finally {
+      chatBusy = false;
+      chatSend.disabled = false;
+      chatInput.focus();
+    }
+  }
+
+  $("chatBtn").onclick = openChat;
+  $("chatFab").onclick = openChat;
+  $("chatClose").onclick = closeDrawers;
+  $("chatForm").addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    sendChat(chatInput.value);
+  });
+  chatInput.addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter" && !ev.shiftKey) {
+      ev.preventDefault();
+      sendChat(chatInput.value);
+    }
+  });
+  chatInput.addEventListener("input", () => {
+    chatInput.style.height = "auto";
+    chatInput.style.height = Math.min(110, chatInput.scrollHeight) + "px";
+  });
+  chatPanel.addEventListener("click", (ev) => {
+    const traceBtn = ev.target.closest("[data-trace]");
+    if (traceBtn) { showTrace(traceBtn); return; }
+    const scenarioBtn = ev.target.closest("[data-scenario]");
+    if (scenarioBtn) { runShowcase(scenarioBtn.dataset.scenario); return; }
+    const button = ev.target.closest("[data-prompt]");
+    if (button) sendChat(button.dataset.prompt);
+  });
+  if (location.protocol === "file:") chatStatus.textContent = "start server.py for chat";
+
+  // ------------------------------------------------------------------ boot
+  function boot() {
+    resetGraph();
+    resize();
+    $("viewToggle").textContent = canonicalOnly ? "Truth" : "Canonical";
+    $("modeBtn").textContent = "Corpus";
+    if (!(CORPUS && CORPUS.pages && CORPUS.pages.length)) {
+      $("modeBtn").style.display = "none";
+    }
+    $("title").textContent = DATA.meta.title || "Graph delta";
+    $("question").textContent = DATA.meta.question || "";
+    $("meta").innerHTML = `${escapeHtml(DATA.meta.commit || "")}<br>${escapeHtml(DATA.meta.neo4j || "")}`;
+    $("tlTotal").textContent = String(BATCHES.length);
+    $("tlSpan").textContent =
+      `${EVENTS.length} deltas · ${BATCHES.length} bundles · ` +
+      `${DATA.meta.recorded_span_ms} ms recorded`;
+    $("tlNote").textContent = "timestamps: created_at from the graph, mutations observed";
+    buildLegend(); buildStream(); buildTicks();
+    // context nodes are present from the start
+    for (const e of edges.values()) {
+      const a = nodes.get(e.from), b = nodes.get(e.to);
+      for (const n of [a,b]) if (n && n.pre) { n.active = true; spawn(n); }
+    }
+    simulate(performance.now());
+    requestAnimationFrame(frame);
+    setTimeout(() => { playing = true; lastBeat = performance.now(); syncPlay(); }, 700);
+  }
+  boot();
+})();
+</script>
+</body>
+</html>

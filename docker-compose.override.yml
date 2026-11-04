@@ -1,0 +1,23 @@
+# Local-machine override. The committed docker-compose.yml is unchanged.
+#
+# Why: MinIO deleted its Docker Hub repositories on 2026-09-11, and Quay.io
+# began requiring authentication for anonymous pulls on 2026-09-24, so
+# `minio/minio:latest` cannot be pulled at all. Milvus standalone does not
+# need an external object store: `common.storageType` accepts `local`, which
+# writes segment data to a directory inside the container.
+#
+# Effect: `docker compose up -d` starts neo4j, etcd, zookeeper, kafka and
+# milvus with no MinIO image. MinIO stays defined for anyone who can obtain
+# an image, behind the `minio` profile.
+services:
+  noesis-minio:
+    profiles: ["minio"]
+
+  milvus:
+    # !reset drops the merged depends_on list entirely, removing the
+    # noesis-minio requirement inherited from the base file.
+    depends_on: !reset null
+    environment:
+      COMMON_STORAGE_TYPE: local
+      COMMON_LOCAL_STORAGE_PATH: /var/lib/milvus/files
+      MINIO_ADDRESS: !reset null

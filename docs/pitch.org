@@ -1,0 +1,23 @@
+#+title: Pitch
+
+* Intro
+** Me
+*** Lead Engineer at AT&T
+*** Head of Business unit's AI Incubator
+** Noesis
+*** What
+Noesis turn fragmented enterprise data into a continuously updating knowledge graph
+*** Why
+**** AI Adoption
+**** Context
+**** What's done now
+**** How we fix the problem
+Every company right now is undergoing AI adoption. Whether you buy AI capabilities or build them in house, there's a large need to give AI agents the correct context. How this is done today is by engineering context for each and every agent. Not only does this not scale, but the context needed constantly evolves and needs to be engineered over and over.
+
+Noesis ingests constant streams of unstructured information. This way no one has to manually document anything, there's a centralized source of truth, and this source of truth is always up to date.
+*** Where
+**** MVP built and deployed
+**** 20 users VP+ under automated reporting VP
+**** 3 Million dollar budget given by EVP
+**** I believe that this is short sighted and can be scaled across the entire business and across multiple businesses.
+

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%235eead4'/%3E%3C/svg%3E">
+<title>Noesis · the truth isn't enough</title>
+<style>
+  :root {
+    --bg: #0a0e13; --panel: #11161d; --panel-2: #161d26; --border: #232c38;
+    --text: #dbe4ee; --text-dim: #8595a7;
+    --accent: #5eead4; --accent-2: #7dd3fc; --green: #6ee787;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Inter, Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.55; }
+  a { color: var(--accent-2); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  nav {
+    display: flex; align-items: center; gap: 10px; padding: 0 20px; height: 52px;
+    border-bottom: 1px solid var(--border); background: var(--panel);
+    position: sticky; top: 0; z-index: 10;
+  }
+  nav .brand { display: flex; align-items: center; gap: 8px; font-weight: 650; font-size: 15px; }
+  nav .brand .dot { color: var(--accent); font-size: 18px; }
+  nav .links { margin-left: auto; display: flex; gap: 6px; }
+  nav .links a {
+    padding: 6px 13px; border-radius: 8px; font-size: 13px; font-weight: 550;
+    color: var(--text-dim); border: 1px solid transparent;
+  }
+  nav .links a:hover { color: var(--text); text-decoration: none; background: var(--panel-2); }
+
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+
+  h1 { font-size: 36px; line-height: 1.18; margin: 44px 0 16px; letter-spacing: -0.02em; }
+  h1 .accent { color: var(--accent); font-style: normal; }
+  .lede { font-size: 15.5px; color: var(--text-dim); max-width: 62ch; }
+  .lede b { color: var(--text); font-weight: 600; }
+
+  .why { margin: 34px 0 8px; display: grid; gap: 12px; }
+  .why .point { display: flex; gap: 14px; }
+  .why .no {
+    flex: none; width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--accent);
+    color: var(--accent); font-family: var(--mono); font-size: 12px;
+    display: flex; align-items: center; justify-content: center; margin-top: 2px;
+  }
+  .why h2 { margin: 0 0 4px; font-size: 15px; font-weight: 650; }
+  .why p { margin: 0; font-size: 13.5px; color: var(--text-dim); max-width: 68ch; }
+  .why p b { color: var(--text); font-weight: 600; }
+
+  .demo-label {
+    display: flex; align-items: center; gap: 10px; margin: 36px 0 10px;
+    font-family: var(--mono); font-size: 10px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--text-dim);
+  }
+  .demo-label .live { display: inline-flex; align-items: center; gap: 5px; color: var(--green); }
+  .demo-label .live i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 1.6s infinite; }
+  @keyframes pulse { 0%,100% { opacity: .35; } 50% { opacity: 1; } }
+  .demo-label .corpus { color: var(--accent); }
+
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.35); }
+  .anim-panel { padding: 10px 12px 8px; }
+  #anim-canvas { width: 100%; height: 400px; display: block; border-radius: 10px; background: #0c1118; border: 1px solid var(--border); }
+  #anim-caption { padding: 10px 6px 4px; font-size: 13px; color: var(--text); min-height: 38px; transition: opacity .3s; }
+  #anim-caption .step-no { font-family: var(--mono); font-size: 10px; color: var(--accent); margin-right: 7px; }
+  .anim-controls {
+    display: flex; align-items: center; gap: 10px; padding: 4px 6px 4px;
+  }
+  .anim-controls button {
+    appearance: none; background: var(--panel-2); border: 1px solid var(--border);
+    color: var(--text-dim); border-radius: 7px; font-size: 12px; padding: 4px 11px;
+    cursor: pointer; font-family: var(--sans);
+  }
+  .anim-controls button:hover { color: var(--text); border-color: var(--accent); }
+  .anim-controls .dots { display: flex; gap: 7px; margin: 0 auto; }
+  .anim-controls .dot {
+    width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--text-dim);
+    background: transparent; padding: 0; cursor: pointer;
+  }
+  .anim-controls .dot.on { background: var(--accent); border-color: var(--accent); }
+  .anim-controls .hint { font-family: var(--mono); font-size: 9.5px; color: var(--text-dim); }
+
+  .impact { margin: 40px 0 10px; }
+  .impact h2 { margin: 0 0 14px; font-size: 15px; font-weight: 650; color: var(--text-dim); font-family: var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 720px) { .stats { grid-template-columns: 1fr; } }
+  .stat { padding: 14px 16px; }
+  .stat .num { font-family: var(--mono); font-size: 26px; font-weight: 650; color: var(--accent); }
+  .stat .num small { font-size: 14px; }
+  .stat .lbl { font-size: 12px; color: var(--text-dim); margin-top: 6px; line-height: 1.45; }
+  .stat .lbl b { color: var(--text); font-weight: 600; }
+
+  footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 16px 0 44px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  footer .stats-line { font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
+  footer .stats-line b { color: var(--accent); font-weight: 600; }
+  footer .right { margin-left: auto; font-size: 12px; }
+</style>
+</head>
+<body>
+<nav>
+  <div class="brand"><span class="dot">◈</span> Noesis</div>
+  <div class="links">
+    <a href="/app">Graph</a>
+    <a href="/app#view=dashboard">Dashboard</a>
+    <a href="/app#view=ask">Ask</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <h1>The truth isn't enough.<br>You need to know <em class="accent">why</em> it's the way it is.</h1>
+  <p class="lede">Noesis is a graph knowledge engine. In one Neo4j corpus it keeps
+  what your organization believes — <b>the canonical truth</b> — together with
+  <b>why each belief is justified</b> and <b>where every piece of it came from</b>.
+  You can ask it questions, browse it as a map, and correct it.</p>
+
+  <div class="why">
+    <div class="point">
+      <span class="no">1</span>
+      <div>
+        <h2>There is no single truth — only approximations of it.</h2>
+        <p>Even inside one organization, every team holds its own version. Noesis
+        treats beliefs the way an <b>argumentative framework</b> does: claims with
+        premises, arguments that attack and defend, outcomes that can flip. The
+        standing picture is the <b>canonical truth</b>.</p>
+      </div>
+    </div>
+    <div class="point">
+      <span class="no">2</span>
+      <div>
+        <h2>And the canonical truth is always changing.</h2>
+        <p>Data updates, docs change, strategies shift. The correction almost always
+        arrives <b>at the level of an individual</b> — then takes months or years to
+        become what the organization believes. Noesis makes that correction a
+        first-class, provable act <b>the moment one person knows better</b>.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-label">
+    <span class="live"><i></i>live replay</span>
+    <span>over the <span class="corpus">dev.meta.ai</span> documentation corpus</span>
+  </div>
+  <div class="panel anim-panel" id="how-it-corrects">
+    <canvas id="anim-canvas"></canvas>
+    <div id="anim-caption"></div>
+    <div class="anim-controls">
+      <button id="anim-prev" title="previous step">‹ prev</button>
+      <div class="dots" id="anim-dots"></div>
+      <button id="anim-next" title="next step">next ›</button>
+      <button id="anim-play" title="pause">⏸</button>
+      <span class="hint">step through at your own pace</span>
+    </div>
+  </div>
+
+  <div class="impact">
+    <h2>Why it matters</h2>
+    <div class="stats">
+      <div class="panel stat">
+        <div class="num">$600<small>B+</small></div>
+        <div class="lbl">spent <b>every year</b> on establishing, verifying and
+        querying business truth — ~$180B in software, and <b>~$450B+ in payroll</b>
+        for 3.5–5M data professionals, the hidden majority of the market.</div>
+      </div>
+      <div class="panel stat">
+        <div class="num">$3.1<small>T</small></div>
+        <div class="lbl">the annual cost of <b>bad data</b> to the U.S. economy
+        <b>(IBM)</b>.</div>
+      </div>
+      <div class="panel stat">
+        <div class="num">$12.9<small>M</small></div>
+        <div class="lbl">what poor data quality costs <b>the average enterprise,
+        per year</b> <b>(Gartner)</b>.</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span class="stats-line" id="corpus-stats">reading the corpus…</span>
+    <span class="right"><a href="/app">Open the explorer →</a></span>
+  </footer>
+</div>
+
+<script>
+"use strict";
+
+const $ = (sel, root = document) => root.querySelector(sel);
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+/* The explorer's exact color function: a label hashes to the same hue here
+   as it does in the app. */
+const colorCache = new Map();
+function labelColor(label) {
+  if (!colorCache.has(label)) {
+    let h = 0;
+    for (const ch of String(label)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    colorCache.set(label, `hsl(${h % 360}, 65%, 62%)`);
+  }
+  return colorCache.get(label);
+}
+
+/* ============================== the replay ============================== */
+
+/* The before state is read live from /api/showcase/subgraph; the correction
+   itself is an authored ghost spec (ids illustrative), so the page never
+   writes on a loop. Steps drive appearance; the last step hides the layers
+   beneath the canonical truth -- what the average user actually sees. */
+
+const GHOST = {
+  nodes: [
+    { element_id: "ghost-attack-arg", labels: ["Argument"], title: "attack argument", status: "in" },
+    { element_id: "ghost-premise", labels: ["Claim"], title: "The docs page predates the launch.", status: "active" },
+    { element_id: "ghost-new-claim", labels: ["Claim"], title: "Tool search is available on Chat Completions as of this week.", status: "active" },
+    { element_id: "ghost-conclude-arg", labels: ["Argument"], title: "new argument", status: "in" },
+    { element_id: "ghost-trace", labels: ["RoutingTrace"], title: "this conversation", status: null },
+  ],
+  edges: [
+    { element_id: "ge-attack", type: "ATTACKS", source: "ghost-attack-arg", target: "__STALE__" },
+    { element_id: "ge-up1", type: "USES_PREMISE", source: "ghost-attack-arg", target: "ghost-premise" },
+    { element_id: "ge-fi1", type: "FOUND_IN", source: "ghost-premise", target: "ghost-trace" },
+    { element_id: "ge-ce", type: "CONCLUDES", source: "ghost-conclude-arg", target: "__CAP__" },
+    { element_id: "ge-up2", type: "USES_PREMISE", source: "ghost-conclude-arg", target: "ghost-new-claim" },
+    { element_id: "ge-fi2", type: "FOUND_IN", source: "ghost-new-claim", target: "ghost-trace" },
+  ],
+};
+
+const STEPS = [
+  { t: 0.0, caption: "Today: the docs page says tool search is not available on Chat Completions — and the graph believes it, on that evidence." },
+  { t: 2.6, caption: "The user says otherwise. A new argument ATTACKS the stale one's warrant: the docs page predates the launch.",
+    items: ["ghost-attack-arg", "ghost-premise", "ghost-trace", "ge-attack", "ge-up1", "ge-fi1"] },
+  { t: 5.2, caption: "The updated fact arrives as a claim — grounded in this conversation, not in any docs chunk.",
+    items: ["ghost-new-claim", "ge-fi2"] },
+  { t: 7.8, caption: "A new argument concludes the capability with the update. Nothing deleted, nothing re-ingested.",
+    items: ["ghost-conclude-arg", "ge-ce", "ge-up2"] },
+  { t: 10.4, caption: "The stale claim stays as history — defeated on record, by an argument with its own provenance." },
+  { t: 13.0, caption: "What the average user actually sees: the canonical truth. The layers underneath stay there for whoever asks why.",
+    layersOff: true },
+];
+const LOOP_SECONDS = 16.2;
+const APPEAR_SECONDS = 0.6;
+const ghostStep = new Map();
+STEPS.forEach((step, i) => (step.items || []).forEach(id => ghostStep.set(id, STEPS[i].t)));
+
+function computeLayout(data) {
+  const layers = { canonical: [], justification: [], evidence: [] };
+  const layerOf = label =>
+    (label === "Claim" || label === "Argument") ? "justification"
+    : (label === "Chunk" || label === "RoutingTrace" || label === "SourceNode") ? "evidence"
+    : "canonical";
+  for (const n of data.nodes) layers[layerOf(n.labels[0] || "")].push(n);
+  if (layers.canonical[0]) { layers.canonical[0]._x = 0; layers.canonical[0]._y = 0; }
+  for (const [nodes, r] of [[layers.justification, 95], [layers.evidence, 165]]) {
+    nodes.forEach((n, i) => {
+      const a = -Math.PI / 2 + (i / Math.max(1, nodes.length)) * Math.PI * 2 + (r === 165 ? 0.35 : 0);
+      n._x = Math.cos(a) * r;
+      n._y = Math.sin(a) * r;
+    });
+  }
+  const byId = new Map(data.nodes.map(n => [n.element_id, n]));
+  const stale = data.nodes.find(n => n.labels[0] === "Argument" && n.status === "in") || layers.justification[0];
+  const cap = layers.canonical[0];
+  for (const g of GHOST.nodes) {
+    if (g.element_id === "ghost-attack-arg") { g._x = stale._x - 95; g._y = stale._y - 48; }
+    else if (g.element_id === "ghost-premise") { g._x = stale._x - 115; g._y = stale._y + 38; }
+    else if (g.element_id === "ghost-trace") { g._x = stale._x - 165; g._y = stale._y - 6; }
+    else if (g.element_id === "ghost-new-claim") { g._x = cap._x + 95; g._y = cap._y + 58; }
+    else if (g.element_id === "ghost-conclude-arg") { g._x = cap._x + 60; g._y = cap._y - 68; }
+  }
+  return { byId, stale, cap };
+}
+
+function phaseOf(id) {
+  let h = 0;
+  for (const ch of String(id)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return (h % 628) / 100;
+}
+
+async function boot() {
+  const canvas = $("#anim-canvas");
+  const ctx = canvas.getContext("2d");
+  const caption = $("#anim-caption");
+  const dotsEl = $("#anim-dots");
+  const playBtn = $("#anim-play");
+
+  let data;
+  try {
+    const res = await fetch("/api/showcase/subgraph");
+    if (!res.ok) throw new Error(`subgraph ${res.status}`);
+    data = await res.json();
+  } catch (e) {
+    caption.innerHTML = `<span class="step-no">·</span>The corpus is unreachable — start Neo4j and reload.`;
+    $(".demo-label .live").innerHTML = `<i style="background:#f87171"></i>offline`;
+    return;
+  }
+
+  const { byId, stale, cap } = computeLayout(data);
+  const ghostEdges = GHOST.edges.map(e => ({
+    ...e,
+    source: e.source === "__STALE__" ? stale.element_id : e.source === "__CAP__" ? cap.element_id : e.source,
+    target: e.target === "__STALE__" ? stale.element_id : e.target === "__CAP__" ? cap.element_id : e.target,
+  }));
+  const allNodes = [...data.nodes, ...GHOST.nodes];
+  const allEdges = [...data.edges, ...ghostEdges];
+
+  STEPS.forEach((_, i) => {
+    const d = document.createElement("button");
+    d.className = "dot";
+    d.title = `step ${i + 1}`;
+    d.addEventListener("click", () => jumpTo(i));
+    dotsEl.appendChild(d);
+  });
+
+  let vclock = 0;
+  let auto = true;
+  let lastFrame = performance.now();
+  let shownStep = -1;
+
+  const stepIndexFor = t => {
+    let i = 0;
+    for (let k = 0; k < STEPS.length; k++) if (t >= STEPS[k].t) i = k;
+    return i;
+  };
+
+  function setCaption(i, immediate = false) {
+    shownStep = i;
+    dotsEl.querySelectorAll(".dot").forEach((d, k) => d.classList.toggle("on", k === i));
+    const apply = () => {
+      caption.innerHTML = `<span class="step-no">${String(i + 1).padStart(2, "0")} / ${String(STEPS.length).padStart(2, "0")}</span>${esc(STEPS[i].caption)}`;
+      caption.style.opacity = 1;
+    };
+    if (immediate) apply();
+    else {
+      caption.style.opacity = 0;
+      setTimeout(apply, 180);
+    }
+  }
+
+  function jumpTo(i) {
+    auto = false;
+    playBtn.textContent = "▶";
+    vclock = STEPS[i].t + 0.01;
+    setCaption(i, true);
+  }
+
+  $("#anim-prev").addEventListener("click", () =>
+    jumpTo((stepIndexFor(vclock) - 1 + STEPS.length) % STEPS.length));
+  $("#anim-next").addEventListener("click", () =>
+    jumpTo((stepIndexFor(vclock) + 1) % STEPS.length));
+  playBtn.addEventListener("click", () => {
+    auto = !auto;
+    playBtn.textContent = auto ? "⏸" : "▶";
+  });
+
+  const nodeR = n => n.labels[0] === "Capability" ? 11 : n.labels[0] === "RoutingTrace" ? 8 : 9;
+
+  function frame(now) {
+    const dt = Math.min(0.1, (now - lastFrame) / 1000);
+    lastFrame = now;
+    if (auto) vclock = (vclock + dt) % LOOP_SECONDS;
+    const cur = stepIndexFor(vclock);
+    if (cur !== shownStep) setCaption(cur);
+    const layersOff = !!STEPS[cur].layersOff;
+    const fadingOut = vclock > LOOP_SECONDS - 1.2;
+    const fade = fadingOut ? Math.max(0, (LOOP_SECONDS - vclock) / 1.2) : 1;
+    const t = now / 1000;
+
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+      canvas.width = w * dpr; canvas.height = h * dpr;
+    }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    const cx = w / 2, cy = h / 2;
+
+    // Edges.
+    for (const e of allEdges) {
+      const s = byId.get(e.source) || GHOST.nodes.find(n => n.element_id === e.source);
+      const tt = byId.get(e.target) || GHOST.nodes.find(n => n.element_id === e.target);
+      if (!s || !tt) continue;
+      const appearT = ghostStep.get(e.element_id);
+      let alpha = 1;
+      if (appearT !== undefined) {
+        if (vclock < appearT) continue;
+        alpha = Math.min(1, (vclock - appearT) / APPEAR_SECONDS);
+      }
+      if (layersOff && (s.labels[0] !== "Capability" || tt.labels[0] !== "Capability")) alpha *= 0.05;
+      const isNew = appearT !== undefined;
+      const sx = cx + s._x + (s._floatX || 0), sy = cy + s._y + (s._floatY || 0);
+      const tx2 = cx + tt._x + (tt._floatX || 0), ty2 = cy + tt._y + (tt._floatY || 0);
+      ctx.strokeStyle = isNew ? `rgba(110,231,135,${0.9 * alpha * fade})` : `rgba(133,149,167,${0.45 * alpha * fade})`;
+      ctx.lineWidth = isNew ? 2 : 1;
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(tx2, ty2);
+      ctx.stroke();
+      const a = Math.atan2(ty2 - sy, tx2 - sx);
+      const rT = (nodeR(tt) + 3) * Math.min(1, alpha);
+      const ax = tx2 - Math.cos(a) * rT, ay = ty2 - Math.sin(a) * rT;
+      ctx.fillStyle = ctx.strokeStyle;
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      ctx.lineTo(ax - Math.cos(a - 0.4) * 6, ay - Math.sin(a - 0.4) * 6);
+      ctx.lineTo(ax - Math.cos(a + 0.4) * 6, ay - Math.sin(a + 0.4) * 6);
+      ctx.fill();
+      ctx.fillStyle = isNew ? `rgba(110,231,135,${0.95 * alpha * fade})` : `rgba(133,149,167,${0.8 * alpha * fade})`;
+      ctx.font = "9px ui-monospace, monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(e.type + (e.type === "FOUND_IN" && tt.labels[0] === "RoutingTrace" ? " · origin" : ""), (sx + tx2) / 2, (sy + ty2) / 2 - 4);
+    }
+
+    // Nodes.
+    for (const n of allNodes) {
+      const appearT = ghostStep.get(n.element_id);
+      let alpha = 1;
+      if (appearT !== undefined) {
+        if (vclock < appearT) continue;
+        alpha = Math.min(1, (vclock - appearT) / APPEAR_SECONDS);
+      }
+      if (layersOff && n.labels[0] !== "Capability") alpha *= 0.07;
+      n._floatX = Math.sin(t * 0.5 + phaseOf(n.element_id)) * 2.5;
+      n._floatY = Math.cos(t * 0.42 + phaseOf(n.element_id) * 1.3) * 2.5;
+      const x = cx + n._x + n._floatX, y = cy + n._y + n._floatY;
+      const r = nodeR(n) * Math.min(1, alpha);
+      ctx.globalAlpha = fade;
+      ctx.fillStyle = labelColor(n.labels[0]);
+      ctx.beginPath();
+      ctx.arc(x, y, Math.max(0.01, r), 0, Math.PI * 2);
+      ctx.fill();
+      if (n === stale && cur >= 1 && !layersOff) {
+        ctx.strokeStyle = `rgba(248,113,113,${0.9 * alpha * fade})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, y, nodeR(n) + 6, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.fillStyle = appearT !== undefined ? `rgba(234,255,240,${alpha * fade})` : `rgba(219,228,238,${0.85 * alpha * fade})`;
+      ctx.font = (n.labels[0] === "Capability" ? "600 11px" : "10px") + " ui-monospace, monospace";
+      ctx.textAlign = "center";
+      const title = n.title.length > 44 ? n.title.slice(0, 41) + "…" : n.title;
+      ctx.fillText(title, x, y + nodeR(n) + 12);
+      if (n.status) {
+        ctx.fillStyle = `rgba(133,149,167,${0.75 * alpha * fade})`;
+        ctx.font = "8px ui-monospace, monospace";
+        ctx.fillText(n.status, x, y - nodeR(n) - 5);
+      }
+      ctx.globalAlpha = 1;
+    }
+    requestAnimationFrame(frame);
+  }
+
+  setCaption(0, true);
+  requestAnimationFrame(frame);
+}
+
+(async () => {
+  try {
+    const res = await fetch("/api/overview");
+    if (!res.ok) throw new Error();
+    const ov = await res.json();
+    $("#corpus-stats").innerHTML =
+      `<b>${ov.total_nodes.toLocaleString()}</b> nodes · <b>${ov.total_relationships.toLocaleString()}</b> relationships — live in your corpus`;
+  } catch {
+    $("#corpus-stats").textContent = "corpus offline";
+  }
+})();
+
+boot();
+</script>
+</body>
+</html>

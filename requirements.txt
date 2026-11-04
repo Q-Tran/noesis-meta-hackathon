@@ -1,0 +1,26 @@
+# Core
+neo4j>=5.20          # Bolt driver (Memgraph is Bolt-compatible)
+pydantic>=2.6        # ontology schema / structured extraction
+python-dotenv>=1.0   # .env loading
+
+# Architecture Updates
+pymilvus>=2.4        # Vector Storage
+confluent-kafka>=2.0 # Ingestion
+kafka-python>=2.0
+snowflake-snowpark-python>=1.11.0  # Snowflake query execution
+
+# LLM providers (optional - only needed for the provider you choose)
+openai>=1.30         # cloud provider
+ollama>=0.3          # local provider
+# GraphRAG & Machine Learning
+sentence-transformers>=3.0
+scikit-learn>=1.4
+litellm>=1.0
+fastapi>=0.100.0
+uvicorn>=0.23.0
+mcp>=1.0.0,<2
+msal>=1.31.0
+httpx>=0.27.0
+cryptography>=42.0.0
+libcst>=1.9.0
+networkx>=3.0        # code-community detection (development.phases)
