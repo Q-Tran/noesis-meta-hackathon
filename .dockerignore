@@ -1,0 +1,10 @@
+.venv/
+venv/
+.git/
+__pycache__/
+*.pyc
+models/
+data/powerbi/
+benchmarks_data/
+logs/
+.env

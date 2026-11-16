@@ -1,0 +1,87 @@
+SOURCE: https://dev.meta.ai/docs/models
+
+Muse Wonder , Muse Spark , Muse Image , Muse Voice Transcribe , and Segment Anything Model (SAM) are hosted on Meta Model API; Muse Glimmer is open-weight and runs on your own hardware.
+Muse Spark also has an open-weight release, Muse Spark Open .
+Pick one by what you're building, then read its section for versions and where to use them.
+See the Geographic Use Policy for country-specific restrictions.
+Muse Wonder Muse Wonder is Meta's most capable model, built for complex software engineering and long-horizon agentic work.
+It makes and verifies changes across many files in real repositories, and it plans, delegates to sub-agents, calls tools in parallel, and recovers from errors across many steps, following detailed instructions closely.
+Take on hard coding tasks, build personal and professional agents, and drive a desktop with computer use .
+Muse Wonder also handles chat completion , image understanding , video and audio understanding , tool calling , structured output , and search grounding .
+Muse Wonder takes text, image, video, audio, and PDF input, returns text, has a 1,048,576-token context window, and supports reasoning effort levels from "minimal" to "max" .
+For more about the model, see the Muse Wonder model page and the Muse Wonder model card (opens in new tab) .
+Muse Wonder availability Muse Wonder comes in two variants.
+Muse Wonder is on Model API and in Muse Code .
+Muse Wonder Full, the higher-capability variant, is available only in Muse Code with a subscription, so setting reasoning effort to "max" on Muse Wonder doesn't select it.
+Variant Model API (pay-as-you-go) Muse Code Muse Wonder ( muse-wonder-1.0 ) Available (Standard mode only) Pay-as-you-go and every plan Muse Wonder Full Not available Power Usage and Maximum Usage With a subscription, Muse Wonder is available on every plan and Muse Wonder Full on the Power Usage and Maximum Usage plans, each in Standard mode and Contributor mode .
+Muse Wonder and Muse Wonder Full aren't currently available in South Korea, on Model API or in Muse Code.
+In Standard mode, your content — the prompts, code, files, and context you send, plus the model responses you get back — is not used to train Meta models.
+Muse Code subscribers can also use Contributor mode, which is on by default: it gives you more usage in exchange for letting Meta use your content to train future Meta models, and you can turn it off at any time in your settings.
+For Muse Wonder, Contributor mode isn't available on pay-as-you-go.
+Muse Spark Muse Spark is Meta's model for agentic and coding work, such as multi-step tool loops, software engineering assistants, and long-context reasoning.
+Use it for chat completion , image understanding , video and audio understanding , tool calling , structured output , and search grounding .
+All take text, image, video, audio, and PDF input, return text, and have a 1,048,576-token context window.
+They differ by capability: Muse Spark 1.3 ( muse-spark-1.3 ): the latest version, tuned for agentic workflows (multi-step tool, browser, and long-horizon tasks) with improved coding over 1.2.
+Supports all reasoning effort levels, including the "max" level for extended reasoning (not available with muse-spark-1.3-contributor ).
+Muse Spark 1.2 ( muse-spark-1.2 ): the previous version.
+Muse Spark 1.1 ( muse-spark-1.1 ): the original version.
+Audio input on Muse Spark 1.3 Audio understanding in Muse Spark 1.3 is not fully supported, and response quality for requests that include audio may be degraded.
+For audio, use Muse Spark 1.2, or Muse Voice Transcribe for dedicated speech-to-text.
+muse-spark-1.3 is the default model in most code examples in these docs.
+The coding agents , agent frameworks , and computer use guides use muse-wonder-1.0 for long-running agentic work.
+Muse Spark availability Every Muse Spark version is available on pay-as-you-go.
+All versions except Muse Spark 1.1 are also available in Muse Code , on pay-as-you-go and with any subscription.
+Version Model API (pay-as-you-go) Muse Code Muse Spark 1.3 ( muse-spark-1.3 ) Standard mode Pay-as-you-go and every plan Muse Spark 1.3 Contributor ( muse-spark-1.3-contributor ) Contributor mode Pay-as-you-go and every plan Muse Spark 1.2 ( muse-spark-1.2 ) Standard mode Pay-as-you-go and every plan Muse Spark 1.2 Contributor ( muse-spark-1.2-contributor ) Contributor mode Pay-as-you-go and every plan Muse Spark 1.1 ( muse-spark-1.1 ) Standard mode Not available In Standard mode , your content is not used to train Meta models.
+In Contributor mode , your content may be used to train future Meta models, in exchange for a lower price.
+On pay-as-you-go, switch between the two by choosing the model ID: for example, muse-spark-1.3 for Standard mode or muse-spark-1.3-contributor for Contributor mode.
+Muse Spark 1.1 is available in Standard mode only.
+Choose Muse Wonder or Muse Spark Muse Wonder and Muse Spark take the same requests on the same endpoints, so moving a workload between them is a model ID change.
+Choose by workload: Muse Wonder : long-running, complex tasks where capability matters more than cost per token, such as multi-file coding changes, multi-hour agent runs, and sub-agent orchestration.
+Muse Spark : high-volume, latency-sensitive, or cost-sensitive work, such as sub-agent tasks, classification, and tight tool loops.
+On Model API, Muse Spark also offers a discounted Contributor mode .
+Muse Image Muse Image is Meta's image generation model line.
+Send a text prompt (and optional reference images) and get an image back, or send an image with an instruction to edit it.
+One model handles both generation and editing.
+It's agentic, so it can search the web for visual references and current facts and run code to build layouts before it renders.
+Model ID Input Output muse-image-1.0 Text, image Image Reach Muse Image two ways: the Responses API for conversational, multi-turn editing, or the single-shot /v1/images/generations and /v1/images/edits endpoints for one-off calls.
+See the Image generation guide to get started.
+Muse Voice Transcribe Muse Voice Transcribe is Meta's speech-to-text model on Meta Model API.
+Use it to transcribe live audio streams or supported audio files.
+Model ID Input Output muse-voice-transcribe-1.0 Audio Text transcript Muse Voice Transcribe is built for real-time speech products: voice agents, meeting and call intelligence, live transcription, dictation, captioning, and high-volume transcription.
+It supports streaming speaker diarization, native endpointing and voice activity detection, contextual and keyword biasing, 25 evaluated languages with code-switching, and turn-level timestamps.
+It does not synthesize speech or provide a speech-to-speech conversation API.
+It does not provide word-level timestamps, sound event detection, or emotion detection.
+Reach Muse Voice Transcribe two ways: the realtime WebSocket endpoint ( wss://api.meta.ai/v1/asr/realtime ) for live audio, or the file endpoint ( POST /v1/asr/transcribe ) for a recording you already have.
+Start with the Muse Voice Transcribe guide .
+See Pricing and rate limits for audio pricing.
+Segment Anything Model SAM 3.1 is Meta's segmentation model on Meta Model API.
+Give it a short noun phrase such as "yellow school bus" with an image or video, and it returns every match as a box and a pixel-accurate mask.
+Or mark specific objects with boxes and points to segment only those objects.
+One model handles both stills and clips, and in video it follows each object across frames.
+Model ID Input Output sam-3.1 Text prompt, image, video Boxes and masks Reach SAM 3.1 over the Responses API ( POST /v1/responses ), and upload clips through the Files API when you segment them more than once.
+See the Media segmentation guide to get started.
+Muse Spark Open Muse Spark Open is the open-weight release of Muse Spark: an 816B-parameter mixture-of-experts model with 42B active parameters.
+Download the weights and serve them through a runtime such as SGLang, vLLM, TensorRT-LLM, or llama.cpp, or call it through a hosted inference provider.
+Muse Spark Open lives in the Open-weight models section: Muse Spark Open overview : checkpoints, hardware, license, and launch partners.
+Get the model : download the BF16 or NVFP4 weights.
+Run inference : serve it on your own GPUs or call a hosted provider.
+Post-training : adapt it with supervised fine-tuning (SFT) or reinforcement learning (RL).
+Muse Glimmer Muse Glimmer is Meta's open-weight multimodal model, distilled from Muse Spark and built to run on your own hardware.
+You run it yourself instead of calling it over Model API: download the weights and serve them through a runtime such as vLLM, SGLang, llama.cpp, or ExecuTorch.
+Muse Glimmer lives in the Open-weight models section, covering how to get, prompt, deploy, and customize the model: Muse Glimmer overview : variants, architecture, license, and launch partners.
+Get the model : download the weights and verify your setup.
+Run inference : pick a runtime and serve it locally.
+Post-training : adapt it to your domain with supervised fine-tuning (SFT) or reinforcement learning (RL).
+List models via the API Query the catalog programmatically when you need to check what's enabled for your team.
+This returns the API-hosted models; self-hosted Muse Glimmer isn't included.
+Python (OpenAI SDK) Python (OpenAI SDK) TypeScript (OpenAI SDK) TypeScript (OpenAI SDK) Python (requests) Python (requests) curl curl ← → to navigate python import os ​ from openai import OpenAI ​ client = OpenAI ( base_url = "https://api.meta.ai/v1" , api_key = os .
+environ [ "MODEL_API_KEY" ] , ) ​ response = client .
+model_dump_json ( indent = 2 ) ) typescript import OpenAI from 'openai' ; ​ const apiKey = process .
+apiKey ) { throw new Error ( 'MODEL_API_KEY is not set' ) ; } ​ const client = new OpenAI ( { baseURL : 'https://api.meta.ai/v1' , apiKey , } ) ; ​ const models = await client .
+data } , null , 2 ) ) ; python import json import os ​ import requests ​ response = requests .
+get ( "https://api.meta.ai/v1/models" , headers = { "Authorization" : f"Bearer {os.environ['MODEL_API_KEY']}" } , ) response .
+json ( ) , indent = 2 ) ) shell curl -X GET "https://api.meta.ai/v1/models" \ -H "Authorization: Bearer $MODEL_API_KEY" The response returns models sorted newest-first by creation time, with the model ID as a stable tiebreaker.
+Each object includes a created field — the Unix timestamp in seconds for when the model was added to the registry.
+GET /v1/models/{model} returns the same created value for a single model.
+See also Pricing and rate limits : per-token rates for Standard and Contributor mode, and rate limits for each model Subscriptions : Muse Code plans and what each one includes On this page Please confirm your identity For added security, you need to confirm your identity.
+You will be taken to your single sign-on provider, where you can enter your password.

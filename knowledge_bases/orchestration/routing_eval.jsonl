@@ -1,0 +1,53 @@
+{"question": "What does ARPU mean in our reporting?", "expert": "business_dictionary"}
+{"question": "Which canonical term does 'dedicated accounts' map to?", "expert": "business_dictionary"}
+{"question": "Is 'gross adds' an alias of another business term?", "expert": "business_dictionary"}
+{"question": "Define churn as we use it in the glossary", "expert": "business_dictionary"}
+{"question": "What is the canonical terminology for customer disconnects?", "expert": "business_dictionary"}
+{"question": "We use two different words for the same thing across teams", "expert": "business_dictionary"}
+{"question": "Spell out what we officially mean by an active subscriber", "expert": "business_dictionary"}
+{"question": "Are dedicated accounts on track against Q3 targets?", "expert": "semantic_layer"}
+{"question": "Trace the lineage of the monthly recurring revenue metric to its source tables", "expert": "semantic_layer"}
+{"question": "Which columns and tables feed the attainment KPI?", "expert": "semantic_layer"}
+{"question": "Show actual vs budget variance for the fiber metric by quarter", "expert": "semantic_layer"}
+{"question": "What is the DAX calculation behind the net adds measure?", "expert": "semantic_layer"}
+{"question": "Which semantic model defines the quota metric grain?", "expert": "semantic_layer"}
+{"question": "net adds dedicated across attb for every month for the last 12 months", "expert": "semantic_layer"}
+{"question": "Give me the recipe behind the fiber attainment figure", "expert": "semantic_layer"}
+{"question": "Roll up total volumes by quarter against plan", "expert": "semantic_layer"}
+{"question": "What evidence supports the claim that churn rose after the price change?", "expert": "epistemology"}
+{"question": "Which documents and sources back this insight?", "expert": "epistemology"}
+{"question": "Where did the research finding about onboarding come from?", "expert": "epistemology"}
+{"question": "Show the provenance and citations for the customer complaint claim", "expert": "epistemology"}
+{"question": "Which observations conflict with the onboarding insight", "expert": "epistemology"}
+{"question": "Which decisions need review because their assumptions went stale?", "expert": "strategy"}
+{"question": "Why is the DHL carrier decision compromised?", "expert": "strategy"}
+{"question": "Which alternative now outscores the chosen decision?", "expert": "strategy"}
+{"question": "What is the health of our pricing decision and its goal?", "expert": "strategy"}
+{"question": "List decisions with challenging evidence and risk", "expert": "strategy"}
+{"question": "Which of our commitments are at risk of being wrong now", "expert": "strategy"}
+{"question": "Start a guided brainstorm workflow for a new product plan", "expert": "methodology"}
+{"question": "Continue the product development workflow to the next step of the PRD", "expert": "methodology"}
+{"question": "Validate the architecture components against the specification baseline", "expert": "methodology"}
+{"question": "Resume the guided workflow for the noesis-self project", "expert": "methodology"}
+{"question": "Walk me through the next phase of the workflow", "expert": "methodology"}
+{"question": "Approve the current phase baseline for the project", "expert": "methodology"}
+{"question": "What problems and success measures did we capture in discovery?", "expert": "strategy"}
+{"question": "Which ideas address the onboarding problem?", "expert": "strategy"}
+{"question": "Which components realize the checkout capability?", "expert": "architecture"}
+{"question": "What are the boundaries and interfaces between the billing components?", "expert": "architecture"}
+{"question": "Describe the solution architecture for the migration project", "expert": "architecture"}
+{"question": "What requirements and acceptance criteria are in the current product plan?", "expert": "project_management"}
+{"question": "Draft the product requirements with acceptance criteria", "expert": "project_management"}
+{"question": "Which delivery tasks are blocked and who owns them?", "expert": "project_management"}
+{"question": "Show the project hierarchy with epics and stories for the migration project", "expert": "project_management"}
+{"question": "Who is assigned to the sprint tasks for the onboarding epic?", "expert": "project_management"}
+{"question": "What is the status of implementation work for the pricing project?", "expert": "project_management"}
+{"question": "Which people report to the delivery lead and what blockers do they have?", "expert": "project_management"}
+{"question": "Break the migration down into epics and stories", "expert": "project_management"}
+{"question": "What is my team working on this sprint", "expert": "project_management"}
+{"question": "Which module implements expert routing in Noesis?", "expert": "development"}
+{"question": "What depends on the orchestration component?", "expert": "development"}
+{"question": "Why does Noesis separate Tool from AgentSkill?", "expert": "development"}
+{"question": "Where does the session memory repository live in the codebase?", "expert": "development"}
+{"question": "What calls the resolve_handler function?", "expert": "development"}
+{"question": "Show me the blast radius of changing plan_route", "expert": "development"}

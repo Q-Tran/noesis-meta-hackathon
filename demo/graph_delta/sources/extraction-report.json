@@ -1,0 +1,16 @@
+{
+ "generated_at": "2026-11-03T04:12:12.415538+00:00",
+ "claims": 16240,
+ "claims_ungrounded": 0,
+ "claims_overgrounded": 0,
+ "arguments": 8014,
+ "arguments_without_premises": 0,
+ "arguments_without_conclusion": 0,
+ "entities": 3450,
+ "entities_without_argument": 0,
+ "mentions": 6842,
+ "relationships": 2033,
+ "chunks": 3194,
+ "chunks_with_claims": 3117,
+ "claim_coverage_pct": 97.59
+}

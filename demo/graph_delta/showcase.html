@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%235eead4'/%3E%3C/svg%3E">
+<title>Noesis · changing the canonical truth</title>
+<style>
+  :root {
+    --bg: #0a0e13; --panel: #11161d; --panel-2: #161d26; --border: #232c38;
+    --text: #dbe4ee; --text-dim: #8595a7;
+    --accent: #5eead4; --accent-2: #7dd3fc; --purple: #b06bff;
+    --green: #6ee787; --amber: #ffc247; --red: #f87171; --grey: #8b95a5;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Inter, Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.5; }
+  #app { max-width: 860px; margin: 0 auto; padding: 16px 14px 80px; }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 650; font-size: 15px; margin-bottom: 14px; }
+  .brand .dot { color: var(--accent); font-size: 18px; }
+  .brand .sub { color: var(--text-dim); font-weight: 400; font-size: 12px; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; }
+  .scenario h1 { font-size: 18px; margin: 0 0 8px; line-height: 1.3; }
+  .scenario .story { color: var(--text); }
+  .scenario .story b { color: var(--accent-2); }
+  .scenario .hint { color: var(--text-dim); font-size: 12px; margin-top: 8px; }
+  .controls { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
+  .btn-primary { padding: 9px 18px; border-radius: 9px; border: none; background: var(--accent); color: #052e2b; font-weight: 650; font-size: 13px; cursor: pointer; }
+  .btn-primary:disabled { opacity: .5; cursor: default; }
+  .btn-ghost { padding: 9px 14px; border-radius: 9px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text-dim); font-size: 13px; cursor: pointer; }
+  .btn-ghost:hover { color: var(--text); }
+  #status { font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
+  .spinner { display: inline-block; width: 11px; height: 11px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .stage-title { display: flex; align-items: baseline; gap: 10px; margin: 0 0 6px; font-size: 13px; font-weight: 650; }
+  .stage-title .badge { font-family: var(--mono); font-size: 10px; font-weight: 500; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--border); color: var(--text-dim); }
+  .stage-expl { font-size: 12px; color: var(--text-dim); margin-bottom: 10px; }
+  canvas.graph { width: 100%; height: 340px; display: block; border-radius: 10px; background: #0c1118; border: 1px solid var(--border); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 14px; margin-top: 8px; font-family: var(--mono); font-size: 10px; color: var(--text-dim); }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .legend .sw { width: 8px; height: 8px; border-radius: 50%; }
+  .legend .ring { width: 8px; height: 8px; border-radius: 50%; border: 2px solid transparent; }
+
+  #transcript .q { background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px 10px 10px 4px; padding: 9px 13px; max-width: 92%; margin-bottom: 10px; font-weight: 550; }
+  #transcript .tools { margin: 0 0 10px 12px; border-left: 2px solid var(--border); padding-left: 12px; }
+  #transcript .tool { font-family: var(--mono); font-size: 11px; padding: 4px 0; color: var(--text-dim); }
+  #transcript .tool b { color: var(--accent); font-weight: 600; }
+  #transcript .tool .args { color: var(--text-dim); opacity: .8; }
+  #transcript .a { background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px 10px 4px 10px; padding: 12px 15px; }
+  #transcript .a p { margin: 6px 0; }
+  #transcript .a ul { margin: 6px 0; padding-left: 20px; }
+
+  #changes { font-family: var(--mono); font-size: 11.5px; }
+  #changes .chg { display: flex; gap: 9px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+  #changes .chg:last-child { border-bottom: none; }
+  #changes .mark { flex: none; font-weight: 700; width: 16px; text-align: center; }
+  #changes .mark.new { color: var(--green); }
+  #changes .mark.flip { color: var(--amber); }
+  #changes .mark.attack { color: var(--red); }
+  #changes .why { color: var(--text-dim); display: block; margin-top: 2px; font-family: var(--sans); font-size: 11px; }
+  .empty { color: var(--text-dim); text-align: center; padding: 22px 0; font-size: 12px; }
+  a { color: var(--accent-2); }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="brand"><span class="dot">◈</span> Noesis <span class="sub">changing the canonical truth</span></div>
+
+  <div class="panel scenario">
+    <h1>The docs are stale. The user is right. Watch the graph keep both.</h1>
+    <div class="story">
+      The <b>Tool search</b> docs page says: <i>“Tool search is not available on Chat Completions.”</i>
+      That launched this week. The chunk is the truth of the docs at crawl time — re-crawling
+      would replace it, but the user just told us first. No re-ingestion: the correction
+      arrives as <b>new arguments and claims, sourced to this conversation</b>, while the
+      stale claim and its chunk stay in the graph as history.
+    </div>
+    <div class="hint">Watch: which nodes appear, which edges flip, and where the new knowledge is grounded (trace provenance — the user is the source).</div>
+    <div class="controls">
+      <button class="btn-primary" id="run">▶ Run the scenario</button>
+      <button class="btn-ghost" id="reset" title="Remove this scenario's writes so you can run it again">Reset scenario state</button>
+      <span id="status"></span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="stage-title">1 · Before <span class="badge">canonical + epistemology + provenance</span></div>
+    <div class="stage-expl">One capability, one argument, one claim, one chunk. Everything the graph believes about tool search, and exactly where it came from.</div>
+    <canvas class="graph" id="canvas-before"></canvas>
+    <div class="legend" id="legend-before"></div>
+  </div>
+
+  <div class="panel" id="transcript-panel" style="display:none">
+    <div class="stage-title">2 · The agent works it out</div>
+    <div class="stage-expl">The question, the bounded tools it called, and what it reported back.</div>
+    <div id="transcript"><div class="empty">The agent has not run yet.</div></div>
+  </div>
+
+  <div class="panel" id="after-panel" style="display:none">
+    <div class="stage-title">3 · After <span class="badge">the delta</span></div>
+    <div class="stage-expl">Green = created by the agent. Amber = status changed. Red = the argument the new evidence attacks. The docs chunk is untouched — it stays as the historical truth of the docs.</div>
+    <canvas class="graph" id="canvas-after"></canvas>
+    <div class="legend" id="legend-after"></div>
+    <div class="panel" style="background:var(--panel-2); margin-top:12px; margin-bottom:0">
+      <div class="stage-title">What changed, and why</div>
+      <div id="changes"><div class="empty">Run the scenario to see the delta.</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+const COLORS = {
+  Capability: "#5eead4", Argument: "#b06bff", Claim: "#7dd3fc",
+  Chunk: "#8b95a5", RoutingTrace: "#ffc247", SourceNode: "#98a1b5",
+};
+const LAYER_OF = label =>
+  label === "Claim" || label === "Argument" ? "justification"
+  : label === "Chunk" || label === "RoutingTrace" || label === "SourceNode" ? "evidence"
+  : "canonical";
+
+/* ---------- the layered radial picture of a subgraph ---------- */
+
+function layoutNodes(data) {
+  // Center: the canonical capability. Inner ring: arguments and claims (the
+  // justification). Outer ring: chunks, traces, sources (the evidence).
+  const byLayer = { canonical: [], justification: [], evidence: [] };
+  for (const n of data.nodes) byLayer[LAYER_OF(n.labels[0] || "")].push(n);
+  const center = byLayer.canonical[0];
+  if (center) { center._x = 0; center.y = 0; }
+  const rings = [
+    [byLayer.justification, 110],
+    [byLayer.evidence, 200],
+  ];
+  for (const [nodes, r] of rings) {
+    nodes.forEach((n, i) => {
+      const a = -Math.PI / 2 + (i / Math.max(1, nodes.length)) * Math.PI * 2 + (r === 200 ? 0.3 : 0);
+      n._x = Math.cos(a) * r;
+      n.y = Math.sin(a) * r;
+    });
+  }
+  return center;
+}
+
+function drawGraph(canvas, data, diff = null) {
+  const ctx = canvas.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  const cx = w / 2, cy = h / 2;
+
+  const newIds = new Set(diff ? diff.newNodes.map(n => n.element_id) : []);
+  const flipIds = new Set(diff ? diff.changedNodes.map(n => n.element_id) : []);
+  const attackedIds = new Set(diff ? diff.attackedIds : []);
+  const newEdgeIds = new Set(diff ? diff.newEdges.map(e => e.element_id) : []);
+
+  // Edges (labels on hover-free small graphs: always, they carry the story).
+  for (const e of data.edges) {
+    const s = data.nodeById.get(e.source), t = data.nodeById.get(e.target);
+    if (!s || !t) continue;
+    const isNew = newEdgeIds.has(e.element_id);
+    ctx.strokeStyle = isNew ? "rgba(110,231,135,.9)" : "rgba(133,149,167,.45)";
+    ctx.lineWidth = isNew ? 2 : 1;
+    ctx.beginPath();
+    ctx.moveTo(cx + s._x, cy + s.y);
+    ctx.lineTo(cx + t._x, cy + t.y);
+    ctx.stroke();
+    // Arrowhead.
+    const a = Math.atan2(t.y - s.y, t._x - s._x);
+    const tx = cx + t._x - Math.cos(a) * 12, ty = cy + t.y - Math.sin(a) * 12;
+    ctx.fillStyle = ctx.strokeStyle;
+    ctx.beginPath();
+    ctx.moveTo(tx, ty);
+    ctx.lineTo(tx - Math.cos(a - 0.4) * 6, ty - Math.sin(a - 0.4) * 6);
+    ctx.lineTo(tx - Math.cos(a + 0.4) * 6, ty - Math.sin(a + 0.4) * 6);
+    ctx.fill();
+    // Edge type, at the midpoint, nudged perpendicular.
+    const mx = (cx + s._x + cx + t._x) / 2, my = (cy + s.y + cy + t.y) / 2;
+    ctx.fillStyle = isNew ? "rgba(110,231,135,.95)" : "rgba(133,149,167,.8)";
+    ctx.font = "9px ui-monospace, monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(e.type + (e.type === "FOUND_IN" && data.nodeById.get(e.target)?.labels[0] === "RoutingTrace" ? " · origin" : ""), mx, my - 4);
+  }
+
+  // Nodes.
+  for (const n of data.nodes) {
+    const x = cx + n._x, y = cy + n.y;
+    const color = COLORS[n.labels[0]] || "#8b95a5";
+    const r = LAYER_OF(n.labels[0]) === "canonical" ? 11 : 9;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+    if (flipIds.has(n.element_id)) { ring(ctx, x, y, r + 4, "#ffc247"); }
+    if (attackedIds.has(n.element_id)) { ring(ctx, x, y, r + 7, "#f87171"); }
+    if (newIds.has(n.element_id)) { ring(ctx, x, y, r + 4, "#6ee787"); }
+    // Title.
+    ctx.fillStyle = newIds.has(n.element_id) ? "#eafff0" : "rgba(219,228,238,.9)";
+    ctx.font = (LAYER_OF(n.labels[0]) === "canonical" ? "600 11px" : "10px") + " ui-monospace, monospace";
+    ctx.textAlign = "center";
+    const title = n.title.length > 46 ? n.title.slice(0, 43) + "…" : n.title;
+    for (const [i, line] of wrap(title, 30).entries()) {
+      ctx.fillText(line, x, y + r + 12 + i * 11);
+    }
+    // Status.
+    if (n.status) {
+      ctx.fillStyle = "rgba(133,149,167,.75)";
+      ctx.font = "8px ui-monospace, monospace";
+      ctx.fillText(n.status, x, y - r - 5);
+    }
+  }
+}
+
+function ring(ctx, x, y, r, color) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.stroke();
+}
+
+function wrap(text, width) {
+  const words = String(text).split(" ");
+  const lines = [];
+  let line = "";
+  for (const word of words) {
+    if ((line + " " + word).trim().length > width && line) { lines.push(line.trim()); line = word; }
+    else line += " " + word;
+    if (lines.length === 2) break;
+  }
+  if (line.trim()) lines.push(line.trim());
+  return lines.slice(0, 2);
+}
+
+function drawLegend(el) {
+  el.innerHTML = Object.entries(COLORS).map(([label, c]) =>
+    `<span><span class="sw" style="background:${c}"></span>${esc(label)}</span>`).join("")
+    + `<span><span class="ring" style="border-color:#6ee787"></span>created</span>`
+    + `<span><span class="ring" style="border-color:#ffc247"></span>status changed</span>`
+    + `<span><span class="ring" style="border-color:#f87171"></span>attacked</span>`;
+}
+
+/* ---------- diffing ---------- */
+
+function diffSnapshots(before, after) {
+  const newNodes = after.nodes.filter(n => !before.nodeById.has(n.element_id));
+  const changedNodes = after.nodes.filter(n => {
+    const b = before.nodeById.get(n.element_id);
+    return b && b.status !== n.status;
+  }).map(n => ({ ...n, from: before.nodeById.get(n.element_id).status, to: n.status }));
+  const beforeEdgeIds = new Set(before.edges.map(e => e.element_id));
+  const newEdges = after.edges.filter(e => !beforeEdgeIds.has(e.element_id));
+  // Arguments that a NEW ATTACKS edge points at.
+  const attackedIds = newEdges.filter(e => e.type === "ATTACKS").map(e => e.target);
+  return { newNodes, changedNodes, newEdges, attackedIds };
+}
+
+function shortId(eid) { return String(eid).split(":").pop().slice(0, 8); }
+
+function renderChanges(diff, after) {
+  const el = $("#changes");
+  if (!diff.newNodes.length && !diff.changedNodes.length && !diff.newEdges.length) {
+    el.innerHTML = `<div class="empty">No graph changes were recorded for this run.</div>`;
+    return;
+  }
+  const rows = [];
+  for (const n of diff.newNodes) {
+    const label = n.labels[0] || "Node";
+    let why = "";
+    if (label === "Claim") {
+      const groundedInTrace = after.edges.some(e =>
+        e.type === "FOUND_IN" && e.source === n.element_id &&
+        after.nodeById.get(e.target)?.labels[0] === "RoutingTrace");
+      why = groundedInTrace
+        ? "the user is the source: grounded in this conversation's trace, not in any docs chunk"
+        : "grounded in a docs chunk";
+    } else if (label === "Argument") {
+      const attacks = after.edges.find(e => e.type === "ATTACKS" && e.source === n.element_id);
+      const concludes = after.edges.find(e => e.type === "CONCLUDES" && e.source === n.element_id);
+      if (attacks) why = `attacks ${shortId(attacks.target)}: the formal record of why the old claim no longer holds`;
+      else if (concludes) why = "concludes the capability with the updated claim";
+    } else if (label === "RoutingTrace") {
+      why = "this conversation turn, recorded verbatim — the origin of the new knowledge";
+    }
+    rows.push(`<div class="chg"><span class="mark new">+</span><span><b>${esc(label)}</b> · ${esc(n.title.slice(0, 90))}${why ? `<span class="why">${esc(why)}</span>` : ""}</span></div>`);
+  }
+  for (const n of diff.changedNodes) {
+    rows.push(`<div class="chg"><span class="mark flip">Δ</span><span><b>${esc(n.labels[0] || "Node")}</b> · ${esc(n.title.slice(0, 90))}<span class="why">status: ${esc(n.from)} → ${esc(n.to)}</span></span></div>`);
+  }
+  for (const eid of diff.attackedIds) {
+    const n = after.nodeById.get(eid);
+    rows.push(`<div class="chg"><span class="mark attack">⚔</span><span><b>Argument</b> · ${esc((n?.title || shortId(eid)).slice(0, 90))}<span class="why">the stale claim is not deleted — it is defeated, on record, by the attacking argument</span></span></div>`);
+  }
+  el.innerHTML = rows.join("");
+}
+
+/* ---------- the run ---------- */
+
+const SCENARIO_QUESTION =
+  "The graph says tool search is not available on Chat Completions, grounded in the " +
+  "tool-search docs page. That is stale: tool search launched on Chat Completions this " +
+  "week. Look up the Tool search capability with get_entity, find that exact claim's id, " +
+  "and challenge the argument behind it with challenge_argument(claim_id=...). Then add " +
+  "the updated fact and conclude the Tool search capability with it.";
+
+async function api(path, options) {
+  const res = await fetch(path, options);
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body.error || `request failed: ${res.status}`);
+  return body;
+}
+
+let beforeSnapshot = null;
+
+async function snapshot() {
+  const data = await api("/api/showcase/subgraph");
+  data.nodeById = new Map(data.nodes.map(n => [n.element_id, n]));
+  layoutNodes(data);
+  return data;
+}
+
+async function loadBefore() {
+  $("#status").innerHTML = `<span class="spinner"></span>loading the current truth…`;
+  beforeSnapshot = await snapshot();
+  drawGraph($("#canvas-before"), beforeSnapshot);
+  drawLegend($("#legend-before"));
+  $("#status").textContent = "ready";
+}
+
+function renderTranscript(result) {
+  const tools = (result.tools || []).map(t => {
+    if (t && typeof t === "object") {
+      // The server returns {name, ...summary fields} objects.
+      const summary = Object.entries(t)
+        .filter(([k]) => k !== "name")
+        .map(([k, v]) => `${k}: ${typeof v === "object" ? JSON.stringify(v) : v}`)
+        .join(" · ");
+      return `<div class="tool"><b>${esc(t.name)}</b> <span class="args">${esc(summary.slice(0, 160))}</span></div>`;
+    }
+    const m = String(t).match(/^(\w+)\s*(.*)$/);
+    return `<div class="tool"><b>${esc(m ? m[1] : t)}</b> <span class="args">${esc(m ? m[2].slice(0, 160) : "")}</span></div>`;
+  }).join("");
+  const answer = esc(result.answer || "(no answer)")
+    .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
+    .replace(/\n\n+/g, "</p><p>")
+    .replace(/\n/g, " ");
+  $("#transcript").innerHTML = `
+    <div class="q">${esc(SCENARIO_QUESTION)}</div>
+    ${tools ? `<div class="tools">${tools}</div>` : ""}
+    <div class="a"><p>${answer}</p></div>`;
+}
+
+$("#run").addEventListener("click", async () => {
+  const btn = $("#run");
+  btn.disabled = true;
+  $("#transcript-panel").style.display = "block";
+  $("#after-panel").style.display = "none";
+  $("#status").innerHTML = `<span class="spinner"></span>the agent is reading the graph and making its argument…`;
+  try {
+    if (!beforeSnapshot) await loadBefore();
+    const result = await api("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [{ role: "user", content: SCENARIO_QUESTION }],
+        session_id: `showcase-${Date.now()}`,
+      }),
+    });
+    renderTranscript(result);
+    $("#status").innerHTML = `<span class="spinner"></span>reading the graph back…`;
+    const afterSnapshot = await snapshot();
+    const diff = diffSnapshots(beforeSnapshot, afterSnapshot);
+    $("#after-panel").style.display = "block";
+    drawGraph($("#canvas-after"), afterSnapshot, diff);
+    drawLegend($("#legend-after"));
+    renderChanges(diff, afterSnapshot);
+    $("#status").textContent = `${diff.newNodes.length} new nodes · ${diff.newEdges.length} new edges · ${diff.changedNodes.length} changed`;
+    $("#after-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (e) {
+    $("#status").textContent = `failed: ${e.message}`;
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+$("#reset").addEventListener("click", async () => {
+  $("#status").innerHTML = `<span class="spinner"></span>resetting…`;
+  try {
+    const r = await api("/api/showcase/reset", { method: "POST" });
+    $("#transcript-panel").style.display = "none";
+    $("#after-panel").style.display = "none";
+    await loadBefore();
+    $("#status").textContent = `reset — removed ${r.deleted_nodes} nodes; run it again`;
+  } catch (e) {
+    $("#status").textContent = `reset failed: ${e.message}`;
+  }
+});
+
+window.addEventListener("resize", () => {
+  if (beforeSnapshot) drawGraph($("#canvas-before"), beforeSnapshot);
+});
+</script>
+</body>
+</html>

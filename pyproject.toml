@@ -1,0 +1,49 @@
+# Packaging metadata for the enterprise product.
+#
+# This repository is ONE of the four distributions the split produces, and the seam is
+# the `noesis.ontologies` entry-point group below. `knowledge_bases/registry.py` looks
+# for a package beside itself first and in that group second, so an ontology can move
+# to its own distribution without any registry change -- which is the property that
+# lets the split happen incrementally rather than as one irreversible move.
+#
+# `tasks` is listed here even though this product does NOT install it. Declaring an
+# entry point makes it discoverable; `knowledge_bases/product.py` decides what is
+# actually composed. It cannot be composed here: it owns `Task`, which
+# `project_management` also owns, and `registry.compose()` refuses two owners for one
+# label. See tests/test_tasks_ontology.py.
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "noesis"
+version = "0.1.0"
+description = "Noesis enterprise: graph knowledge engine with the full ontology set"
+requires-python = ">=3.12"
+dynamic = ["dependencies", "optional-dependencies"]
+
+# The domain ontologies are NOT declared here: they ship in `noesis-ontologies`, which
+# declares its own entry points in this group. This distribution depends on it
+# (`requirements.txt`), and `knowledge_bases/registry.py` finds the packages through
+# that group. Declaring them here too would duplicate the group entries.
+[project.entry-points."noesis.ontologies"]
+
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+optional-dependencies.dev = { file = ["requirements-dev.txt"] }
+
+[tool.setuptools]
+# Explicit, because the repo root holds engine modules as top-level files rather than
+# inside a package directory. That is the pre-split layout; Phase 2 moves them.
+py-modules = [
+    "graph", "config", "llm", "vector_store", "query", "agent", "worker",
+    "recompute", "review", "migrations", "extract", "schema", "ingest", "app",
+    "corpus",
+]
+
+[tool.setuptools.packages.find]
+include = ["knowledge_bases*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

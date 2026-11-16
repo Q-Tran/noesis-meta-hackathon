@@ -1,0 +1,151 @@
+services:
+  neo4j:
+    image: neo4j:latest
+    container_name: noesis-neo4j
+    ports:
+      - "7687:7687"
+      - "7474:7474"
+    environment:
+      - NEO4J_AUTH=neo4j/password
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+    volumes:
+      - neo4j_data:/data
+
+  noesis-etcd:
+    image: quay.io/coreos/etcd:v3.5.5
+    container_name: noesis-etcd
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    command: etcd -advertise-client-urls=http://noesis-etcd:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    volumes:
+      - etcd_data:/etcd
+
+  noesis-minio:
+    image: minio/minio:latest
+    container_name: noesis-minio
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    command: minio server /minio_data
+    volumes:
+      - minio_data:/minio_data
+
+  milvus:
+    image: milvusdb/milvus:latest
+    container_name: noesis-milvus
+    command: ["milvus", "run", "standalone"]
+    environment:
+      ETCD_ENDPOINTS: noesis-etcd:2379
+      COMMON_STORAGE_TYPE: local
+      COMMON_LOCAL_STORAGE_PATH: /var/lib/milvus/files
+      HTTP_PROXY: ""
+      HTTPS_PROXY: ""
+      http_proxy: ""
+      https_proxy: ""
+      NO_PROXY: "localhost,127.0.0.1,noesis-etcd,zookeeper,kafka,neo4j"
+      no_proxy: "localhost,127.0.0.1,noesis-etcd,zookeeper,kafka,neo4j"
+    volumes:
+      - milvus_data:/var/lib/milvus
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    depends_on:
+      - noesis-etcd
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: noesis-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_log:/var/lib/zookeeper/log
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: noesis-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+
+  knowledge-worker:
+    # Behind a TLS-intercepting corporate proxy, `pip install` inside the
+    # build fails with CERTIFICATE_VERIFY_FAILED. That is an *application*
+    # build problem, but because this service was in the default set it took
+    # down `docker compose up -d` as a whole -- so Neo4j and Milvus, which
+    # need no build at all, never started either. The `app` profile keeps
+    # infrastructure startable on its own:
+    #
+    #   docker compose up -d                       # infra only: neo4j, milvus, ...
+    #   docker compose --profile app up -d         # infra + the Python services
+    #
+    # To build behind the proxy, pass its CA and/or an internal mirror:
+    #   PIP_INDEX_URL=https://mirror.example/simple \
+    #   PIP_TRUSTED_HOST=mirror.example docker compose --profile app build
+    profiles: ["app"]
+    build:
+      context: .
+      args:
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple}
+        PIP_TRUSTED_HOST: ${PIP_TRUSTED_HOST:-}
+    image: noesis-app
+    working_dir: /app
+    command: python worker.py
+    env_file:
+      - .env
+    environment:
+      KAFKA_BROKERS: kafka:29092
+      NEO4J_URI: bolt://neo4j:7687
+      EMBEDDING_MODEL_PATH: /app/models/all-MiniLM-L6-v2
+      RERANKER_MODEL_PATH: /app/models/ms-marco-MiniLM-L-6-v2
+    volumes:
+      - ./:/app
+    depends_on:
+      - kafka
+      - neo4j
+
+  microsoft-graph-ingestion:
+    image: noesis-app
+    profiles: ["microsoft-graph"]
+    working_dir: /app
+    command: python -m knowledge_bases.epistemology.connectors.microsoft_graph.daemon
+    env_file:
+      - .env
+    environment:
+      KAFKA_BROKERS: kafka:29092
+      GRAPH_CHECKPOINT_DB: /state/noesis_graph_ingestion.sqlite3
+      GRAPH_TOKEN_CACHE: /state/.noesis-graph-token-cache.json
+      EMBEDDING_MODEL_PATH: /app/models/all-MiniLM-L6-v2
+      RERANKER_MODEL_PATH: /app/models/ms-marco-MiniLM-L-6-v2
+    volumes:
+      - ./:/app
+      - graph_ingestion_state:/state
+    depends_on:
+      - kafka
+
+volumes:
+  neo4j_data:
+  etcd_data:
+  milvus_data:
+  minio_data:
+  kafka_data:
+  zookeeper_data:
+  zookeeper_log:
+  graph_ingestion_state:

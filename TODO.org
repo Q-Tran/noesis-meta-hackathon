@@ -1,0 +1,214 @@
+* Change system to be automatic
+For instance given a project, break that down into relevant subchunks, then from tasks we automatically run tasks (limit certain number of threads etc)
+** Ideal scenario
+GENERAL FLOW (user can start anywhere in this chain)
+ingestion 
+---> automatic reasoning to
+claims ontology
+---> automatic reasoning to
+decision ontology
+---> automatic reasoning to
+project management ontology
+---> automatic reasoning to
+architecture ontology (should automatically be built when codebase opened even outside of this flow)
+---> automatic reasoning to
+development ontology (should automatically be built when codebase opened even outside of this flow)
+
+*** STATUS: complete -- all six hops ship, with two different trigger kinds
+The chain exists as declared data plus a runner: ~CascadeStep~ in
+~knowledge_bases/base.py~, composed by ~registry.cascade_steps()~, ordered and
+executed by ~knowledge_bases/cascade.py~. 6 steps ship, 59 tests.
+
+Working today:
+: SourceNode -> Insight -> Problem -> Idea -> Decision -+-> Architecture/Component/Interface
+:              claims      decisions  decisions  decisions |    architecture
+:                                                          +-> Epic/Task
+:                                                               project_management
+
+- "User can start anywhere" works and is tested per entry point. A bare
+  SourceNode plans the whole chain; a Goal plans strategy then structure and work;
+  an existing Decision plans only the two hops that follow it.
+- It needed NO new ontology. Every edge it walks (FOUND_IN, ADDRESSES,
+  INTENDED_FOR, AFFECTS, IMPLEMENTS) was already declared and described. What was
+  missing was only the statement that one stage implies work on the next.
+- Steps are owned by the package that produces the entities, so uninstalling a
+  package removes its reasoning. Order comes from ~depends_on~, not a fixed list.
+
+Two safety rules, both tested, because automation here is one step from
+amplification:
+1. A step never reads output from its own wave. Otherwise one wrong Insight
+   becomes a Problem, then an Idea, then committed work -- a single mistake
+   converted into a structure that looks deliberate.
+2. Inferences need confirmation by DEFAULT -- the opposite of ~ingest_information~,
+   which writes immediately. Ingestion records what somebody said; a cascade step
+   asserts something nobody said. Writes are tagged ~cascade::<step>~ so a later
+   pass can tell inference from observation.
+
+**** THE DECISION GAP IS CLOSED -- by attribution, not by fabrication
+Previously no step could create a Decision, on the grounds that a Decision is a
+choice somebody is accountable for. That gap was drawn around the wrong thing:
+one hop carried two different jobs. PROPOSING a strategy is reasoning over
+evidence, which an agent does about as well as a person. BEING ANSWERABLE for it
+is not reasoning at all, and arrives only when a named person adopts it.
+
+So ~CascadeStep~ gained ~human_attribution~: a step producing an entity somebody
+must own declares the edge its confirmer has to supply, and the write is REFUSED
+with ~AttributionRequired~ unless a real Person is named. That protects the
+accountability directly, which frees the reasoning to be automatic.
+~decisions.strategy_from_goals~ (Goal -> Decision via INTENDED_FOR, ~MADE_BY~,
+cap 5) is the result. Three routes share one validation path in
+~knowledge_bases/decisions/strategy.py~: an agent proposes and a human confirms,
+a human authors directly, or a human steers the agent first
+(~StrategyGuidance~, per-run and deliberately not persisted).
+
+The old test was REWRITTEN over labels rather than deleted, so any FUTURE step
+producing an owned entity is caught the day it is written.
+
+**** THE LAST TWO ARROWS: two trigger kinds, not one
+The two remaining hops looked alike and are not, and the ontology says so: all
+eight ~Code*~ labels are ~extractable=False~, so no reasoner may produce one.
+
+- ARCHITECTURE is reasoned. ~architecture.structure_from_decisions~ (Decision ->
+  Architecture/Component/Interface via AFFECTS, steerable, cap 12) records the
+  structure a decision COMMITS TO. This is the FORWARD direction and it is why the
+  hop has to exist: indexing a checkout reports the components that ARE there and
+  can never recover why a boundary was drawn where it was, because that is a
+  decision and decisions are not in the source. It supplies exactly the AFFECTS
+  edge that leaves a cascade-proposed Decision ~incomplete~.
+- DEVELOPMENT is measured, not reasoned -- so "built when a codebase is opened" is
+  the right mechanism, and it is not a ~CascadeStep~ at all, because its trigger
+  is a filesystem event rather than a graph entity.
+  ~knowledge_bases/development/open_codebase.py~: ~on_open~ indexes a checkout if
+  the graph lacks it and is safe to call on every open (an already-current repo
+  costs one query and indexes nothing). Four distinguishable no-op outcomes, and
+  failures are returned as data because this runs when a person opens a file.
+- ~on_generate~ is the "create rather than ingest" case: for a codebase Noesis
+  produced, the design already exists, so indexing also writes ~CATALOGS~.
+  That edge was DECLARED and never written by anything --
+  ~architectural_rationale()~ had always reported ~rationale_recorded: False~.
+  It is written by the indexer and not by a reasoner because asserting "this
+  architecture is realised by that checkout" is a claim about a real directory.
+
+**** THREAD LIMITING: done, as a correctness feature
+~knowledge_bases/project_management/task_runner.py~. ~max_threads~ is
+keyword-required with NO default and no unlimited setting, because the bound is
+not a performance knob: an unattended runner that starts every ready task at once
+exhausts whatever the tasks themselves need, produces failures that depend on what
+happened to be running beside them, and makes the blast radius of a bad task list
+unbounded.
+
+Readiness is a graph question using both edges for their own meanings --
+~DEPENDS_ON~ blocks only while the prerequisite is unfinished, ~BLOCKED_BY~ blocks
+by existing. Runs proceed in bounded ROUNDS, since finishing a task is what makes
+its dependents ready. A failing task is recorded ~blocked~ (the enum has no
+~failed~) and does not stop the run; the report separates what completed, what
+failed, and what the run never reached. Only the read-only ~list_ready_tasks~ is
+exposed as a tool: ~run_tasks~ performs side effects that declining to confirm
+cannot undo.
+
+* Update README.md
+*** STATUS: done
+- Added the general ingestion path. ~ingest_information~ and ~describe_ontology~
+  appeared NOWHERE in the README before, so the way to record arbitrary
+  information was invisible. Documents immediate writes, why there is no
+  propose/confirm, rejections-as-data, and ~incomplete~.
+- Added the cascade with its diagram, both safety rules, and the Decision gap.
+- Documented the 4 new shared modules (triplets, ingestion, ingestion_service,
+  cascade) and ~write_dispatch.py~.
+- Fixed stale facts and put them behind tests rather than goodwill:
+  - ontology header said *64 labels*; the graph declares *61*
+  - the extractable split (33 labels / 61 rels) was missing entirely
+  - ~CATALOGS~ was missing from development's list (9 of 10 named)
+  - two blocks abbreviate as "N rels incl."; those counts are now asserted,
+    because an abbreviated count goes stale invisibly
+- Also fixed a docstring still advertising the extraction prompt as *56k* chars.
+  Measured: *38,257*. 56k was the pre-filter number. It is quoted in scoping
+  guidance, so being 50% wrong was not harmless.
+
+* Look into efficient triplet extraction
+*** STATUS: measured, and the top win is shipped
+Full report: ~docs/operations/extraction_efficiency.md~ (all numbers measured).
+
+The briefed hypothesis was WRONG. I expected ~not_to_be_confused_with~ (459
+contrasts) to dominate; it is only *10.5%*. Descriptions are the cost at *67.1%*,
+and RELATIONSHIP descriptions alone are *41.6%*.
+
+That single fact reframes scoping: narrowing LABELS while keeping all 61
+relationships still leaves *68%* of the prompt, so label scoping alone is nearly
+pointless.
+
+SHIPPED -- endpoint-satisfiable relationship pruning (~render_ontology_prompt~):
+drop edges no offered label could legally participate in, since
+~validate_triplet~ would reject them anyway. Measured on a 5-label document:
+*26,073 -> 8,533 chars, -67%*. Proven never to drop a usable edge, and filtered
+against the FINAL label union rather than per knowledge base -- per-KB filtering
+would drop ~MADE_BY~ from a decisions scope and silently lose the actor in
+"Alice decided X".
+
+Also confirmed: withholding non-extractable types (already shipped) is the biggest
+win in the codebase at *-35.4%* (59,177 -> 38,257).
+
+NOT shipped, deliberately:
+- Two-pass classify-then-scope: estimated *-51% to -55%* and it wins at every
+  realistic fan-out, but the saving assumes routing is correct and there is no
+  routing-recall harness yet. Worth doing next.
+- First-sentence-only descriptions: saves *-36.4%* but deletes the near-neighbour
+  boundary that makes a label choosable, and the quality cost is UNMEASURABLE
+  here -- there is no gold extraction set. Do not ship blind.
+- Prompt caching: rendering costs *0.073 ms*. Adding an lru_cache saves zero
+  tokens. The real lever is provider prefix caching, which is in direct tension
+  with per-document scoping.
+
+THE ASYMMETRY THAT GOVERNS ALL OF THIS: an invalid triplet is loud (it comes back
+in ~rejected~) but a MISSING one is silent -- a type absent from the prompt
+produces no rejection at all. So every scoping optimization trades tokens for a
+risk that leaves no trace. Detection needs a shadow audit (re-extract 1-5% of
+documents with the full prompt and diff) which does not exist yet.
+
+* Check into the core/enterprise/consumer split
+I expected different repositories, but didn't really see that
+*** STATUS: you were right -- there is ONE repo, not three
+Full audit: ~docs/operations/split_state.md~.
+
+| planned repo            | phase | on disk                          |
+|-------------------------+-------+----------------------------------|
+| noesis                  |     4 | exists, still the whole monolith |
+| ~/Projects/noesis-core       |     2 | *DOES NOT EXIST*                 |
+| ~/Projects/noesis-ontologies |     3 | *DOES NOT EXIST*                 |
+| ~/Projects/noesis-individual |     6 | *DOES NOT EXIST*                 |
+
+Phases 2-6 are entirely unstarted. What was built is Phase 1 + 1.8, all inside
+this one repo. Your instinct was right on repositories and too harsh on effort:
+*the split is architecturally prepared and physically unstarted.*
+
+What IS real: 11 packages composing 61 labels, 85 relationships, 94 tools, 9
+experts, 20 kinds, 37 search types from ~product.py~. Dropping 3 packages yields a
+clean subset in all 9 dimensions; all 11 compose individually without raising.
+
+The audit also falsified a claim I had recorded as done, and found two more:
+1. *Composition works at the data layer and FAILS at the import layer.* Simulating
+   a package truly absent (what pip-not-installed looks like) breaks 6 modules
+   without ~methodology~ and 7 without ~claims~. No test covered this -- Phase 1's
+   criterion only tested composition. FIXED: ~schema.py~'s domain imports severed
+   (7 callers migrated), and ~tests/test_package_import_independence.py~ now
+   ratchets the rest downward.
+2. *~composed_write_commands()~ returned 0* while the comment above it claimed
+   composition prevented exactly the live bug: a profile dropping
+   ~business_dictionary~ still exposed ~add_business_term_alias~. FIXED -- 2
+   commands moved to their packages, proving the seam carries data.
+3. *A test I recorded as written did not exist.*
+   ~test_every_declared_product_profile_is_fully_described~ had been lost in an
+   edit. RESTORED.
+4. All 11 packages still have ~migration_stream = None~ and all 23 migrations sit
+   in stream "core". The framework holds zero data. STILL OPEN, and it is the
+   plan's own #1 risk.
+
+CORRECTION TO THE PLAN'S ORDERING: extracting core first is the RISKIEST step, not
+the safest. ~tools~ and ~orchestration~ are bound for core yet hold 20 of the 26
+illegal domain imports, bidirectionally -- ~methodology/catalog.py~ imports private
+builders from ~tools/catalog.py~ which imports ~methodology~ back, a cycle across
+two future pip distributions that moving files cannot fix. The bounded-write layer
+is itself TYPED by a domain package (~commands.py~ -> ~ChangeSetRequest~).
+Recommended: sever the 26 imports in place first, with the 953-test suite as the
+gate, and only then extract. By contrast ~noesis-ontologies~ is nearly clean --
+just ONE cross-package import.

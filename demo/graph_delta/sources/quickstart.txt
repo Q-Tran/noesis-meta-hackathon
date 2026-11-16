@@ -1,0 +1,58 @@
+SOURCE: https://dev.meta.ai/docs/quickstart
+
+The fastest path is Muse Code, Meta's coding agent for the terminal.
+Model API is drop-in compatible with the OpenAI SDK, the Anthropic SDK, and OpenAI-compatible agent CLIs, so most stacks work with a base-URL and key change.
+This page uses the Responses API for direct calls; if your code already speaks Chat Completions or Anthropic Messages, see Choosing an API .
+Start with Muse Code Muse Code is Meta's coding agent for the terminal and CI, built on Muse Spark.
+Install it, sign in through your browser, and start building.
+No API key or provider config to wire up.
+Install the CLI on macOS or Linux: bash curl -fsSL https://dev.meta.ai/install.sh | sh Or install it on Windows with PowerShell: powershell irm https://dev.meta.ai/install.ps1 | iex Start building: bash muse # start Muse Code; on first run, choose a browser sign-in or paste an API key On first run, muse prompts you to sign in, so you can skip Set your API key below unless you're also calling the API directly.
+For headless CI runs , first run, and permissions, see the Muse Code overview .
+Use with your coding agent Any harness that supports an OpenAI-compatible or custom provider plugs into Model API via Responses or Chat Completions .
+Anthropic-format harnesses such as Claude Code plug in via the Messages API instead, pointed at https://api.meta.ai with your MODEL_API_KEY .
+Most tools ask for three values: the base URL https://api.meta.ai/v1 , your MODEL_API_KEY , and the model ID muse-spark-1.3 .
+Grab one from the Model API dashboard and export it as MODEL_API_KEY (see Set your API key ).
+Step 2: Paste this into your coding agent.
+OpenCode and other self-configuring agents (Goose, Roo, and more) register a provider straight from a prompt.
+In a session running on your current model, paste: text Add a new provider to my config for Meta Model API: - Provider key: "meta", display name "Meta Model API" - npm adapter: "@ai-sdk/openai" (targets the Responses API) - Base URL: https://api.meta.ai/v1 - Model: "muse-spark-1.3" - Reasoning: true, with reasoningEffort "high", reasoningSummary "auto", and include ["reasoning.encrypted_content"] - Limits: context 1048576, output 131072 - Modalities: input ["text", "image", "pdf", "video"], output ["text"] - Read the key from the MODEL_API_KEY environment variable Select muse-spark-1.3 and start coding.
+For Codex, Claude Code, or hand-written config, see the full coding agents guide .
+OpenCode config Prefer to edit the config yourself?
+Manual setup follows the same shape everywhere: register a provider, point it at the base URL, and select muse-spark-1.3 .
+Here's the complete block for OpenCode, a popular coding CLI.
+Add to your opencode.json (global at ~/.config/opencode/opencode.json or per-project).
+Use the @ai-sdk/openai adapter, which drives Muse Spark over the Responses API.
+Encrypted reasoning carries continuity The include: ["reasoning.encrypted_content"] setting is what carries Muse Spark's reasoning across turns.
+Without it, the model reasons from scratch each turn and can lose the thread in multi-step loops.
+If you don't need reasoning continuity or native PDF input, the simpler @ai-sdk/openai-compatible adapter works as a fallback.
+See the full coding agents guide for both adapters and the tradeoffs.
+Any OpenAI-compatible tool If your tool has a "base URL" or "API base" field, set it to https://api.meta.ai/v1 and use muse-spark-1.3 as the model.
+This works for LangChain, LlamaIndex, Vercel AI SDK, Continue, and most agentic frameworks.
+Make your first API call Want to call the API directly?
+You'll need a Model API account and either curl , Python 3.9+, or Node.js 18+.
+Set your API key Get a key from the Model API dashboard → API keys → Create API key .
+Store it as an environment variable so it stays out of your code: macOS and Linux: shell export MODEL_API_KEY= "your-api-key-here" Windows (PowerShell): powershell $env:MODEL_API_KEY = "your-api-key-here" To persist it across sessions, add the export line to your ~/.bashrc or ~/.zshrc (macOS and Linux), or set it through System > Environment Variables (Windows).
+Key storage and rotation See the Authentication guide for how to store and rotate keys.
+Call the API With your key set, send your first request.
+For the SDK variants, install the OpenAI SDK first: pip install openai for Python or npm install openai for TypeScript.
+Python (OpenAI SDK) Python (OpenAI SDK) TypeScript (OpenAI SDK) TypeScript (OpenAI SDK) Python (requests) Python (requests) curl curl ← → to navigate python import os ​ from openai import OpenAI ​ client = OpenAI ( base_url = "https://api.meta.ai/v1" , api_key = os .
+environ [ "MODEL_API_KEY" ] , ) ​ response = client .
+create ( model = "muse-spark-1.3" , input = "What is the capital of France?" , ) ​ print ( response .
+model_dump_json ( indent = 2 ) ) typescript import OpenAI from 'openai' ; ​ const apiKey = process .
+apiKey ) { throw new Error ( 'MODEL_API_KEY is not set' ) ; } ​ const client = new OpenAI ( { baseURL : 'https://api.meta.ai/v1' , apiKey , } ) ; ​ const response = await client .
+create ( { model : 'muse-spark-1.3' , input : 'What is the capital of France?' , } ) ; ​ console .
+stringify ( response , null , 2 ) ) ; python import json import os ​ import requests ​ response = requests .
+post ( "https://api.meta.ai/v1/responses" , headers = { "Authorization" : f"Bearer {os.environ['MODEL_API_KEY']}" } , json = { "model" : "muse-spark-1.3" , "input" : "What is the capital of France?" , } , ) response .
+json ( ) , indent = 2 ) ) shell curl -X POST "https://api.meta.ai/v1/responses" \ -H "Authorization: Bearer $MODEL_API_KEY" \ -H "Content-Type: application/json" \ -d '{ "model" : "muse-spark-1.3" , "input" : "What is the capital of France?" } ' Windows environment variables For the curl tab on Windows, use %MODEL_API_KEY% (cmd) or $env:MODEL_API_KEY (PowerShell) instead of $MODEL_API_KEY .
+Pass the API key explicitly The OpenAI SDK doesn't auto-read MODEL_API_KEY .
+Always pass api_key explicitly or set OPENAI_API_KEY to your Model API key.
+Read the response A successful call returns the response object.
+The answer is the output_text in the message item, which the OpenAI SDK also exposes as response.output_text .
+Check echo $MODEL_API_KEY and confirm it matches a key in the dashboard.
+404 model_not_found : use a valid model ID such as muse-spark-1.3 (the default in these examples) or muse-spark-1.1 exactly.
+For other status codes, retries, and error shapes, see the error handling guide .
+Next steps Automate coding tasks from your terminal or CI with Muse Code .
+Configure OpenCode and other harnesses in the full coding agents guide .
+Add live web access with cited answers using search grounding .
+Copy a runnable starter from the Cookbook , or verify params in the API reference .
+On this page Please confirm your identity For added security, you need to confirm your identity.
+You will be taken to your single sign-on provider, where you can enter your password.
